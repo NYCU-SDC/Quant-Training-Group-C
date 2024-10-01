@@ -1,1 +1,1 @@
-# Kronos_Team3
+# Quant-Training-Group-C
