@@ -178,8 +178,7 @@ if __name__ == "__main__":
     analysis = WooXAnalysis()
 
     symbols = [
-        'SPOT_WOO_USDT', 'SPOT_BTC_USDT', 'SPOT_ETH_USDT',
-        'PERP_BTC_USDT', 'PERP_ETH_USDT', 'PERP_WOO_USDT'
+        'SPOT_WOO_USDT', 'SPOT_BTC_USDT', 'SPOT_ETH_USDT'
     ]
 
     analysis.run_analysis(symbols, type="1h", limit=1000)
