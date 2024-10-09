@@ -10,3 +10,5 @@
 4.計算 Spread：透過 get_leading_market 函數，腳本還計算了每個市場的買賣價差Spread，幫助確定市場的流動性和 leading 情況。
 
 最後將分析結果存成 CSV 文件，以方便後續分析。這邊之所以會存成 CSV，是因為 RESTful 資料是歷史性資料並且固定不會更動，所以不用存到 Redis 或 MongoDB。
+
+![my_plot](https://github.com/user-attachments/assets/9279ae28-60c9-4973-83b7-dcb2b34c145b)
