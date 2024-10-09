@@ -1,4 +1,4 @@
-# Quant-Training-Group-C
+# Q7
 ```
 cd src
 ```
