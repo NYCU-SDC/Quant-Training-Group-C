@@ -1,5 +1,7 @@
 # Quant-Training-Group-C
 
+### Data scraping and preprocessing
+
 To collect historical data, we implemented web socket technology combined with multiprocessing techniques to fetch real-time snapshots of the order book, trade data, and Best Bid and Offer (BBO) data. These were saved as JSON files for subsequent analysis.
 
 The data scraping process lasted approximately 10 hours. Given our objective to predict price movements in the next second, we established a consistent time interval of one second for data collection.
