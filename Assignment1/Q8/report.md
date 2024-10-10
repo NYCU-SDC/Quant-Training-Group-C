@@ -23,7 +23,7 @@ Idea: We use $\mu_n$ and $S_n$ to get new $S_{n+1}$.
 First, we initial our above default value.
 That is, $W_{n2} = \sum_{i=1}^nw_i^2$, $W_n = \sum_{i=1}^nw_i$, $\mu_n = \sum^{n}_{i=1}w_i x_i/W_n$, and $S_n=\sum_{i=1}^n w_i (x_i - \mu_n)^2$.
 We note that population_variance = $S_n / W_n$.
-And sample_variance = population_variance * scalar term, where scalar term = $\frac{\sum_i w_i}{(\sum_i w_i)^2-\sum_i w_i^2}$.
+And sample_variance = $S_n$ * scalar term, where scalar term = $\frac{\sum_i w_i}{(\sum_i w_i)^2-\sum_i w_i^2}$.
 
 Then, we can get
 ```python=
@@ -54,7 +54,7 @@ self.bids_sample_variance = self.bids_Sn * (
 ```
 
 Second, we dynamically to compute $\mu_n=\mu_{n-1}+\frac{w_n}{W_n}(x_n-\mu_{n-1})$ and $S_n = S_{n-1} + w_n * (x_n - \mu_{n-1})(x_n - \mu_{n})$.
-Also, sample_variance = population_variance * scalar term, where scalar term = $\frac{\sum_i w_i}{(\sum_i w_i)^2-\sum_i w_i^2}$.
+Also, sample_variance = $S_n$ * scalar term, where scalar term = $\frac{\sum_i w_i}{(\sum_i w_i)^2-\sum_i w_i^2}$.
 Notice that if a new data is coming, we only need $O(1)$ time and $O(1)$ space to update our parameters.
 
 ```python=
