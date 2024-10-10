@@ -57,6 +57,7 @@ Second, we dynamically to compute $\mu_n=\mu_{n-1}+\frac{w_n}{W_n}(x_n-\mu_{n-1}
 Also, sample_variance = $S_n$ * scalar term, where scalar term = $\frac{\sum_i w_i}{(\sum_i w_i)^2-\sum_i w_i^2}$.
 Notice that if a new data is coming, we only need $O(1)$ time and $O(1)$ space to update our parameters.
 
+Then, we can get
 ```python
 # https://fanf2.user.srcf.net/hermes/doc/antiforgery/stats.pdf
 for money, weight in self.asks:
