@@ -26,7 +26,7 @@ We note that population_variance = $S_n / W_n$.
 And sample_variance = $S_n$ * scalar term, where scalar term = $\frac{\sum_i w_i}{(\sum_i w_i)^2-\sum_i w_i^2}$.
 
 Then, we can get
-```python=
+```python
 money = np.array([ask[0] for ask in self.asks])
 weight = np.array([ask[1] for ask in self.asks])
 self.asks_weight = np.sum(weight)
@@ -57,7 +57,7 @@ Second, we dynamically to compute $\mu_n=\mu_{n-1}+\frac{w_n}{W_n}(x_n-\mu_{n-1}
 Also, sample_variance = $S_n$ * scalar term, where scalar term = $\frac{\sum_i w_i}{(\sum_i w_i)^2-\sum_i w_i^2}$.
 Notice that if a new data is coming, we only need $O(1)$ time and $O(1)$ space to update our parameters.
 
-```python=
+```python
 # https://fanf2.user.srcf.net/hermes/doc/antiforgery/stats.pdf
 for money, weight in self.asks:
     old_mean = self.asks_mean
