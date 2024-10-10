@@ -21,7 +21,7 @@ Idea: We use $\mu_n$ and $S_n$ to get new $S_{n+1}$.
 
 
 First, we initial our above default value.
-That is, $W_{n2} = \sum_{i=1}^nw_i^2$, $W_n = \sum_{i=1}^nw_i$, $\mu_n = \sum^{n}_{i=1}w_i x_i/W_n$, and $S_n=\sum_{i=1}^n w_i (x_i - \mu_n)^2$.
+That is, $W_n = \sum_{i=1}^nw_i$, $W_{n2} = \sum_{i=1}^nw_i^2$, $\mu_n = \sum_{i=1}^nw_i x_i/W_n$, and $S_n=\sum_{i=1}^n w_i (x_i - \mu_n)^2$.
 We note that population_variance = $S_n / W_n$.
 And sample_variance = $S_n$ * scalar term, where scalar term = $\frac{\sum_i w_i}{(\sum_i w_i)^2-\sum_i w_i^2}$.
 
