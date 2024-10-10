@@ -75,6 +75,7 @@ class WooXStagingAPI:
                     self.orderbooks[symbol].update(data["data"])
                     # print(f"Orderbook updated for {symbol}")
                     # print(f"Orderbook ask mean for {symbol}: {self.orderbooks[symbol].asks_mean}")
+                    # print(f"Orderbook ask population variance for {symbol}: {self.orderbooks[symbol].asks_population_variance}")
                     print(f"Orderbook ask sample variance for {symbol}: {self.orderbooks[symbol].asks_sample_variance}")
                 elif config.get("bbo") and data.get("topic") == f"{symbol}@bbo":
                     # Process BBO data
