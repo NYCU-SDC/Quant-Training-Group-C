@@ -30,13 +30,13 @@ Then, we can get
 money = np.array([ask[0] for ask in self.asks])
 weight = np.array([ask[1] for ask in self.asks])
 self.asks_weight = np.sum(weight)
-self.asks_weight2 = np.sum(weight ** 2)
+self.asks_weight2 = np.sum(weight**2)
 self.asks_mean = np.sum(money * weight) / self.asks_weight
 self.asks_Sn = np.sum(weight * (money - self.asks_mean)**2)
 self.asks_population_variance = self.asks_Sn / self.asks_weight
 # refer to "weighted variance": weighted variance is different [Wikipedia]:
 self.asks_sample_variance = self.asks_Sn * (
-    self.asks_weight / (self.asks_weight ** 2 - self.asks_weight2)
+    self.asks_weight / (self.asks_weight**2 - self.asks_weight2)
 )
 
 # update bids
@@ -49,7 +49,7 @@ self.bids_Sn = np.sum(weight * (money - self.bids_mean)**2)
 self.bids_population_variance = np.sum(weight * (money - self.bids_mean)**2) / self.bids_weight
 # refer to "weighted variance": weighted variance is different [Wikipedia]:
 self.bids_sample_variance = self.bids_Sn * (
-    self.bids_weight / (self.bids_weight ** 2 - self.bids_weight2)
+    self.bids_weight / (self.bids_weight**2 - self.bids_weight2)
 )
 ```
 
@@ -62,17 +62,17 @@ Notice that if a new data is coming, we only need $O(1)$ time and $O(1)$ space t
 for money, weight in self.asks:
     old_mean = self.asks_mean
     self.asks_weight = self.asks_weight + weight
-    self.asks_weight2 = self.asks_weight2 + weight ** 2
+    self.asks_weight2 = self.asks_weight2 + weight**2
     self.asks_mean = money - (self.asks_weight - weight) / self.asks_weight * (money - self.asks_mean)
     self.asks_Sn = self.asks_Sn + weight * (money - old_mean) * (money - self.asks_mean)
     self.asks_population_variance = self.asks_Sn / self.asks_weight
-    self.asks_sample_variance = self.asks_Sn * (self.asks_weight / (self.asks_weight ** 2 - self.asks_weight2))
+    self.asks_sample_variance = self.asks_Sn * (self.asks_weight / (self.asks_weight**2 - self.asks_weight2))
 for money, weight in self.bids:
     old_mean = self.bids_mean
     self.bids_weight = self.bids_weight + weight
-    self.bids_weight2 = self.bids_weight2 + weight ** 2
+    self.bids_weight2 = self.bids_weight2 + weight**2
     self.bids_mean = money - (self.bids_weight - weight) / self.bids_weight * (money - self.bids_mean)
     self.bids_Sn = self.bids_Sn + weight * (money - old_mean) * (money - self.bids_mean)
     self.bids_population_variance = self.bids_Sn / self.bids_weight
-    self.bids_sample_variance = self.bids_Sn * (self.bids_weight / (self.bids_weight ** 2 - self.bids_weight2))
+    self.bids_sample_variance = self.bids_Sn * (self.bids_weight / (self.bids_weight**2 - self.bids_weight2))
 ```
