@@ -90,7 +90,7 @@ class WooXStagingAPI:
         return self.make_request(endpoint, params)
     
     # https://docs.woox.io/?python#send-order
-    def post_send_order(self, params):
+    def send_order(self, params):
         endpoint = '/v1/order'
         return self.make_request(endpoint, params, "post")
 
@@ -114,14 +114,14 @@ if __name__ == "__main__":
     
     # test post_send_order
     params = {
-        'client_order_id': 2,
+        'client_order_id': 3,
         'order_price': 0.21,
         'order_quantity': 10,
         'order_type': 'LIMIT',
         'side':'BUY',
         'symbol': 'SPOT_BTC_USDT'
     }
-    response = woox_api.post_send_order(params)
+    response = woox_api.send_order(params)
     print(response)
 
     # # test edit_order_by_client_order_id
