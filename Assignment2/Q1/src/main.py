@@ -20,7 +20,7 @@ class algorithm(WooXStagingAPI):
 
     async def strategy(self, symbol, asks_mean, bids_mean):
         async with self.check_symbol_isVaild_lock:
-            if time.time() - self.orderbooks[symbol].start_time < 5 or self.revenue >= 6:
+            if time.time() - self.orderbooks[symbol].start_time < 5:
                 return
             else:
                 if (asks_mean < self.orderbooks[symbol].asks_mean) and self.trade_amount < 6:
