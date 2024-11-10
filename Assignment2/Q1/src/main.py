@@ -18,7 +18,7 @@ class algorithm(WooXStagingAPI):
         self.revenue = 0
 
 
-    async def check_symbol_isVaild(self, symbol, asks_mean, bids_mean):
+    async def strategy(self, symbol, asks_mean, bids_mean):
         async with self.check_symbol_isVaild_lock:
             if time.time() - self.orderbooks[symbol].start_time < 5 or self.revenue >= 6:
                 return
@@ -69,7 +69,7 @@ class algorithm(WooXStagingAPI):
                 if config.get("orderbook") and data.get("topic") == f"{symbol}@orderbook":
                     # print(data["data"]['ask'])
                     asks_mean, bids_mean = self.orderbooks[symbol].update(data["data"])
-                    await self.check_symbol_isVaild(symbol, asks_mean, bids_mean)
+                    await self.strategy(symbol, asks_mean, bids_mean)
                     await self.print_orderbook_update(symbol)
                     # print(asks_mean, bids_mean)
                 elif config.get("bbo") and data.get("topic") == f"{symbol}@bbo":
