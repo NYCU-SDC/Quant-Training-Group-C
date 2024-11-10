@@ -3,14 +3,16 @@ import hmac, hashlib, base64
 import requests
 import json
 
-class WooXStagingAPI:
+class WooX_REST_API_Client:
     def __init__(self, api_key, api_secret, base_url='https://api.staging.woo.org'):
+        print(api_key, api_secret)
         self.api_key = api_key
         self.api_secret = api_secret
         self.base_url = base_url
 
+
     # https://docs.woox.io/#authentication
-    def make_request(self, endpoint, params, requests_type="get", version="v1"):
+    def make_request(self, endpoint, params, requests_type="get", version="v1", signature=True):
         # https://docs.woox.io/#authentication
         def _generate_signature(params):
             key = self.api_secret
@@ -24,8 +26,11 @@ class WooXStagingAPI:
 
         # timestamp, http request method, request_path and request_body
         if version == "v1":
-            body = "&".join(f"{key}={value}" for key, value in params.items())
-            body = body + "|"+str(milliseconds_since_epoch)
+            if params:
+                body = "&".join(f"{key}={value}" for key, value in params.items())
+                body = body + "|"+str(milliseconds_since_epoch)
+            else:
+                body = str(milliseconds_since_epoch)
         else:
             body = json.dumps(params)
             body = f'{milliseconds_since_epoch}{requests_type.upper()}{endpoint}{body}'
@@ -41,12 +46,22 @@ class WooXStagingAPI:
         print("body", body)
 
         if requests_type == "get":
-            if version == "v1":
+            if signature == False:
                 response = requests.get(url, params=params)
-            response.raise_for_status()
+            else:
+                if not params:
+                    print(url)
+                    response = requests.get(url, headers=headers, json=params)
+                    print("there 1")
+                if version == "v1":
+                    response = requests.get(url, headers=headers, params=params)
+                else:
+                    response = requests.get(url, headers=headers, json=params)
         elif requests_type == "post":
             if version == "v1":
                 response = requests.post(url, headers=headers, params=params)
+            else:
+                response = requests.post(url, headers=headers, json=params)
         elif requests_type == "put":
             if version == "v1":
                 response = requests.put(url, headers=headers, params=params)
@@ -69,6 +84,7 @@ class WooXStagingAPI:
         return self.make_request(endpoint, params)
         # pass
 
+
     # https://docs.woo.org/#market-trades-public
     def get_trades(self, symbol, limit=100):
         endpoint = f'/v1/public/market_trades'
@@ -78,6 +94,7 @@ class WooXStagingAPI:
         }
         return self.make_request(endpoint, params)
         # pass
+
 
     # https://docs.woo.org/#kline-public
     def get_kline(self, symbol, interval="1m", limit=100):
@@ -89,57 +106,82 @@ class WooXStagingAPI:
         }
         return self.make_request(endpoint, params)
     
+
     # https://docs.woox.io/?python#send-order
     def send_order(self, params):
         endpoint = '/v1/order'
         return self.make_request(endpoint, params, "post")
 
+    def send_algo_order(self, params):
+        endpoint = '/v3/algo/order'
+        return self.make_request(endpoint, params, requests_type="post", version="v3")
+
+
+    # https://docs.woox.io/#edit-order-by-client_order_id
     def edit_order_by_client_order_id(self, params, client_order_id):
         endpoint = f'/v3/order/client/{client_order_id}'
-        return self.make_request(endpoint, params, requests_type="put", version="v3")
+        return self.make_request(endpoint, params, requests_type="put", version="v3", signature=True)
 
+
+    # https://docs.woox.io/#cancel-order-by-client_order_id
     def cancel_order_by_client_order_id(self, params):
         endpoint = '/v1/client/order'
         print("params", params)
         return self.make_request(endpoint, params, requests_type="delete", version="v1")
     
+
+    # https://docs.woox.io/#cancel-all-pending-orders
     def cancel_all_pending_orders(self):
         endpoint = '/v3/orders/pending'
         return self.make_request(endpoint, params={}, requests_type="delete", version="v3")
 
+
 if __name__ == "__main__":
     api_key = 'sdFgbf5mnyDD/wahfC58Kw=='
     api_secret = 'FWQGXZCW4P3V4D4EN4EIBL6KLTDA'
-    woox_api = WooXStagingAPI(api_key, api_secret)
+    woox_api = WooX_REST_API_Client(api_key, api_secret)
     
     # test post_send_order
     params = {
         'client_order_id': 3,
-        'order_price': 0.21,
-        'order_quantity': 10,
-        'order_type': 'LIMIT',
+        'order_price': 3190,
+        'order_quantity': 0.001,
+        'order_type': 'MARKET',
         'side':'BUY',
-        'symbol': 'SPOT_BTC_USDT'
+        'symbol': 'SPOT_ETH_USDT'
     }
     response = woox_api.send_order(params)
     print(response)
 
-    # # test edit_order_by_client_order_id
-    # params = {
-    #     "client_order_id": "1",
-    #     "quantity": "11"
-    # }
-    # response = woox_api.edit_order_by_client_order_id(params, 1)
-    # print(response)
+    # test edit_order_by_client_order_id
+    params = {
+        "client_order_id": "3",
+        "quantity": "5"
+    }
+    response = woox_api.edit_order_by_client_order_id(params, 3)
+    print(response)
 
-    # # test cancel_all_pending_orders
-    # response = woox_api.cancel_all_pending_orders()
-    # print(response)
+    # # # test cancel_all_pending_orders
+    response = woox_api.cancel_all_pending_orders()
+    print(response)
 
     # test cancel_order_by_client_order_id
     # params = {
-    #     "client_order_id": 2,
+    #     "client_order_id": 3,
     #     'symbol': 'SPOT_BTC_USDT'
     # }
     # response = woox_api.cancel_order_by_client_order_id(params)
+    # print(response)
+
+    # test post_send_order
+    # params = {
+    #     'clientOrderId': 4,
+    #     "symbol": "SPOT_BTC_USDT",
+    #     "algoType": "STOP",
+    #     "type": "MARKET",
+    #     "side": "BUY",
+    #     "quantity": "0.0001",
+    #     "triggerPrice": "0.21"
+    # }
+    # response = woox_api.send_algo_order(params)
     # print(response)
