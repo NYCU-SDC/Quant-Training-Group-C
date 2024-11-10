@@ -67,13 +67,15 @@ class OrderBook:
             )
         else:
             # https://fanf2.user.srcf.net/hermes/doc/antiforgery/stats.pdf
-            money = np.array([ask[0] for ask in self.asks])
-            weight = np.array([ask[1] for ask in self.asks])
-            asks_mean = np.sum(money * weight) / np.sum(weight)
+            m = np.array([ask[0] for ask in self.asks])
+            w = np.array([ask[1] for ask in self.asks])
+            asks_weight = np.sum(w)
+            asks_mean = np.sum(m * w) / asks_weight
 
-            money = np.array([bid[0] for bid in self.bids])
-            weight = np.array([bid[1] for bid in self.bids])
-            bids_mean = np.sum(money * weight) / np.sum(weight)
+            m = np.array([bid[0] for bid in self.bids])
+            w = np.array([bid[1] for bid in self.bids])
+            bids_weight = np.sum(w)
+            bids_mean = np.sum(m * w) / bids_weight
 
             for money, weight in self.asks:
                 old_mean = self.asks_mean

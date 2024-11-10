@@ -34,6 +34,8 @@ class algorithm(WooXStagingAPI):
                     response = self.WooX_REST_API_Client.send_order(params)
                     self.trade_amount +=  1
                     print("response BUY", response)
+                    time.sleep(1)
+                    return
             
                 if bids_mean > self.orderbooks[symbol].bids_mean:
                     params = {
@@ -45,8 +47,11 @@ class algorithm(WooXStagingAPI):
                     }
                     response = self.WooX_REST_API_Client.send_order(params)
                     print("response SELL", response)
+                    time.sleep(1)
+                    return
                 else:
-                    print(bids_mean. self.orderbooks[symbol].bids_mean)
+                    print(bids_mean, self.orderbooks[symbol].bids_mean)
+                    
         
     async def algorithm(self, websocket, symbol, config):
         await self.subscribe(websocket, symbol, config)
