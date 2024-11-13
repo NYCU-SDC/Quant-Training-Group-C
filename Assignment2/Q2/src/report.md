@@ -14,7 +14,7 @@ This framework processes Binance market data to simulate real market conditions 
 ### 1. Binance Data Source
 Handles various types of market data from Binance:
 * Raw Market Data :
-    aggTrades: Aggregated trade data with price, volume, and direction
+** aggTrades: Aggregated trade data with price, volume, and direction
     bookDepth: Order book depth data (L1-L1000)
     bookTicker: Real-time best bid/ask updates
     trades: Original trade records
