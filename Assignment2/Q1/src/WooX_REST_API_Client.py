@@ -112,6 +112,7 @@ class WooX_REST_API_Client:
         endpoint = '/v1/order'
         return self.make_request(endpoint, params, "post")
 
+    # https://docs.woox.io/#send-algo-order
     def send_algo_order(self, params):
         endpoint = '/v3/algo/order'
         return self.make_request(endpoint, params, requests_type="post", version="v3")
