@@ -159,4 +159,4 @@ async def strategy(self, symbol, asks_mean, bids_mean):
                 print(bids_mean, self.orderbooks[symbol].bids_mean)
 ```
 The testing results are as follows:
-![algorithm](./src/algorithm.png)
+![algorithm](./output/algorithm.png)
