@@ -169,13 +169,8 @@ We use a mathematical metric to evaluate the effectiveness of our stop-loss func
 $$E[\text{Profit}] > 0$$
 If we have historical data, we can calculate this metric using the following mathematical formula:
 
-$$
-\begin{array}{rl}
-E[\text{Profit}] &= E(\text{Gain}) \times \Pr(\text{Gain}) + \\
-&\quad E(\text{Loss} \mid \text{Loss} > \text{StopLoss}) \times \Pr(\text{Loss} \mid \text{Loss} > \text{StopLoss}) + \\
-&\quad E(\text{Loss} \mid \text{Loss} \leq \text{StopLoss}) \times \Pr(\text{StopLoss} \mid \text{Loss} \leq \text{StopLoss})
-\end{array}
-$$
+![algorithm](./output/stop_loss_design.png)
+
 where:
 * Probability of gain, $\Pr(\text{Gain})$
 * Probability of loss, $\Pr(\text{Loss} \mid \text{Loss} > \text{StopLoss}) + \Pr(\text{Loss} \mid \text{Loss} \leq \text{StopLoss})$
