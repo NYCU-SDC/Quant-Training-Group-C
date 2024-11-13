@@ -59,9 +59,7 @@ if requests_type == "get":
         response = requests.get(url, params=params)
     else:
         if not params:
-            print(url)
             response = requests.get(url, headers=headers, json=params)
-            print("there 1")
         if version == "v1":
             response = requests.get(url, headers=headers, params=params)
                 else:
