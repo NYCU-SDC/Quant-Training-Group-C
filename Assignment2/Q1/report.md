@@ -119,7 +119,7 @@ The main difference from a "send order" is its ability to dynamically track the 
 
 # Basic part demo
 
-We implement a naive trading strategy: buy low and sell high, as shown below. More details can be found [here](https://github.com/NYCU-SDC/Quant-Training-Group-C/blob/main/Assignment2/Q1/src/main.py). Additionally, we set an order limit to prevent excessive losses from our naive trading approach.
+We implement a naive trading strategy: buy low and sell high, as shown below. More details can be found [src/main.py](https://github.com/NYCU-SDC/Quant-Training-Group-C/blob/main/Assignment2/Q1/src/main.py). Additionally, we set an order limit to prevent excessive losses from our naive trading approach.
 
 
 
@@ -161,3 +161,26 @@ async def strategy(self, symbol, asks_mean, bids_mean):
 
 The testing results are as follows:
 ![algorithm](./output/algorithm.png)
+
+# Bonus Part (Implement stop loss mechanism)
+In this section, we provide only a high-level idea to evaluate whether our stop-loss function is well-selected.
+This part is referred to [A Practical Guide to Algorithmic Strategies and Trading Systems](https://www.amazon.com/High-Frequency-Trading-Practical-Algorithmic-Strategies/dp/1118343506).
+We use a mathematical metric to evaluate the effectiveness of our stop-loss function. Specifically, we aim for positive profitability, meaning that we want it to be greater than 0, as follows:
+$$E[\text{Profit}] > 0$$
+If we have historical data, we can calculate this metric using the following mathematical formula:
+
+$$
+\begin{array}{rl}
+E[\text{Profit}] &= E(\text{Gain}) \times \Pr(\text{Gain}) + \\
+&\quad E(\text{Loss} \mid \text{Loss} > \text{StopLoss}) \times \Pr(\text{Loss} \mid \text{Loss} > \text{StopLoss}) + \\
+&\quad E(\text{Loss} \mid \text{Loss} \leq \text{StopLoss}) \times \Pr(\text{StopLoss} \mid \text{Loss} \leq \text{StopLoss})
+\end{array}
+$$
+where:
+* Probability of gain, $\Pr(\text{Gain})$
+* Probability of loss, $\Pr(\text{Loss} \mid \text{Loss} > \text{StopLoss}) + \Pr(\text{Loss} \mid \text{Loss} \leq \text{StopLoss})$
+* Average gain, $E(\text{Gain})$
+* Average loss above the stop-loss threshold, $E(\text{Loss} \mid \text{Loss} > \text{StopLoss})$
+* Average loss below the stop-loss threshold, $E(\text{Loss} \mid \text{Loss} \leq \text{StopLoss})$
+
+This approach can be implemented using the "send algo order" API.
