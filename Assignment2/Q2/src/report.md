@@ -11,56 +11,53 @@ This framework processes Binance market data to simulate real market conditions 
 2. I save the content as planttext.txt. 
 
 ## Architecture Components
-### 1. Binance Data Source
+### I. Binance Data Source
 Handles various types of market data from Binance:
 * Raw Market Data :
-** aggTrades: Aggregated trade data with price, volume, and direction
-    bookDepth: Order book depth data (L1-L1000)
-    bookTicker: Real-time best bid/ask updates
-    trades: Original trade records
+    1. aggTrades: Aggregated trade data with price, volume, and direction
+    2. bookDepth: Order book depth data (L1-L1000)
+    3. bookTicker: Real-time best bid/ask updates
+    4. trades: Original trade records
 
 * Price & Kline Data :
-
-    klines: OHLCV (Open, High, Low, Close, Volume) data
-    indexPriceKlines: Index price information
-    markPriceKlines: Mark price data
-    premiumIndexKlines: Premium index data
+    1. klines: OHLCV (Open, High, Low, Close, Volume) data
+    2. indexPriceKlines: Index price information
+    3. markPriceKlines: Mark price data
+    4. premiumIndexKlines: Premium index data
 
 * Market Metrics :
+    1. metrics: Market statistics and indicators
+    2. liquidationSnapshot: Liquidation event data
 
-    metrics: Market statistics and indicators
-    liquidationSnapshot: Liquidation event data
-
-### 2. Backtest Framework
+### II. Backtest Framework
 * Data Processing Layer
-    Data Parser: Converts raw data into standardized format
-    Data Queue: Maintains time-ordered event sequence
-
-    OrderBook Cache: Maintains order book snapshots
-    Trade Cache: Buffers trade data
-    Kline Cache: Builds and stores kline data
+    1. Data Parser: Converts raw data into standardized format
+    2. Data Queue: Maintains time-ordered event sequence
+    3. OrderBook Cache: Maintains order book snapshots
+    4. Trade Cache: Buffers trade data
+    5. Kline Cache: Builds and stores kline data
 
 * Market Reconstruction
-    Market Indicators: Calculates volatility and liquidity metrics
-    Trade Flow: Analyzes trade directions and patterns
-    Limit Order Book: Reconstructs full order book state
+    1. Market Indicators: Calculates volatility and liquidity metrics
+    2. Trade Flow: Analyzes trade directions and patterns
+    3. Limit Order Book: Reconstructs full order book state
 
 * Strategy Engine
-    Signal Generator: Implements trading logic and generates signals
-    Risk Manager: Controls position sizes and risk exposure
-    Position Manager: Tracks positions and calculates PnL
+    1. Signal Generator: Implements trading logic and generates signals
+    2. Risk Manager: Controls position sizes and risk exposure
+    3. Position Manager: Tracks positions and calculates PnL
 
 * Order Management
-    Order Type: Creates orders with specific parameters
-    Order Manager: Maintains order status and lifecycle
-    Matching Engine: Simulates order execution
+    1. Order Type: Creates orders with specific parameters
+    2. Order Manager: Maintains order status and lifecycle
+    3. Matching Engine: Simulates order execution
 
 * Simulation Engine
-    Impact Simulator: Models market impact and slippage
-    Exchange Simulator: Implements trading rules and fees
-    Latency Simulator: Simulates network and exchange delays
+    1. Impact Simulator: Models market impact and slippage
+    2. Exchange Simulator: Implements trading rules and fees
+    3. Latency Simulator: Simulates network and exchange delays
 
-### 3. Analysis & Reporting
-    PnL Analysis: Calculates profit/loss metrics
-    Performance Report: Generates strategy statistics
-    Visualization: Provides chart analysis and trade visualization
+### III. Analysis & Reporting
+    1. PnL Analysis: Calculates profit/loss metrics
+    2. Performance Report: Generates strategy statistics
+    3. Visualization: Provides chart analysis and trade visualization
