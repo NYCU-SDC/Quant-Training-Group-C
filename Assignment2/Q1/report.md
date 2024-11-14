@@ -42,14 +42,14 @@ Note that the header format differs between v1 and v3.
 We use the following Python code to create the header:
 
 ```python
-    headers = {
-        'x-api-timestamp': str(milliseconds_since_epoch),
-        'x-api-key': self.api_key,
-        'x-api-signature': _generate_signature(body),
-        'Content-Type': 'application/json' if version == "v3" 
-                        else 'application/x-www-form-urlencoded',
-        'Cache-Control': 'no-cache'
-    }
+headers = {
+    'x-api-timestamp': str(milliseconds_since_epoch),
+    'x-api-key': self.api_key,
+    'x-api-signature': _generate_signature(body),
+    'Content-Type': 'application/json' if version == "v3" 
+                     else 'application/x-www-form-urlencoded',
+    'Cache-Control': 'no-cache'
+}
 ```
 ### Sending Requests / Receiving Responses
 Finally, we send the request to the server and receive the response.
