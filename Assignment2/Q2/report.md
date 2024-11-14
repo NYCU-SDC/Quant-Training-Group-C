@@ -164,3 +164,33 @@ The Order Management System is a crucial component designed to handle various or
    - Efficient order book updates
    - Quick order matching
    - Memory-efficient data structures
+
+# How to judge a ‘maker order’ could be executed?
+**Price Level Position**
+   - For BUY Maker Orders: Must be placed below the current best ask price.
+   - "BUY Maker Order" could be executed when order price match 2 conditions:
+    * order price is less than current best ask price
+    * order price is greater than current best bid price(to make sure of its priority.)
+```python
+order_price <= current_best_ask and order_price >= current_best_bid
+``` 
+   - For Sell Maker Orders: Must be placed above the current best bid price.
+   - "SELL Maker Order" could be executed when order price match 2 conditions:
+    * order price is greater than current best bid price
+    * order price is less than current best ask price(to make sure of its priority.)
+```python
+order_price >= current_best_bid and order_price <= current_best_ask
+``` 
+
+# How to decide the price of ‘IOC order’?
+**Consider the BBO and the volume of the IOC order**
+   - We need to analyze order book depth to check the volume quantity.
+   - Calculate expected market impact.
+   **Target Price = Mid Price ± Market Impact(Slippage)**
+    * Market Impact = f(order_size, market_depth)
+    
+
+# How to simulate the latency on the internet?
+**Base RTT (Round Trip Time): Usually follows normal distribution**
+**Jitter: Often modeled with exponential distribution**
+  - Total Latency = Base_Latency + Jitter + Algorithm_Delay
