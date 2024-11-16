@@ -1,0 +1,112 @@
+@startuml
+skinparam shadowing false
+skinparam DefaultFontSize 12
+skinparam DefaultFontName Arial
+skinparam ArrowColor #666666
+skinparam class {
+    BorderColor #1565C0
+    BackgroundColor #FFFFFF
+    ArrowColor #666666
+}
+
+package "Order Management System" {
+    abstract class OrderType {
+        +orderSize: float
+        +side: string
+        +timestamp: datetime
+        +status: string
+        +{abstract} validate()
+        +{abstract} execute()
+    }
+
+    class MarketOrder {
+        +estimatedPrice: float
+        +slippageTolerance: float
+        +calculateImpact()
+        +estimateExecutionPrice()
+    }
+
+    class LimitOrder {
+        +limitPrice: float
+        +timeInForce: string
+        +checkPriceValidity()
+        +estimateQueuePosition()
+    }
+
+    class IOCOrder {
+        +limitPrice: float
+        +minimumFillSize: float
+        +calculatePartialFill()
+        +handleExpiration()
+    }
+
+    class FOKOrder {
+        +limitPrice: float
+        +checkFullFillPossible()
+        +handleRejection()
+    }
+
+    class OrderManager {
+        -orderBook: OrderBook
+        -activeOrders: List
+        -historicalOrders: List
+        +submitOrder()
+        +cancelOrder()
+        +modifyOrder()
+        +getOrderStatus()
+    }
+
+    class OrderValidator {
+        +validateSize()
+        +validatePrice()
+        +validateBalance()
+        +checkRiskLimits()
+    }
+
+    class OrderExecutor {
+        -matchingEngine: MatchingEngine
+        -executionQueue: Queue
+        +executeOrder()
+        +handlePartialFills()
+        +processRejections()
+    }
+
+    class OrderBook {
+        -bids: PriceLevel[]
+        -asks: PriceLevel[]
+        +updateDepth()
+        +getBestBidAsk()
+        +calculateSpread()
+    }
+
+    class MatchingEngine {
+        -orderBook: OrderBook
+        -latencySimulator: LatencySimulator
+        +matchOrder()
+        +processQueue()
+        +handleCancellation()
+    }
+
+    class LatencySimulator {
+        -meanLatency: float
+        -jitter: float
+        +simulateNetworkDelay()
+        +simulateExchangeProcessing()
+    }
+}
+
+' Inheritance relationships
+OrderType <|-- MarketOrder
+OrderType <|-- LimitOrder
+OrderType <|-- IOCOrder
+OrderType <|-- FOKOrder
+
+' Composition and aggregation relationships
+OrderManager "1" *-- "many" OrderType
+OrderManager "1" *-- "1" OrderValidator
+OrderManager "1" *-- "1" OrderExecutor
+OrderManager "1" *-- "1" OrderBook
+OrderExecutor "1" *-- "1" MatchingEngine
+MatchingEngine "1" *-- "1" LatencySimulator
+
+@enduml
