@@ -46,28 +46,28 @@ class DataProcessor:
         model.eval()
         return model
 
-    async def process_orderbooks(self, data):
+    async def put_orderbooks(self, data):
         await self.orderbooks_queue.put(data)
 
-    async def process_orderbookupdates(self, data):
-        await self.orderbooks_queue.put(data)
+    async def put_orderbookupdates(self, data):
+        await self.orderbookupdates_queue.put(data)
 
-    async def process_bbo(self, data):
+    async def put_bbo(self, data):
         await self.bbo_queue.put(data)
 
-    async def process_tickers(self, data):
+    async def put_tickers(self, data):
         await self.tickers_queue.put(data)
 
-    async def process_klines(self, data):
+    async def put_klines(self, data):
         await self.klines_queue.put(data)
 
-    async def process_trades(self, data):
+    async def put_trades(self, data):
         await self.trades_queue.put(data)
 
-    async def process_indexprices(self, data):
+    async def put_indexprices(self, data):
         await self.indexprices_queue.put(data)
 
-    async def process_markprices(self, data):
+    async def put_markprices(self, data):
         await self.markprices_queue.put(data)
 
     # process data
@@ -113,7 +113,7 @@ class DataProcessor:
             self.trades_data.append(self.parse_trade_data(trade))
         self.trades_data = self.align_data(self.trades_data, latest_indexprice_ts)
 
-    # trades data process
+    # markprices data process
     async def process_markprices(self, latest_indexprice_ts):
         while not self.markprices_queue.empty():
             markprices = await self.markprices_queue.get()
@@ -127,69 +127,68 @@ class DataProcessor:
             self.indexprices_data.append(self.parse_indexprices_data(indexprices))
             print(f'latest index price sequence : {self.indexprices_data[-1]}')
             
-            if len(self.indexprices_data) > self.time_sequence:
+            if len(self.indexprices_data) > self.time_sequence+1:
                 self.indexprices_data.popleft()
             
-            if len(self.indexprices_data) >= self.time_sequence:
-                latest_indexprice_ts = [data['timestamp'] for data in self.indexprices_data[-self.time_sequence:]]
+            if len(self.indexprices_data) >= self.time_sequence+1:
+                indexprices_data_list = list(self.indexprices_data)
+                latest_indexprice_ts = [data['timestamp'] for data in indexprices_data_list[-self.time_sequence-1:]]
                 
                 await asyncio.gather(
                     self.process_orderbooks(latest_indexprice_ts),
                     self.process_bbo(latest_indexprice_ts),
                     self.process_trades(latest_indexprice_ts)
                 )
-            if len(self.orderbooks_data) >= self.time_sequence + 1 and len(self.bbo_data) >= self.time_sequence + 1 and len(self.trades_data) >= self.time_sequence + 1:
-                orderbook_df = pd.DataFrame(list(self.orderbooks_data))
-                bbo_df = pd.DataFrame(list(self.bbo_data))
-                trade_df = pd.DataFrame(list(self.trades_data))
-                indexprice_df = pd.DataFrame(list(self.indexprices_data))
+                if len(self.orderbooks_data) >= self.time_sequence + 1 and len(self.bbo_data) >= self.time_sequence + 1 and len(self.trades_data) >= self.time_sequence + 1:
+                    orderbook_df = pd.DataFrame(list(self.orderbooks_data))
+                    bbo_df = pd.DataFrame(list(self.bbo_data))
+                    trade_df = pd.DataFrame(list(self.trades_data))
+                    indexprice_df = pd.DataFrame(list(self.indexprices_data))
 
-                # Calculate highest order ask price change and highest order bid price change
-                orderbook_df['highest_order_ask_price_change'] = orderbook_df['highest_order_ask_price'].pct_change()
-                orderbook_df['highest_order_bid_price_change'] = orderbook_df['highest_order_bid_price'].pct_change()
-                orderbook_df['highest_order_price_flow'] = orderbook_df['highest_order_ask_price_change'] + orderbook_df['highest_order_bid_price_change']
+                    # Calculate highest order ask price change and highest order bid price change
+                    orderbook_df['highest_order_ask_price_change'] = orderbook_df['highest_order_ask_price'].pct_change()
+                    orderbook_df['highest_order_bid_price_change'] = orderbook_df['highest_order_bid_price'].pct_change()
+                    orderbook_df['highest_order_price_flow'] = orderbook_df['highest_order_ask_price_change'] + orderbook_df['highest_order_bid_price_change']
 
-                # Calculate total buy volume and total sell volume for each time interval
-                trade_df['total_buy_volume'] = trade_df['total_buy'].rolling(window=self.time_interval).sum()
-                trade_df['total_sell_volume'] = trade_df['total_sell'].rolling(window=self.time_interval).sum()
+                    # Calculate total buy volume and total sell volume for each time interval
+                    trade_df['total_buy_volume'] = trade_df['total_buy'].rolling(window=self.time_interval).sum()
+                    trade_df['total_sell_volume'] = trade_df['total_sell'].rolling(window=self.time_interval).sum()
 
-                # Merge data
-                merged_data_1 = pd.merge_asof(orderbook_df, trade_df[['timestamp', 'total_buy_volume', 'total_sell_volume']], on='timestamp', direction='nearest')
-                merged_data = pd.merge_asof(merged_data_1, bbo_df[['timestamp', 'size_spread']], on='timestamp', direction='nearest')
+                    # Merge data
+                    merged_data_1 = pd.merge_asof(orderbook_df, trade_df[['timestamp', 'total_buy_volume', 'total_sell_volume']], on='timestamp', direction='nearest')
+                    merged_data = pd.merge_asof(merged_data_1, bbo_df[['timestamp', 'size_spread']], on='timestamp', direction='nearest')
 
-                # Calculate buy order flow, sell order flow, and net order flow changes
-                merged_data['buy_order_flow_change'] = merged_data['total_ask_size'].diff(self.time_interval)
-                merged_data['sell_order_flow_change'] = merged_data['total_bid_size'].diff(self.time_interval)
-                merged_data['net_flow_change'] = merged_data['buy_order_flow_change'] - merged_data['sell_order_flow_change']
+                    # Calculate buy order flow, sell order flow, and net order flow changes
+                    merged_data['buy_order_flow_change'] = merged_data['total_ask_size'].diff(self.time_interval)
+                    merged_data['sell_order_flow_change'] = merged_data['total_bid_size'].diff(self.time_interval)
+                    merged_data['net_flow_change'] = merged_data['buy_order_flow_change'] - merged_data['sell_order_flow_change']
 
-                # Adjust buy order flow and sell order flow by dividing by total buy volume and total sell volume
-                merged_data['adjusted_buy_order_flow_change'] = merged_data['buy_order_flow_change'] / merged_data['total_buy_volume'] + 1e-9
-                merged_data['adjusted_sell_order_flow_change'] = merged_data['sell_order_flow_change'] / merged_data['total_sell_volume'] + 1e-9
-                merged_data['adjusted_net_flow_change'] = merged_data['adjusted_buy_order_flow_change'] - merged_data['adjusted_sell_order_flow_change']
+                    # Adjust buy order flow and sell order flow by dividing by total buy volume and total sell volume
+                    merged_data['adjusted_buy_order_flow_change'] = merged_data['buy_order_flow_change'] / merged_data['total_buy_volume'] + 1e-9
+                    merged_data['adjusted_sell_order_flow_change'] = merged_data['sell_order_flow_change'] / merged_data['total_sell_volume'] + 1e-9
+                    merged_data['adjusted_net_flow_change'] = merged_data['adjusted_buy_order_flow_change'] - merged_data['adjusted_sell_order_flow_change']
 
-                # Remove rows with NaN or inf values
-                merged_data = merged_data.replace([np.inf, -np.inf], np.nan).fillna(0)
-                # default
-                merged_data = merged_data[-(self.time_sequence-1):]
+                    # Remove rows with NaN or inf values
+                    merged_data = merged_data.replace([np.inf, -np.inf], np.nan).fillna(0)
+                    # default
+                    merged_data = merged_data[-(self.time_sequence-1):]
 
-                # Prepare input data
-                time_series_input = np.zeros((self.time_sequence-1, self.num_variables))
-                time_series_input[:, 0] = merged_data['imbalance'].values
-                time_series_input[:, 1] = merged_data['size_spread'].values
-                time_series_input[:, 2:] = merged_data[['buy_order_flow_change', 'sell_order_flow_change',
-                                                        'adjusted_buy_order_flow_change', 'adjusted_sell_order_flow_change',
-                                                        'highest_order_price_flow']].values
-                # using model for prediction
-                input_tensor = torch.from_numpy(time_series_input).float().unsqueeze(0)
-                with torch.no_grad():
-                    output = self.model(input_tensor)
-                    prediction = output.argmax(dim=1).item()
+                    # Prepare input data
+                    time_series_input = np.zeros((self.time_sequence-1, self.num_variables))
+                    time_series_input[:, 0] = merged_data['imbalance'].values
+                    time_series_input[:, 1] = merged_data['size_spread'].values
+                    time_series_input[:, 2:] = merged_data[['buy_order_flow_change', 'sell_order_flow_change',
+                                                            'adjusted_buy_order_flow_change', 'adjusted_sell_order_flow_change',
+                                                            'highest_order_price_flow']].values
+                    # using model for prediction
+                    input_tensor = torch.from_numpy(time_series_input).float().unsqueeze(0)
+                    with torch.no_grad():
+                        output = self.model(input_tensor)
+                        prediction = output.argmax(dim=1).item()
 
-                current_price = indexprice_df['index_price'].iloc[-1]
+                    current_price = indexprice_df['index_price'].iloc[-1]
 
-                print(f'price movement : {prediction}')
-
-                await self.handle_prediction(prediction, current_price)
+                    await self.handle_prediction(prediction, current_price)
 
         except asyncio.QueueEmpty:
             await asyncio.sleep(0.1)

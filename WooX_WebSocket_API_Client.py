@@ -127,21 +127,21 @@ class WooXStagingAPI(DataProcessor):
                 data = await self.message_queue.get()
                 topic = data.get("topic", "")
                 if topic == f"{symbol}@orderbook":
-                    await self.process_orderbooks(data)
+                    await self.put_orderbooks(data)
                 elif topic == f"{symbol}@orderbookupdate":
-                    await self.process_orderbookupdates(data)
+                    await self.put_orderbookupdates(data)
                 elif topic == f"{symbol}@bbo":
-                    await self.process_bbo(data)
+                    await self.put_bbo(data)
                 elif topic == f"{symbol}@trades":
-                    await self.process_trades(data)
+                    await self.put_trades(data)
                 elif topic == f"{symbol}@ticker":
-                    await self.process_tickers(data)
+                    await self.put_tickers(data)
                 elif topic.startswith(f"{symbol}@kline"):
-                    await self.process_klines(data)
+                    await self.put_klines(data)
                 elif topic == f"{symbol}@indexprice":
-                    await self.process_indexprices(data)
+                    await self.put_indexprices(data)
                 elif topic == f"{symbol}@markprice":
-                    await self.process_markprices(data)
+                    await self.put_markprices(data)
             except Exception as e:
                 print(f"Error processing message: {e}")
 
@@ -168,7 +168,7 @@ class WooXStagingAPI(DataProcessor):
             tasks = [asyncio.create_task(self.subscribe(symbol, config)) for symbol in symbols]
             processing_tasks = [asyncio.create_task(self.process_messages(symbol)) for symbol in symbols]
             run_processing_task = asyncio.create_task(self.run_processing())
-            await asyncio.gather(*tasks, *processing_tasks, *run_processing_task)
+            await asyncio.gather(*tasks, *processing_tasks, run_processing_task)
         except Exception as e:
             print(f"Error in start: {e}")
             raise
