@@ -1,5 +1,4 @@
-from WooX_WebSocket_API_Subscription import WooXStagingAPI
-from WooX_REST_API_Client import WooX_REST_API_Client
+from WooX_WebSocket_API_Client import WooXStagingAPI
 from Data_preprocessor import DataProcessor
 
 import json

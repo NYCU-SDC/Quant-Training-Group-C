@@ -8,6 +8,7 @@ class WooXStagingAPI(DataProcessor):
         super().__init__(model_path, time_sequence, time_interval)
         self.app_id = app_id
         self.uri = f"wss://wss.staging.woox.io/ws/stream/{self.app_id}"
+        self.message_queue = asyncio.Queue()
         self.connection = None
         self.running = True
         self.processing_task = None
@@ -19,7 +20,7 @@ class WooXStagingAPI(DataProcessor):
             print(f"Connected to {self.uri}")
         return self.connection
 
-    async def subscribe(self, symbol, config):
+    async def subscribe(self, symbol, config, kline_iterval = '1m'):
         websocket = await self.connect()
 
         if config.get("orderbook"):
@@ -32,15 +33,35 @@ class WooXStagingAPI(DataProcessor):
             }
             await websocket.send(json.dumps(order_book_params))
 
+        if config.get("orderbookupdate"):
+            order_book_update_params = {
+                "id": self.app_id,
+                "event": "subscribe",
+                "success": True,
+                "ts": int(asyncio.get_event_loop().time() * 1000),
+                "topic": f"{symbol}@orderbookupdate"
+            }
+            await websocket.send(json.dumps(order_book_update_params))
+
         if config.get("trades"):
-            bbo_params = {
+            trades_params = {
                 "id": self.app_id,
                 "event": "subscribe",
                 "success": True,
                 "ts": int(asyncio.get_event_loop().time() * 1000),
                 "topic": f"{symbol}@trades"
             }
-            await websocket.send(json.dumps(bbo_params))
+            await websocket.send(json.dumps(trades_params))
+
+        if config.get("ticker"):
+            ticker_params = {
+                "id": self.app_id,
+                "event": "subscribe",
+                "success": True,
+                "ts": int(asyncio.get_event_loop().time() * 1000),
+                "topic": f"{symbol}@ticker"
+            }
+            await websocket.send(json.dumps(ticker_params))
 
         if config.get("bbo"):
             bbo_params = {
@@ -52,6 +73,16 @@ class WooXStagingAPI(DataProcessor):
             }
             await websocket.send(json.dumps(bbo_params))
 
+        if config.get("kline"):
+            kline_params = {
+                "id": self.app_id,
+                "event": "subscribe",
+                "success": True,
+                "ts": int(asyncio.get_event_loop().time() * 1000),
+                "topic": f"{symbol}@kline_{kline_iterval}"
+            }
+            await websocket.send(json.dumps(kline_params))
+
         if config.get("indexprice"):
             bbo_params = {
                 "id": self.app_id,
@@ -62,8 +93,15 @@ class WooXStagingAPI(DataProcessor):
             }
             await websocket.send(json.dumps(bbo_params))
 
-         # 啟動數據處理任務
-        self.processing_task = asyncio.create_task(self.run_processing())
+        if config.get("markprice"):
+            bbo_params = {
+                "id": self.app_id,
+                "event": "subscribe",
+                "success": True,
+                "ts": int(asyncio.get_event_loop().time() * 1000),
+                "topic": f"{symbol}@markprice"
+            }
+            await websocket.send(json.dumps(bbo_params))
 
         try:
             while self.running:
@@ -76,27 +114,36 @@ class WooXStagingAPI(DataProcessor):
                     if data.get("success"):
                         print(f"Subscription successful for {data.get('data')}")
                 else:
-                    topic = data.get("topic", "")
-                    if topic == f"{symbol}@orderbook":
-                        await self.process_orderbooks(data)
-                    elif topic == f"{symbol}@bbo":
-                        await self.process_bbo(data)
-                    elif topic == f"{symbol}@trades":
-                        await self.process_trades(data)
-                    elif topic == f"{symbol}@indexprice":
-                        await self.process_indexprices(data)
+                    await self.message_queue.put(data)
 
         except websockets.ConnectionClosed as e:
             print(f"Connection closed for {symbol}: {e}")
         except Exception as e:
             print(f"Error in subscription handler: {e}")
-        finally:
-            if self.processing_task:
-                self.processing_task.cancel()
-                try:
-                    await self.processing_task
-                except asyncio.CancelledError:
-                    pass
+
+    async def process_messages(self, symbol):
+        while self.running:
+            try:
+                data = await self.message_queue.get()
+                topic = data.get("topic", "")
+                if topic == f"{symbol}@orderbook":
+                    await self.process_orderbooks(data)
+                elif topic == f"{symbol}@orderbookupdate":
+                    await self.process_orderbookupdates(data)
+                elif topic == f"{symbol}@bbo":
+                    await self.process_bbo(data)
+                elif topic == f"{symbol}@trades":
+                    await self.process_trades(data)
+                elif topic == f"{symbol}@ticker":
+                    await self.process_tickers(data)
+                elif topic.startswith(f"{symbol}@kline"):
+                    await self.process_klines(data)
+                elif topic == f"{symbol}@indexprice":
+                    await self.process_indexprices(data)
+                elif topic == f"{symbol}@markprice":
+                    await self.process_markprices(data)
+            except Exception as e:
+                print(f"Error processing message: {e}")
 
     async def run_processing(self):
         """Separate task for data processing"""
@@ -118,8 +165,10 @@ class WooXStagingAPI(DataProcessor):
 
     async def start(self, symbols, config):
         try:
-            tasks = [self.subscribe(symbol, config) for symbol in symbols]
-            await asyncio.gather(*tasks)
+            tasks = [asyncio.create_task(self.subscribe(symbol, config)) for symbol in symbols]
+            processing_tasks = [asyncio.create_task(self.process_messages(symbol)) for symbol in symbols]
+            run_processing_task = asyncio.create_task(self.run_processing())
+            await asyncio.gather(*tasks, *processing_tasks, *run_processing_task)
         except Exception as e:
             print(f"Error in start: {e}")
             raise
@@ -139,7 +188,16 @@ async def main():
     
     api = WooXStagingAPI(app_id, model_path)
     symbols = ['SPOT_BTC_USDT']
-    config = {"orderbook": True, "bbo": True, "trades": True, "indexprice": True}
+    config = {
+        "orderbook": True,
+        "orderbookupdate": True,
+        "trades": True,
+        "ticker": True,
+        "bbo": True,
+        "kline": False,
+        "indexprice": True,
+        "markprice": True
+    }
     
     try:
         await api.start(symbols, config)
