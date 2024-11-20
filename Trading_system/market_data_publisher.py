@@ -97,27 +97,27 @@ class WooXStagingAPI:
     async def process_market_data(self, symbol, message):
         """Process market data and publish it to Redis."""
         data = json.loads(message)
-        
-        # Assuming message contains 'orderbook' or 'bbo' data
-        if 'orderbook' in data:
-            self.orderbooks[symbol].update(data['orderbook'])
-            # Publish the updated orderbook to Redis
-            await self.publish_to_redis(f"{symbol}-orderbook", data['orderbook'])
+        if 'topic' in data:
+            # Assuming message contains 'orderbook' or 'bbo' data
+            if data['topic'] == f"{symbol}@orderbook":
+                # self.orderbooks[symbol].update(data['orderbook'])
+                # Publish the updated orderbook to Redis
+                await self.publish_to_redis(f"{symbol}-orderbook", data['data'])
 
-        if 'bbo' in data:
-            self.bbo_data[symbol].update(data['bbo'])
-            # Publish the updated BBO to Redis
-            await self.publish_to_redis(f"{symbol}-bbo", data['bbo'])
-        
-        if 'trade' in data:
-            # Publish the trade data to Redis
-            print(data['trade'])
-            await self.publish_to_redis(f"{symbol}-trade", data['trade'])
+            if data['topic'] == f"{symbol}@bbo":
+                # self.bbo_data[symbol].update(data['bbo'])
+                # Publish the updated BBO to Redis
+                await self.publish_to_redis(f"{symbol}-bbo", data['data'])
+            
+            if data['topic'] == f"{symbol}@trade":
+                # Publish the trade data to Redis
+                print(data['data'])
+                await self.publish_to_redis(f"{symbol}-trade", data['data'])
 
     async def listen_for_data(self, websocket, symbol, config):
         """Listen for incoming market data and publish to Redis."""
         async for message in websocket:
-            print(f"Received message: {message}")
+            # print(f"Received message: {message}")
             await self.process_market_data(symbol, message)
 
     async def close_connection(self):
@@ -142,7 +142,7 @@ class WooXStagingAPI:
 # Example usage
 async def main():
     api = WooXStagingAPI(app_id="your_app_id", api_key="your_api_key", api_secret="your_api_secret", redis_host="localhost")
-    await api.start(symbol="SPOT_ETH_USDT", config={"orderbook": False, "bbo": False, "trade": True})
+    await api.start(symbol="SPOT_ETH_USDT", config={"orderbook": False, "bbo": True, "trade": False})
 
 if __name__ == "__main__":
     asyncio.run(main())
