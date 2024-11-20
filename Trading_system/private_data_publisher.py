@@ -117,21 +117,21 @@ class WooXStagingAPI:
         data = json.loads(message)
         
         # Assuming message contains 'executionreport', 'position', 'balance' data
-        if 'position' in data:
-            print(data['position'])
+        if data['topic'] == "executionreport":
+            print(data['data'])
             # Publish the updated orderbook to Redis
-            # await self.publish_to_redis(f"{symbol}-orderbook", data['orderbook'])
+            await self.publish_to_redis(f"executionreport", data['data'])
 
-        if 'executionreport' in data:
-            print(data['executionreport'])
-            # Publish the updated BBO to Redis
-            # await self.publish_to_redis(f"{symbol}-bbo", data['bbo'])
-        
-        if 'balance' in data:
-            # Publish the trade data to Redis
-            print(data['trade'])
-            # await self.publish_to_redis(f"{symbol}-trade", data['trade'])
+        if data['topic'] == "position":
+            print(data['data'])
+            # Publish the updated orderbook to Redis
+            await self.publish_to_redis(f"position", data['data'])
 
+        if data['topic'] == "balance":
+            print(data['data'])
+            # Publish the updated orderbook to Redis
+            await self.publish_to_redis(f"balance", data['data'])
+            
     async def listen_for_data(self, websocket, config):
         """Listen for incoming market data and publish to Redis."""
         async for message in websocket:
