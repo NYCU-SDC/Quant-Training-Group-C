@@ -8,8 +8,8 @@ import hashlib
 import aioredis  # Redis client for async operations
 from strategy_logics.strategy_init import Strategy
 
-class MovingAverageStrategy(Strategy):
-    """Example: Moving Average Crossover Strategy."""
+class ExampleStrategy(Strategy):
+    """Example: send order each 1 sec."""
     async def execute(self, channel, data, redis_client):
         # Simulate signal generation
         await asyncio.sleep(0.1)
@@ -17,10 +17,12 @@ class MovingAverageStrategy(Strategy):
 
         # Example signal generation
         signal = {
-            "strategy": "MovingAverageStrategy",
-            "symbol": channel,
-            "signal_type": "BUY",  # or "SELL"
-            "timestamp": data.get("timestamp", "unknown"),
+            "target": "send_order",
+            "order_price": 90000,
+            "order_quantity": 0.0001,
+            "order_type": "LIMIT",
+            "side": "BUY",
+            "symbol": "SPOT_BTC_USDT"
         }
 
         # Publish the signal to the order executor

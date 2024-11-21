@@ -11,7 +11,7 @@ import aioredis  # Redis client for async operations
 from data_processing.Orderbook import OrderBook
 from data_processing.BBO import BBO
 
-class WooXStagingAPI:
+class PrivateWooXStagingAPI:
     def __init__(self, app_id: str, api_key, api_secret, redis_host: str, redis_port: int = 6379):
         self.app_id = app_id
         self.market_data_uri = f"wss://wss.staging.woox.io/ws/stream/{self.app_id}"
@@ -131,7 +131,7 @@ class WooXStagingAPI:
             print(data['data'])
             # Publish the updated orderbook to Redis
             await self.publish_to_redis(f"balance", data['data'])
-            
+
     async def listen_for_data(self, websocket, config):
         """Listen for incoming market data and publish to Redis."""
         async for message in websocket:
@@ -163,7 +163,7 @@ async def main():
     app_id = "460c97db-f51d-451c-a23e-3cce56d4c932"
     api_key = 'sdFgbf5mnyDD/wahfC58Kw=='
     api_secret = 'FWQGXZCW4P3V4D4EN4EIBL6KLTDA'
-    api = WooXStagingAPI(app_id=app_id, api_key=api_key, api_secret=api_secret, redis_host="localhost")
+    api = PrivateWooXStagingAPI(app_id=app_id, api_key=api_key, api_secret=api_secret, redis_host="localhost")
     await api.start(config={"executionreport": True, "position": True, "balance": True})
 
 if __name__ == "__main__":

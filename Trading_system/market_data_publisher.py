@@ -11,7 +11,7 @@ import aioredis  # Redis client for async operations
 from data_processing.Orderbook import OrderBook
 from data_processing.BBO import BBO
 
-class WooXStagingAPI:
+class MarketWooXStagingAPI:
     def __init__(self, app_id: str, api_key, api_secret, redis_host: str, redis_port: int = 6379):
         self.app_id = app_id
         self.market_data_uri = f"wss://wss.staging.woox.io/ws/stream/{self.app_id}"
@@ -45,7 +45,7 @@ class WooXStagingAPI:
         """Publish data to Redis channel."""
         if self.redis_client:
             await self.redis_client.publish(channel, json.dumps(data))
-            print(f"Published to Redis channel: {channel}")
+            # print(f"Published to Redis channel: {channel}")
 
     async def market_connect(self):
         """Handles WebSocket connection to market data."""
@@ -85,6 +85,14 @@ class WooXStagingAPI:
             }
             await websocket.send(json.dumps(subscribe_message))
             print(f"Subscribed to trade for {symbol}")
+        
+        if config.get("kline"):
+            subscribe_message = {
+                "event": "subscribe",
+                "topic": f"{symbol}@kline_{config['kline']}",
+            }
+            await websocket.send(json.dumps(subscribe_message))
+            print(f"Subscribed to kline for {symbol}")
 
     async def respond_pong(self, websocket):
         """Responds to server PINGs with a PONG."""
@@ -94,7 +102,7 @@ class WooXStagingAPI:
         }
         await websocket.send(json.dumps(pong_message))
 
-    async def process_market_data(self, symbol, message):
+    async def process_market_data(self, symbol, interval, message):
         """Process market data and publish it to Redis."""
         data = json.loads(message)
         if 'topic' in data:
@@ -111,14 +119,17 @@ class WooXStagingAPI:
             
             if data['topic'] == f"{symbol}@trade":
                 # Publish the trade data to Redis
-                print(data['data'])
                 await self.publish_to_redis(f"{symbol}-trade", data['data'])
+            
+            if data['topic'] == f"{symbol}@kline_{interval}":
+                # Publish the kline data to Redis
+                await self.publish_to_redis(f"{symbol}-kline-{interval}", data['data'])
 
     async def listen_for_data(self, websocket, symbol, config):
         """Listen for incoming market data and publish to Redis."""
         async for message in websocket:
             # print(f"Received message: {message}")
-            await self.process_market_data(symbol, message)
+            await self.process_market_data(symbol, config['kline'], message)
 
     async def close_connection(self):
         """Gracefully closes the WebSocket connection."""
@@ -141,8 +152,8 @@ class WooXStagingAPI:
 
 # Example usage
 async def main():
-    api = WooXStagingAPI(app_id="your_app_id", api_key="your_api_key", api_secret="your_api_secret", redis_host="localhost")
-    await api.start(symbol="SPOT_ETH_USDT", config={"orderbook": False, "bbo": True, "trade": False})
+    api = MarketWooXStagingAPI(app_id="your_app_id", api_key="your_api_key", api_secret="your_api_secret", redis_host="localhost")
+    await api.start(symbol="SPOT_ETH_USDT", config={"orderbook": False, "bbo": True, "trade": False, "kline": "1m"})
 
 if __name__ == "__main__":
     asyncio.run(main())
