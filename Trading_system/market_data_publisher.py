@@ -1,0 +1,160 @@
+import json
+import asyncio
+import websockets
+import time
+import datetime
+import hmac
+import hashlib
+import aioredis  # Redis client for async operations
+
+# Import your existing classes
+from data_processing.Orderbook import OrderBook
+from data_processing.BBO import BBO
+
+class MarketWooXStagingAPI:
+    def __init__(self, app_id: str, api_key, api_secret, redis_host: str, redis_port: int = 6379):
+        self.app_id = app_id
+        self.market_data_uri = f"wss://wss.staging.woox.io/ws/stream/{self.app_id}"
+        self.private_uri = f"wss://wss.staging.woox.io/v2/ws/private/stream/{self.app_id}"
+        self.api_key = api_key
+        self.api_secret = api_secret
+        self.market_connection = None
+        self.private_connection = None
+        self.orderbooks = {}
+        self.bbo_data = {}
+        self.redis_host = redis_host
+        self.redis_port = redis_port
+        self.redis_client = None
+        self.redis_channel = None
+
+    def generate_signature(self, body):
+        key_bytes = bytes(self.api_secret, 'utf-8')
+        body_bytes = bytes(body, 'utf-8')
+        return hmac.new(key_bytes, body_bytes, hashlib.sha256).hexdigest()
+
+    async def connect_redis(self):
+        """Connects to Redis server."""
+        self.redis_client = await aioredis.from_url(
+            f"redis://{self.redis_host}:{self.redis_port}", 
+            encoding='utf-8', 
+            decode_responses=True
+        )
+        print(f"Connected to Redis server at {self.redis_host}:{self.redis_port}")
+
+    async def publish_to_redis(self, channel, data):
+        """Publish data to Redis channel."""
+        if self.redis_client:
+            await self.redis_client.publish(channel, json.dumps(data))
+            # print(f"Published to Redis channel: {channel}")
+
+    async def market_connect(self):
+        """Handles WebSocket connection to market data."""
+        if self.market_connection is None:
+            self.market_connection = await websockets.connect(self.market_data_uri)
+            print(f"Connected to {self.market_data_uri}")
+        return self.market_connection
+
+    async def subscribe(self, websocket, symbol, config):
+        """Subscribe to orderbook and/or BBO for a given symbol."""
+        if config.get("orderbook"):
+            self.orderbooks[symbol] = OrderBook(symbol)
+            subscribe_message = {
+                "event": "subscribe",
+                "topic": f"{symbol}@orderbook",
+                "symbol": symbol,
+                "type": "orderbook"
+            }
+            await websocket.send(json.dumps(subscribe_message))
+            print(f"Subscribed to orderbook for {symbol}")
+
+        if config.get("bbo"):
+            self.bbo_data[symbol] = BBO(symbol)
+            subscribe_message = {
+                "event": "subscribe",
+                "topic": f"{symbol}@bbo",
+                "symbol": symbol,
+                "type": "bbo"
+            }
+            await websocket.send(json.dumps(subscribe_message))
+            print(f"Subscribed to BBO for {symbol}")
+        
+        if config.get("trade"):
+            subscribe_message = {
+                "event": "subscribe",
+                "topic": f"{symbol}@trade",
+            }
+            await websocket.send(json.dumps(subscribe_message))
+            print(f"Subscribed to trade for {symbol}")
+        
+        if config.get("kline"):
+            subscribe_message = {
+                "event": "subscribe",
+                "topic": f"{symbol}@kline_{config['kline']}",
+            }
+            await websocket.send(json.dumps(subscribe_message))
+            print(f"Subscribed to kline for {symbol}")
+
+    async def respond_pong(self, websocket):
+        """Responds to server PINGs with a PONG."""
+        pong_message = {
+            "event": "pong",
+            "ts": int(asyncio.get_event_loop().time() * 1000)
+        }
+        await websocket.send(json.dumps(pong_message))
+
+    async def process_market_data(self, symbol, interval, message):
+        """Process market data and publish it to Redis."""
+        data = json.loads(message)
+        if 'topic' in data:
+            # Assuming message contains 'orderbook' or 'bbo' data
+            if data['topic'] == f"{symbol}@orderbook":
+                # self.orderbooks[symbol].update(data['orderbook'])
+                # Publish the updated orderbook to Redis
+                await self.publish_to_redis(f"{symbol}-orderbook", data['data'])
+
+            if data['topic'] == f"{symbol}@bbo":
+                # self.bbo_data[symbol].update(data['bbo'])
+                # Publish the updated BBO to Redis
+                await self.publish_to_redis(f"{symbol}-bbo", data['data'])
+            
+            if data['topic'] == f"{symbol}@trade":
+                # Publish the trade data to Redis
+                await self.publish_to_redis(f"{symbol}-trade", data['data'])
+            
+            if data['topic'] == f"{symbol}@kline_{interval}":
+                # Publish the kline data to Redis
+                await self.publish_to_redis(f"{symbol}-kline-{interval}", data['data'])
+
+    async def listen_for_data(self, websocket, symbol, config):
+        """Listen for incoming market data and publish to Redis."""
+        async for message in websocket:
+            # print(f"Received message: {message}")
+            await self.process_market_data(symbol, config['kline'], message)
+
+    async def close_connection(self):
+        """Gracefully closes the WebSocket connection."""
+        if self.market_connection is not None:
+            await self.market_connection.close()
+            self.market_connection = None
+            print("Market WebSocket connection closed")
+
+        if self.private_connection is not None:
+            await self.private_connection.close()
+            self.private_connection = None
+            print("Private WebSocket connection closed")
+
+    async def start(self, symbol, config):
+        """Start the WebSocket connection and market data subscription."""
+        await self.connect_redis()  # Connect to Redis
+        websocket = await self.market_connect()
+        await self.subscribe(websocket, symbol, config)
+        await self.listen_for_data(websocket, symbol, config)
+
+# Example usage
+async def main():
+    api = MarketWooXStagingAPI(app_id="your_app_id", api_key="your_api_key", api_secret="your_api_secret", redis_host="localhost")
+    await api.start(symbol="SPOT_ETH_USDT", config={"orderbook": False, "bbo": True, "trade": False, "kline": "1m"})
+
+if __name__ == "__main__":
+    asyncio.run(main())
+
