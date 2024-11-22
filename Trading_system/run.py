@@ -26,7 +26,6 @@ class TradingSystem:
         self.strategy_executor = None
         self.order_executor = None
 
-    # Async initialization method
     async def initialize(self):
         self.redis_client = await aioredis.from_url(self.redis_url)
         self.market_publisher = MarketWooXStagingAPI(self.app_id, self.api_key, self.api_secret, self.redis_host, self.redis_port)
@@ -38,20 +37,20 @@ class TradingSystem:
         await self.market_publisher.connect_redis()
         market_websocket = await self.market_publisher.market_connect()
         await self.market_publisher.subscribe(market_websocket, symbol, config)
-        return await self.market_publisher.listen_for_data(market_websocket, symbol, config)
+        return asyncio.create_task(self.market_publisher.listen_for_data(market_websocket, symbol, config))
         
     async def start_private_publisher(self, config):
+        print("Starting private publisher")
         await self.private_publisher.connect_redis()
         await self.private_publisher.authenticate()
         private_websocket = await self.private_publisher.connect_private()
         await self.private_publisher.subscribe(private_websocket, config)
-        return await self.private_publisher.listen_for_data(private_websocket, config)
+        return asyncio.create_task(self.private_publisher.listen_for_data(private_websocket, config))
 
     async def start_strategy_executor(self, symbols, config):
         await self.strategy_executor.connect_redis()
-        await self.strategy_executor.add_strategy(ExampleStrategy(signal_channel="order-executor"))
+        self.strategy_executor.add_strategy(ExampleStrategy(signal_channel="order-executor"))
         channels = []
-
         # Iterate over symbols and all keys in market and private configs
         for symbol in symbols:
             for market_channel, is_enabled in config["market"].items():
@@ -62,14 +61,16 @@ class TradingSystem:
                     channels.append(f"{symbol}-{private_channel}")
         
         pubsub = await self.strategy_executor.subscribe_to_channels(channels)
-        return await self.strategy_executor.listen_to_market_data(pubsub)
+        return asyncio.create_task(self.strategy_executor.listen_to_market_data(pubsub))
 
     async def start_order_executor(self, config):
         await self.order_executor.connect_redis()
         signal_pubsub = await self.order_executor.subscribe_to_signals("order-executor")
         execution_report_pubsub = await self.order_executor.subscribe_to_private_data("execution-reports")
         
-        return await self.order_executor.listen_for_signals(signal_pubsub), await self.order_executor.listen_for_execution_report(execution_report_pubsub)
+        signal_task = asyncio.create_task(self.order_executor.listen_for_signals(signal_pubsub))
+        report_task = asyncio.create_task(self.order_executor.listen_for_execution_report(execution_report_pubsub))
+        return signal_task, report_task
 
     async def run(self, symbols, config):
         """Run the trading system by gathering all components."""
@@ -89,7 +90,7 @@ class TradingSystem:
         strategy_task = await self.start_strategy_executor(symbols, config)
 
         # Start order executor
-        order_signals_task, execution_report_task = await self.start_order_executor(config)
+        order_signals_task, execution_report_task= await self.start_order_executor(config)
 
         # Run everything concurrently
         await asyncio.gather(
@@ -97,7 +98,7 @@ class TradingSystem:
             private_task,
             strategy_task,
             order_signals_task,
-            execution_report_task
+            execution_report_task,
         )
 
 if __name__ == "__main__":
@@ -107,8 +108,8 @@ if __name__ == "__main__":
     api_secret = 'FWQGXZCW4P3V4D4EN4EIBL6KLTDA'
     config = {
         "market": {
-            "orderbook": True,
-            "bbo": True,
+            "orderbook": False,
+            "bbo": False,
             "trade": False,
             "kline": "1m"
         },
@@ -128,3 +129,4 @@ if __name__ == "__main__":
     asyncio.run(trading_system.initialize())
     # Run the trading system
     asyncio.run(trading_system.run(symbols, config))
+

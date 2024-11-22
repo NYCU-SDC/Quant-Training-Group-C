@@ -39,19 +39,19 @@ class PrivateWooXStagingAPI:
             encoding='utf-8', 
             decode_responses=True
         )
-        print(f"Connected to Redis server at {self.redis_host}:{self.redis_port}")
+        print(f"[Private data publisher] Connected to Redis server at {self.redis_host}:{self.redis_port}")
 
     async def publish_to_redis(self, channel, data):
         """Publish data to Redis channel."""
         if self.redis_client:
             await self.redis_client.publish(channel, json.dumps(data))
-            print(f"Published to Redis channel: {channel}")
+            print(f"[Private data publisher] Published to Redis channel: {channel}")
 
     async def connect_private(self):
         """Establish the WebSocket connection."""
         if self.private_connection is None:
             self.private_connection = await websockets.connect(self.private_uri)
-            print(f"Connected to {self.private_uri}")
+            print(f"[Private data publisher] Connected to {self.private_uri}")
         return self.private_connection
 
     async def authenticate(self):
@@ -74,9 +74,9 @@ class PrivateWooXStagingAPI:
         response = json.loads(await connection.recv())
 
         if response.get("success"):
-            print("Authentication successful.")
+            print("[Private data publisher] Authentication successful.")
         else:
-            print(f"Authentication failed: {response.get('errorMsg')}")
+            print(f"[Private data publisher] Authentication failed: {response.get('errorMsg')}")
 
     async def subscribe(self, websocket, config):
         """Subscribe to executionreport, position."""
@@ -86,7 +86,7 @@ class PrivateWooXStagingAPI:
                 "topic": "executionreport",
             }
             await websocket.send(json.dumps(subscribe_message))
-            print(f"Subscribed to executionreport")
+            print(f"[Private data publisher] Subscribed to executionreport")
         
         if config.get("position"):
             subscribe_message = {
@@ -94,7 +94,7 @@ class PrivateWooXStagingAPI:
                 "topic": "position",
             }
             await websocket.send(json.dumps(subscribe_message))
-            print(f"Subscribed to position")
+            print(f"[Private data publisher] Subscribed to position")
 
         if config.get("balance"):
             subscribe_message = {
@@ -102,7 +102,7 @@ class PrivateWooXStagingAPI:
                 "topic": "balance",
             }
             await websocket.send(json.dumps(subscribe_message))
-            print(f"Subscribed to balance")
+            print(f"[Private data publisher] Subscribed to balance")
 
     async def respond_pong(self, websocket):
         """Responds to server PINGs with a PONG."""
@@ -115,27 +115,24 @@ class PrivateWooXStagingAPI:
     async def process_market_data(self, message):
         """Process market data and publish it to Redis."""
         data = json.loads(message)
-        
-        # Assuming message contains 'executionreport', 'position', 'balance' data
-        if data['topic'] == "executionreport":
-            print(data['data'])
-            # Publish the updated orderbook to Redis
-            await self.publish_to_redis(f"executionreport", data['data'])
+        if 'topic' in data:
+            # Assuming message contains 'executionreport', 'position', 'balance' data
+            if data['topic'] == "executionreport":
+                print(f"[Private data publisher] Received execution report: {data['data']}")
+                await self.publish_to_redis(f"executionreport", data['data'])
 
-        if data['topic'] == "position":
-            print(data['data'])
-            # Publish the updated orderbook to Redis
-            await self.publish_to_redis(f"position", data['data'])
+            if data['topic'] == "position":
+                # print(f"[Private data publisher] Received position data: {data['data']}")
+                await self.publish_to_redis(f"position", data['data'])
 
-        if data['topic'] == "balance":
-            print(data['data'])
-            # Publish the updated orderbook to Redis
-            await self.publish_to_redis(f"balance", data['data'])
+            if data['topic'] == "balance":
+                # print(f"[Private data publisher] Received balance data: {data['data']}")
+                await self.publish_to_redis(f"balance", data['data'])
 
     async def listen_for_data(self, websocket, config):
         """Listen for incoming market data and publish to Redis."""
         async for message in websocket:
-            print(f"Received message: {message}")
+            print(f"[Private data publisher] Received message: {message}")
             await self.process_market_data(message)
 
     async def close_connection(self):
@@ -143,12 +140,12 @@ class PrivateWooXStagingAPI:
         if self.private_connection is not None:
             await self.private_connection.close()
             self.private_connection = None
-            print("Market WebSocket connection closed")
+            print("[Private data publisher] Market WebSocket connection closed")
 
         if self.private_connection is not None:
             await self.private_connection.close()
             self.private_connection = None
-            print("Private WebSocket connection closed")
+            print("[Private data publisher] Private WebSocket connection closed")
 
     async def start(self, config):
         """Start the WebSocket connection and market data subscription."""
@@ -157,6 +154,7 @@ class PrivateWooXStagingAPI:
         websocket = await self.connect_private()
         await self.subscribe(websocket, config)
         await self.listen_for_data(websocket, config)
+
 
 # Example usage
 async def main():

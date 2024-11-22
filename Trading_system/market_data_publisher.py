@@ -39,19 +39,19 @@ class MarketWooXStagingAPI:
             encoding='utf-8', 
             decode_responses=True
         )
-        print(f"Connected to Redis server at {self.redis_host}:{self.redis_port}")
+        print(f"[Maeket data publisher] Connected to Redis server at {self.redis_host}:{self.redis_port}")
 
     async def publish_to_redis(self, channel, data):
         """Publish data to Redis channel."""
         if self.redis_client:
             await self.redis_client.publish(channel, json.dumps(data))
-            # print(f"Published to Redis channel: {channel}")
+            # print(f"[Maeket data publisher] Published to Redis channel: {channel}")
 
     async def market_connect(self):
         """Handles WebSocket connection to market data."""
         if self.market_connection is None:
             self.market_connection = await websockets.connect(self.market_data_uri)
-            print(f"Connected to {self.market_data_uri}")
+            print(f"[Maeket data publisher] Connected to {self.market_data_uri}")
         return self.market_connection
 
     async def subscribe(self, websocket, symbol, config):
@@ -65,7 +65,7 @@ class MarketWooXStagingAPI:
                 "type": "orderbook"
             }
             await websocket.send(json.dumps(subscribe_message))
-            print(f"Subscribed to orderbook for {symbol}")
+            print(f"[Maeket data publisher] Subscribed to orderbook for {symbol}")
 
         if config.get("bbo"):
             self.bbo_data[symbol] = BBO(symbol)
@@ -76,7 +76,7 @@ class MarketWooXStagingAPI:
                 "type": "bbo"
             }
             await websocket.send(json.dumps(subscribe_message))
-            print(f"Subscribed to BBO for {symbol}")
+            print(f"[Maeket data publisher] Subscribed to BBO for {symbol}")
         
         if config.get("trade"):
             subscribe_message = {
@@ -84,7 +84,7 @@ class MarketWooXStagingAPI:
                 "topic": f"{symbol}@trade",
             }
             await websocket.send(json.dumps(subscribe_message))
-            print(f"Subscribed to trade for {symbol}")
+            print(f"[Maeket data publisher] Subscribed to trade for {symbol}")
         
         if config.get("kline"):
             subscribe_message = {
@@ -92,7 +92,7 @@ class MarketWooXStagingAPI:
                 "topic": f"{symbol}@kline_{config['kline']}",
             }
             await websocket.send(json.dumps(subscribe_message))
-            print(f"Subscribed to kline for {symbol}")
+            print(f"[Maeket data publisher] Subscribed to kline for {symbol}")
 
     async def respond_pong(self, websocket):
         """Responds to server PINGs with a PONG."""
@@ -119,11 +119,13 @@ class MarketWooXStagingAPI:
             
             if data['topic'] == f"{symbol}@trade":
                 # Publish the trade data to Redis
+                print("[Maeket data publisher] add trade")
                 await self.publish_to_redis(f"{symbol}-trade", data['data'])
             
             if data['topic'] == f"{symbol}@kline_{interval}":
                 # Publish the kline data to Redis
-                await self.publish_to_redis(f"{symbol}-kline-{interval}", data['data'])
+                print("[Maeket data publisher] add kline")
+                await self.publish_to_redis(f"{symbol}-kline", data['data'])
 
     async def listen_for_data(self, websocket, symbol, config):
         """Listen for incoming market data and publish to Redis."""
@@ -136,12 +138,12 @@ class MarketWooXStagingAPI:
         if self.market_connection is not None:
             await self.market_connection.close()
             self.market_connection = None
-            print("Market WebSocket connection closed")
+            print("[Maeket data publisher] Market WebSocket connection closed")
 
         if self.private_connection is not None:
             await self.private_connection.close()
             self.private_connection = None
-            print("Private WebSocket connection closed")
+            print("[Maeket data publisher] Private WebSocket connection closed")
 
     async def start(self, symbol, config):
         """Start the WebSocket connection and market data subscription."""
