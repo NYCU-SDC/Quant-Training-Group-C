@@ -17,33 +17,35 @@ class StrategyExecutor:
     def add_strategy(self, strategy):
         """Add a strategy to the executor."""
         self.strategies.append(strategy)
+        print("[Strategy Executor] Added strategy:", self.strategies)
 
     async def connect_redis(self):
         """Connect to Redis."""
         self.redis_client = await aioredis.from_url(self.redis_url)
-        print(f"Connected to Redis at {self.redis_url}")
+        print(f"[Strategy Executor] Connected to Redis at {self.redis_url}")
 
     async def subscribe_to_channels(self, channels):
         """Subscribe to market data channels."""
         pubsub = self.redis_client.pubsub()
         await pubsub.subscribe(*channels)
-        print(f"Subscribed to channels: {channels}")
+        print(f"[Strategy Executor] Subscribed to channels: {channels}")
         return pubsub
 
     async def listen_to_market_data(self, pubsub):
         """Listen for market data and dispatch it to strategies."""
-        print("Listening for market data...")
+        print("[Strategy Executor] Listening for market data...")
         async for message in pubsub.listen():
             if message["type"] == "message":
                 channel = message["channel"].decode("utf-8")
                 data = json.loads(message["data"])
-                print(f"Received data from channel {channel}: {data}")
+                print(f"[Strategy Executor] Received data from channel {channel}: {data}")
                 await self.dispatch_to_strategies(channel, data)
 
     async def dispatch_to_strategies(self, channel, data):
         """Dispatch market data to all registered strategies."""
+        print(f"[Strategy Executor] Dispatching data to strategies for channel {channel}.")
         tasks = [
-            strategy.execute(channel, data, self.redis_client)
+            asyncio.create_task(strategy.execute(channel, data, self.redis_client))
             for strategy in self.strategies
         ]
         await asyncio.gather(*tasks)
@@ -53,7 +55,7 @@ async def main():
 
     # Strategy Executor
     strategy_executor = StrategyExecutor(redis_url)
-    print("Connecting to Redis...")
+    print("[Strategy Executor] Connecting to Redis...")
     await strategy_executor.connect_redis()
     strategy_executor.add_strategy(MovingAverageStrategy(signal_channel="order-executor"))
     pubsub = await strategy_executor.subscribe_to_channels(["SPOT_ETH_USDT-orderbook", "SPOT_ETH_USDT-bbo"])

@@ -13,7 +13,7 @@ class ExampleStrategy(Strategy):
     async def execute(self, channel, data, redis_client):
         # Simulate signal generation
         await asyncio.sleep(0.1)
-        print(f"[MovingAverageStrategy] Processing data from {channel}: {data}")
+        print(f"[ExampleStrategy] Processing data from {channel}: {data}")
 
         # Example signal generation
         signal = {
