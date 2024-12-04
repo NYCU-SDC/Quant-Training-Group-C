@@ -201,7 +201,7 @@ async def main():
     api_secret = 'FWQGXZCW4P3V4D4EN4EIBL6KLTDA'
     woox_api = WooX_REST_API_Client(api_key, api_secret)
 
-    symbol = 'PERP_BTC_USDT'
+    symbol = 'SPOT_BTC_USDT'
 
     async with aiohttp.ClientSession() as session:
         await busy_loop(woox_api, session, symbol)

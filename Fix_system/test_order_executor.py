@@ -9,7 +9,7 @@ import logging
 
 from io import StringIO
 
-# 設置日誌記錄，方便追蹤程式執行情況
+# Set up logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -18,7 +18,7 @@ logger = logging.getLogger('OrderExecutor')
 
 class OrderExecutor:
     def __init__(self, api_key, api_secret, redis_url="redis://localhost:6379"):
-        """初始化訂單執行器"""
+        """Initialize order executor"""
         self.redis_url = redis_url
         self.redis_client = None
         self.api = WooX_REST_API_Client(api_key, api_secret)
@@ -33,38 +33,38 @@ class OrderExecutor:
         logger.info("OrderExecutor initialized")
 
     async def connect_redis(self):
-        """建立Redis連接"""
+        """Establish Redis connection"""
         self.redis_client = await aioredis.from_url(self.redis_url)
         logger.info(f"Connected to Redis at {self.redis_url}")
 
     async def subscribe_to_signals(self, signal_channel):
-        """訂閱訂單信號頻道"""
+        """"Subscribe to order signal channel"""
         pubsub = self.redis_client.pubsub()
         await pubsub.subscribe(signal_channel)
         logger.info(f"Subscribed to signal channel: {signal_channel}")
         return pubsub
 
     async def subscribe_to_private_data(self, private_data_channel):
-        """訂閱私有數據頻道"""
+        """Subscribe to private data channel"""
         pubsub = self.redis_client.pubsub()
         await pubsub.subscribe(private_data_channel)
         logger.info(f"Subscribed to private data channel: {private_data_channel}")
         return pubsub
 
     async def subscribe_to_strategy_signals(self, strategy_channel):
-        """訂閱策略信號頻道"""
+        """Subscribe to strategy signal channel"""
         pubsub = self.redis_client.pubsub()
         await pubsub.subscribe(strategy_channel)
         logger.info(f"Subscribed to strategy channel: {strategy_channel}")
         return pubsub
 
     async def subscribe_to_processed_klines(self):
-        """訂閱並監控已處理的K線數據"""
+        """Subscribe and monitor processed kline data"""
         while True:
             try:
                 processed_klines = await self.redis_client.get('processed_klines')
                 if processed_klines:
-                    # 使用 StringIO 來正確處理 JSON 字符串
+                    # Use StringIO to properly handle JSON strings
                     klines_str = processed_klines.decode('utf-8') if isinstance(processed_klines, bytes) else processed_klines
                     df = pd.read_json(StringIO(klines_str))
                     if not df.empty:
@@ -76,7 +76,7 @@ class OrderExecutor:
             await asyncio.sleep(1)
 
     async def check_exit_conditions(self, current_price):
-        """檢查是否達到平倉條件"""
+        """Check if position closing conditions are met"""
         if not self.current_position or not self.entry_price or not self.current_atr:
             return
 
@@ -96,7 +96,7 @@ class OrderExecutor:
                     }
                     result = await self.execute_order(close_signal, int(time.time()*1000), session)
                     if not result.get('error'):
-                        logger.info(f"已平多倉 - 原因: {'停利' if current_price >= take_profit else '停損'}")
+                        logger.info(f"Closed long position - Reason: {'Take Profit' if current_price >= take_profit else 'Stop Loss'}")
                         self.current_position = None
                         self.entry_price = None
                         self.position_size = 0.0
@@ -116,13 +116,13 @@ class OrderExecutor:
                     }
                     result = await self.execute_order(close_signal, int(time.time()*1000), session)
                     if not result.get('error'):
-                        logger.info(f"已平空倉 - 原因: {'停利' if current_price <= take_profit else '停損'}")
+                        logger.info(f"Closed short position - Reason: {'Take Profit' if current_price <= take_profit else 'Stop Loss'}")
                         self.current_position = None
                         self.entry_price = None
                         self.position_size = 0.0
 
     async def listen_for_strategy_signals(self, pubsub):
-        """監聽策略信號"""
+        """Listen for strategy signals"""
         logger.info("Started listening for strategy signals")
         async for message in pubsub.listen():
             if message["type"] == "message":
@@ -130,7 +130,7 @@ class OrderExecutor:
                 await self.process_strategy_signal(strategy_signal)
 
     async def listen_for_execution_report(self, pubsub):
-        """監聽執行報告"""
+        """Listen for execution reports"""
         logger.info("Started listening for execution reports")
         async for message in pubsub.listen():
             if message["type"] == "message":
@@ -138,7 +138,7 @@ class OrderExecutor:
                 await self.process_execution_report(execution_report)
 
     async def process_execution_report(self, execution_report):
-        """處理執行報告"""
+        """Process execution report"""
         logger.info(f"Processing execution report: {execution_report}")
         if execution_report.get('msgType') == 0 and execution_report.get('status') == 'FILLED':
             client_order_id = execution_report.get('client_order_id')
@@ -148,7 +148,7 @@ class OrderExecutor:
                 self.bid_market_order.pop(client_order_id, None)
 
     async def execute_order(self, signal, client_order_id, session):
-        """執行訂單"""
+        """Execute order"""
         if signal['target'] == 'send_order':
             logger.info(f"Preparing hedge mode market order: {signal}")
             
@@ -173,7 +173,7 @@ class OrderExecutor:
                 return {'error': str(e)}
 
     async def process_strategy_signal(self, strategy_signal):
-        """處理策略信號"""
+        """Process strategy signal"""
         signal = strategy_signal['signal']
         price = strategy_signal.get('price')
         quantity = 0.0001
@@ -267,7 +267,6 @@ class OrderExecutor:
                 logger.error(f"Error in strategy signal processing: {e}")
 
 async def main():
-    """主程序入口"""
     try:
         api_key = 'sdFgbf5mnyDD/wahfC58Kw=='
         api_secret = 'FWQGXZCW4P3V4D4EN4EIBL6KLTDA'
@@ -303,7 +302,7 @@ async def main():
 
 if __name__ == "__main__":
     try:
-        # 使用 new_event_loop 來避免警告
+        # Use new_event_loop to avoid warnings
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         main_task = loop.create_task(main())
