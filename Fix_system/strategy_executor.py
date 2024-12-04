@@ -6,7 +6,7 @@ import datetime
 import hmac
 import hashlib
 from redis import asyncio as aioredis  # Redis client for async operations
-from strategy_logics.example_strategy import ExampleStrategy
+from strategy_logics.cta_strategy import ExampleStrategy
 
 class StrategyExecutor:
     def __init__(self, redis_url="redis://localhost:6379"):
