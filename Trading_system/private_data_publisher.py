@@ -5,7 +5,7 @@ import time
 import datetime
 import hmac
 import hashlib
-import aioredis  # Redis client for async operations
+from redis import asyncio as aioredis  # Redis client for async operations
 
 # Import your existing classes
 from data_processing.Orderbook import OrderBook

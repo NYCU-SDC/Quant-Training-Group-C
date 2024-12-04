@@ -5,7 +5,7 @@ import time
 import datetime
 import hmac
 import hashlib
-import aioredis  # Redis client for async operations
+from redis import asyncio as aioredis  # Redis client for async operations
 
 # Import your existing classes
 from data_processing.Orderbook import OrderBook
@@ -154,8 +154,11 @@ class MarketWooXStagingAPI:
 
 # Example usage
 async def main():
-    api = MarketWooXStagingAPI(app_id="your_app_id", api_key="your_api_key", api_secret="your_api_secret", redis_host="localhost")
-    await api.start(symbol="SPOT_ETH_USDT", config={"orderbook": False, "bbo": True, "trade": False, "kline": "1m"})
+    app_id = "460c97db-f51d-451c-a23e-3cce56d4c932"
+    api_key = 'sdFgbf5mnyDD/wahfC58Kw=='
+    api_secret = 'FWQGXZCW4P3V4D4EN4EIBL6KLTDA'
+    api = MarketWooXStagingAPI(app_id=app_id, api_key=api_key, api_secret=api_secret, redis_host="localhost")
+    await api.start(symbol="SPOT_BTC_USDT", config={"orderbook": False, "bbo": True, "trade": False, "kline": "1m"})
 
 if __name__ == "__main__":
     asyncio.run(main())

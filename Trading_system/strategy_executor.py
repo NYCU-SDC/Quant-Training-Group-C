@@ -5,7 +5,7 @@ import time
 import datetime
 import hmac
 import hashlib
-import aioredis  # Redis client for async operations
+from redis import asyncio as aioredis  # Redis client for async operations
 from strategy_logics.example_strategy import ExampleStrategy
 
 class StrategyExecutor:
@@ -57,7 +57,7 @@ async def main():
     strategy_executor = StrategyExecutor(redis_url)
     print("[Strategy Executor] Connecting to Redis...")
     await strategy_executor.connect_redis()
-    strategy_executor.add_strategy(MovingAverageStrategy(signal_channel="order-executor"))
+    strategy_executor.add_strategy(ExampleStrategy(signal_channel="order-executor"))
     pubsub = await strategy_executor.subscribe_to_channels(["SPOT_ETH_USDT-orderbook", "SPOT_ETH_USDT-bbo"])
 
     # # Order Executor
