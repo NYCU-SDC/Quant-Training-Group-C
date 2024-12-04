@@ -26,6 +26,7 @@ Fix_system/
 |--- plot_daily_pnl.py
 |--- process_results.py
 ``` 
+<<<<<<< HEAD
 ## First Layer
 * **data_publisher.py** : Handles WooX WebSocket API connection, pub data to Redis.
 * **data_subscriber.py** : Manages data subscription and processes sub data.
@@ -44,3 +45,5 @@ Fix_system/
 * **strategy_init.py**: Strategy initialization and setup
 * **cta_strategy.py**: CTA strategy implementation
 * **df.ipynb**: Jupyter notebook for looking df DataFrame, ATR, and Current Price
+=======
+>>>>>>> 2baecbee4e83d568c5082b47e775255ab9c03aea
