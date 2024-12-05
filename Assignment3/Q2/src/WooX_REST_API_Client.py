@@ -17,7 +17,7 @@ import logging
 # 將/v1 & /v3 保留在 endpoint!
 # check it's v1 or v3 to return make_request_v1 or make_request_v3
 
-class WooXStagingAPI:
+class WooXStagingAPIRset:
     def __init__(self, api_key, api_secret, base_url = 'https://api.staging.woox.io'):
         self.api_key = api_key
         self.api_secret = api_secret
@@ -226,6 +226,12 @@ class WooXStagingAPI:
                          order_price=None, order_quantity=None, order_amount=None, 
                          visible_quantity=None, reduce_only=False, margin_mode=None,
                          position_side=None):
+        params = {
+            'symbol': symbol,
+            'order_type': order_type,
+            'side': side
+        }
+        
         # validate order_type
         valid_order_types = {'LIMIT', 'MARKET', 'IOC', 'FOK', 'POST_ONLY', 'ASK', 'BID'}
         if order_type not in valid_order_types:
@@ -277,11 +283,7 @@ class WooXStagingAPI:
             params['position_side'] = position_side
         
         endpoint = f'/v1/order' 
-        params = {
-            'symbol': symbol,
-            'order_type': order_type,
-            'side': side
-        }
+
         return await self.make_request_v1(session, 'POST', endpoint, params)
     
     # https://docs.woox.io/#cancel-order
@@ -422,52 +424,53 @@ class WooXStagingAPI:
         }
         return await self.make_request_v3(session, 'POST', endpoint, params)
 
+if __name__ == '__main__':
 
-async def background_processing_task():
-    for i in range(5):
-        print(f"[Background Task] Processing data... {i + 1}/5")
-        await asyncio.sleep(random.uniform(0.01, 2))
-    print("[Background Task] Completed background processing.")
+    async def background_processing_task():
+        for i in range(5):
+            print(f"[Background Task] Processing data... {i + 1}/5")
+            await asyncio.sleep(random.uniform(0.01, 2))
+        print("[Background Task] Completed background processing.")
 
-# busy loop is to handle non-blocking 
-async def busy_loop(woox_api, session, symbol):
-    tasks = [
-        asyncio.create_task(woox_api.get_orderbook(session, symbol)),
-        asyncio.create_task(woox_api.get_trades(session, symbol)),
-        asyncio.create_task(woox_api.get_kline(session, symbol))
-    ]
+    # busy loop is to handle non-blocking 
+    async def busy_loop(woox_api, session, symbol):
+        tasks = [
+            asyncio.create_task(woox_api.get_orderbook(session, symbol)),
+            asyncio.create_task(woox_api.get_trades(session, symbol)),
+            asyncio.create_task(woox_api.get_kline(session, symbol))
+        ]
 
-    task_names = ["Orderbook", "Trades", "Kline"]
+        task_names = ["Orderbook", "Trades", "Kline"]
 
-    while True:
-        print(f"\nPolling for {symbol} data...\n")
-        for i, task in enumerate(tasks):
-            if task.done():
-                try:
-                    result = await task
-                    print(f"[{task_names[i]}] done.")
-                    print(f"[{task_names[i]}] result={result}")
-                    if task_names[i] == "Orderbook":
-                        tasks[i] = asyncio.create_task(woox_api.get_orderbook(session, symbol))
-                    elif task_names[i] == "Trades":
-                        tasks[i] = asyncio.create_task(woox_api.get_trades(session, symbol))
-                    elif task_names[i] == "Kline":
-                        tasks[i] = asyncio.create_task(woox_api.get_kline(session, symbol))
+        while True:
+            print(f"\nPolling for {symbol} data...\n")
+            for i, task in enumerate(tasks):
+                if task.done():
+                    try:
+                        result = await task
+                        print(f"[{task_names[i]}] done.")
+                        print(f"[{task_names[i]}] result={result}")
+                        if task_names[i] == "Orderbook":
+                            tasks[i] = asyncio.create_task(woox_api.get_orderbook(session, symbol))
+                        elif task_names[i] == "Trades":
+                            tasks[i] = asyncio.create_task(woox_api.get_trades(session, symbol))
+                        elif task_names[i] == "Kline":
+                            tasks[i] = asyncio.create_task(woox_api.get_kline(session, symbol))
 
-                except Exception as e:
-                    print(f"[{task_names[i]} Error] {e}")
+                    except Exception as e:
+                        print(f"[{task_names[i]} Error] {e}")
 
-        await background_processing_task()
+            await background_processing_task()
 
-        await asyncio.sleep(0.1)
+            await asyncio.sleep(0.1)
 
-async def main():
-    api_key = 'sdFgbf5mnyDD/wahfC58Kw=='
-    api_secret_key = 'FWQGXZCW4P3V4D4EN4EIBL6KLTDA'
-    woox_api = WooXStagingAPI(api_key, api_secret_key)
-    symbol = 'SPOT_BTC_USDT'
+    async def main():
+        api_key = 'sdFgbf5mnyDD/wahfC58Kw=='
+        api_secret_key = 'FWQGXZCW4P3V4D4EN4EIBL6KLTDA'
+        woox_api = WooXStagingAPIRset(api_key, api_secret_key)
+        symbol = 'SPOT_BTC_USDT'
 
-    async with aiohttp.ClientSession() as session:
-        await busy_loop(woox_api, session, symbol)
+        async with aiohttp.ClientSession() as session:
+            await busy_loop(woox_api, session, symbol)
 
-asyncio.run(main())
+    asyncio.run(main())

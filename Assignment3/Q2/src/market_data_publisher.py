@@ -3,7 +3,7 @@ import asyncio
 import websockets
 from Data_preprocessor import DataProcessor
 
-class WooXStagingAPI(DataProcessor):
+class WooXStagingAPIWebsocket(DataProcessor):
     def __init__(self, app_id: str, model_path: str, time_sequence=10, time_interval=1):
         super().__init__(model_path, time_sequence, time_interval)
         self.app_id = app_id
@@ -22,7 +22,6 @@ class WooXStagingAPI(DataProcessor):
 
     async def subscribe(self, symbol, config, kline_iterval = '1m'):
         websocket = await self.connect()
-
         if config.get("orderbook"):
             order_book_params = {
                 "id": self.app_id,
@@ -181,12 +180,15 @@ class WooXStagingAPI(DataProcessor):
             await self.connection.close()
             self.connection = None
             print("WebSocket connection closed")
-
+    
+    async def get_prediction(self):
+        return self.prediction, self.current_price
+    
 async def main():
     app_id = "460c97db-f51d-451c-a23e-3cce56d4c932"
     model_path = 'SPOT_BTC_USDT_model.pth'
     
-    api = WooXStagingAPI(app_id, model_path)
+    api = WooXStagingAPIWebsocket(app_id, model_path)
     symbols = ['SPOT_BTC_USDT']
     config = {
         "orderbook": True,

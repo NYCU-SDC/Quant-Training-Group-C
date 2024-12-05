@@ -5,14 +5,10 @@ import time
 import datetime
 import hmac
 import hashlib
-import aioredis  # Redis client for async operations
 
-# Import your existing classes
-from data_processing.Orderbook import OrderBook
-from data_processing.BBO import BBO
 
-class WooXStagingAPI:
-    def __init__(self, app_id: str, api_key, api_secret, redis_host: str, redis_port: int = 6379):
+class WooXStagingAPIPrivateMessage:
+    def __init__(self, app_id: str, api_key, api_secret):
         self.app_id = app_id
         self.market_data_uri = f"wss://wss.staging.woox.io/ws/stream/{self.app_id}"
         self.private_uri = f"wss://wss.staging.woox.io/v2/ws/private/stream/{self.app_id}"
@@ -22,30 +18,11 @@ class WooXStagingAPI:
         self.private_connection = None
         self.orderbooks = {}
         self.bbo_data = {}
-        self.redis_host = redis_host
-        self.redis_port = redis_port
-        self.redis_client = None
-        self.redis_channel = None
 
     def generate_signature(self, body):
         key_bytes = bytes(self.api_secret, 'utf-8')
         body_bytes = bytes(body, 'utf-8')
         return hmac.new(key_bytes, body_bytes, hashlib.sha256).hexdigest()
-
-    async def connect_redis(self):
-        """Connects to Redis server."""
-        self.redis_client = await aioredis.from_url(
-            f"redis://{self.redis_host}:{self.redis_port}", 
-            encoding='utf-8', 
-            decode_responses=True
-        )
-        print(f"Connected to Redis server at {self.redis_host}:{self.redis_port}")
-
-    async def publish_to_redis(self, channel, data):
-        """Publish data to Redis channel."""
-        if self.redis_client:
-            await self.redis_client.publish(channel, json.dumps(data))
-            print(f"Published to Redis channel: {channel}")
 
     async def connect_private(self):
         """Establish the WebSocket connection."""
@@ -115,22 +92,16 @@ class WooXStagingAPI:
     async def process_market_data(self, message):
         """Process market data and publish it to Redis."""
         data = json.loads(message)
+        topic = data.get("topic", "")
         
-        # Assuming message contains 'executionreport', 'position', 'balance' data
-        if 'position' in data:
-            print(data['position'])
-            # Publish the updated orderbook to Redis
-            # await self.publish_to_redis(f"{symbol}-orderbook", data['orderbook'])
+        if topic == 'position' :
+            print(data['positions'])
 
-        if 'executionreport' in data:
+        if topic == 'executionreport' :
             print(data['executionreport'])
-            # Publish the updated BBO to Redis
-            # await self.publish_to_redis(f"{symbol}-bbo", data['bbo'])
         
-        if 'balance' in data:
-            # Publish the trade data to Redis
-            print(data['trade'])
-            # await self.publish_to_redis(f"{symbol}-trade", data['trade'])
+        if topic == 'balance' :
+            print(data['blances'])
 
     async def listen_for_data(self, websocket, config):
         """Listen for incoming market data and publish to Redis."""
@@ -145,14 +116,8 @@ class WooXStagingAPI:
             self.private_connection = None
             print("Market WebSocket connection closed")
 
-        if self.private_connection is not None:
-            await self.private_connection.close()
-            self.private_connection = None
-            print("Private WebSocket connection closed")
-
     async def start(self, config):
         """Start the WebSocket connection and market data subscription."""
-        await self.connect_redis()  # Connect to Redis
         auth_connection = await self.authenticate()
         websocket = await self.connect_private()
         await self.subscribe(websocket, config)
@@ -163,7 +128,7 @@ async def main():
     app_id = "460c97db-f51d-451c-a23e-3cce56d4c932"
     api_key = 'sdFgbf5mnyDD/wahfC58Kw=='
     api_secret = 'FWQGXZCW4P3V4D4EN4EIBL6KLTDA'
-    api = WooXStagingAPI(app_id=app_id, api_key=api_key, api_secret=api_secret, redis_host="localhost")
+    api = WooXStagingAPIPrivateMessage(app_id=app_id, api_key=api_key, api_secret=api_secret, redis_host="localhost")
     await api.start(config={"executionreport": True, "position": True, "balance": True})
 
 if __name__ == "__main__":
