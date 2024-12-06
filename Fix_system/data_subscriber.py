@@ -78,22 +78,33 @@ class DataSubscriber:
         
         return interval_start, interval_end
 
+    # only processed the finished time interval to make sure that getting the completed data
     def should_process_kline(self, symbol: str, interval: str, kline_data: dict) -> bool:
         """
         Check if we should process this kline data based on kline's own time
+        Only process klines that have been completed (previous time period)
         """
         try:
-            # 從 kline 數據中獲取結束時間
-            end_time = int(kline_data.get('endTime', 0))
+            # Get the interval in seconds
+            interval_seconds = self.get_interval_seconds(interval)
+
+            # Get current timestamp in milliseconds
+            current_time = int(time.time() * 1000)
+
+            # Get kline end time from the data
+            kline_end_time = int(kline_data.get('endTime', 0))
+
+             # Calculate the end time of the last completed interval
+            last_completed_interval_end = (current_time // (interval_seconds * 1000)) * (interval_seconds * 1000)
             
-            # 如果是第一次處理該 symbol 的數據
-            if symbol not in self.kline_last_process_time:
-                self.kline_last_process_time[symbol] = end_time
-                return True
-            
-            # 如果是新的時間區間的數據
-            if end_time > self.kline_last_process_time[symbol]:
-                self.kline_last_process_time[symbol] = end_time
+            # Only process if:
+            # 1. This is a kline from a previous interval (end time < current interval start)
+            # 2. We haven't processed this kline before (end time > last processed time)
+            if kline_end_time <= last_completed_interval_end and (
+                symbol not in self.kline_last_process_time or 
+                kline_end_time > self.kline_last_process_time[symbol]
+            ):
+                self.kline_last_process_time[symbol] = kline_end_time
                 return True
                 
             return False
@@ -151,13 +162,16 @@ class DataSubscriber:
         ts = message_data.get('ts')
         data = message_data.get('data', {})
 
+        # Extract times for better logging
+        start_time = self.format_timestamp(int(data.get('startTime', 0)))
+        end_time = self.format_timestamp(int(data.get('endTime', 0)))
+
         print(f"\nChannel: {self.current_channel}")
         print(f"Timestamp Message Time: {self.format_timestamp(ts)}")
         print(f"Timestamp Current Time: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')}")
 
         print("\nKline Data:")
-        print(f"startTime: {data.get('startTime', '')}")
-        print(f"endTime: {data.get('endTime', '')}")
+        print(f"Period: {start_time} to {end_time}")
         print(f"open: {data.get('open', '')}")
         print(f"high: {data.get('high', '')}")
         print(f"low: {data.get('low', '')}")
@@ -216,19 +230,20 @@ class DataSubscriber:
         print(f"Available Balance: {data.get('available', '')}")
         print(f"Frozen Balance: {data.get('frozen', '')}")
     
-    async def process_message(self, channel: str, data: dict):
+    async def process_message(self, channel: str, data: str):
         """Process channel message"""
         try:
             self.current_channel = channel
             # Analyze string to JSON
             message_data = json.loads(data)
+
             # 檢查是否是 kline 數據
             if 'kline' in channel:
                 symbol = channel.split('-kline-')[0]
                 interval = channel.split('-kline-')[1]
                 
                 # 根據 kline 數據本身的時間來判斷是否處理
-                if not self.should_process_kline(symbol, interval, data.get('data', {})):
+                if not self.should_process_kline(symbol, interval, message_data.get('data', {})):
                     return
             
             # 輸出處理信息
@@ -254,6 +269,9 @@ class DataSubscriber:
             
         except Exception as e:
             print(f"Error processing message for channel {channel}: {e}")
+        
+        # print(f"收到的原始數據類型: {type(data)}")
+        # print(f"解析後的數據類型: {type(message_data)}")
     
     async def subscribe_to_data(self, symbol: str, market_config: dict, private_config: dict, interval: str = '1m'):
         """Subscribe to both market and private data"""

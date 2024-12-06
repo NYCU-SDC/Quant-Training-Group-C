@@ -45,7 +45,13 @@ class WooXStagingAPI:
     async def publish_to_redis(self, channel, data):
         """Publish data to Redis Channel"""
         if self.redis_client:
-            await self.redis_client.publish(channel, json.dumps(data))
+            # If data is already string, using it directly
+            if isinstance(data, str):
+                await self.redis_client.publish(channel, data)
+            else:
+                # If data is dict, 序列化一次
+                await self.redis_client.publish(channel, json.dumps(data))
+            
     
     async def market_connect(self):
         """Handles WebSocket connection to market data."""
@@ -300,8 +306,7 @@ async def main():
     symbol = "PERP_BTC_USDT"
     interval = "1m"
     market_config = {
-        "orderbook": True,
-
+        "orderbook": False,
         "bbo": False,
         "trade": False,
         "kline": True
