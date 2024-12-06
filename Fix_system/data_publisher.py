@@ -192,7 +192,12 @@ class WooXStagingAPI:
             
             redis_channel = topic_mapping.get(data['topic'])
             if redis_channel and 'data' in data:
-                await self.publish_to_redis(redis_channel, data['data'])
+                # Subscribed Message "ts" and "data", create the original structure
+                publish_data = {
+                    "ts": data.get("ts"), # the timestamp of this message
+                    "data": data['data']
+                }
+                await self.publish_to_redis(redis_channel, json.dumps(publish_data))
                 print(f"[Market Data Publisher] Published {redis_channel} data to Redis")
         
         except json.JSONDecodeError as e:
@@ -295,7 +300,8 @@ async def main():
     symbol = "PERP_BTC_USDT"
     interval = "1m"
     market_config = {
-        "orderbook": False,
+        "orderbook": True,
+
         "bbo": False,
         "trade": False,
         "kline": True
