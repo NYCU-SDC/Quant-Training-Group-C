@@ -11,6 +11,8 @@ class DataSubscriber:
         self.redis = None
         self.active_channels = {}
         self.kline_last_process_time = {}
+        # choose the sub channel
+        self.current_channel = None
     
     async def connect_to_redis(self):
         """Connect to Redis Server"""
@@ -44,6 +46,12 @@ class DataSubscriber:
         if config.get("balance"):
             channels.append("balance")
         return channels
+    
+    def format_timestamp(self, ts):
+        """Convert ms Timestamp into Date/Time"""
+        if ts:
+            return datetime.datetime.fromtimestamp(ts/1000).strftime('%Y-%m-%d %H:%M:%S.%f')
+        return 'N/A'
 
     def get_interval_seconds(self, interval: str) -> int:
         """Convert interval string to seconds"""
@@ -94,27 +102,59 @@ class DataSubscriber:
             print(f"Error in should_process_kline: {e}")
             return False
     
-    async def process_orderbook_data(self, data):
+    async def process_orderbook_data(self, message_data):
         """Process orderbook data"""
+        # get the current timestamp and the order book timestamp
+        ts = message_data.get("ts")
+        data = message_data.get("data", {})
+
+        # convert timestamp into Date & Time
+        print(f"\nChannel: {self.current_channel}")
+        print(f"Timestamp Message Time: {self.format_timestamp(ts)}")
+        print(f"Timestamp Current Time: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')}")
+        
         print("\nOrderbook Data:")
         print(f"Asks (first 5): {data.get('asks', [])[:5]}")
         print(f"Bids (first 5): {data.get('bids', [])[:5]}")
     
-    async def process_bbo_data(self, data):
+    async def process_bbo_data(self, message_data):
         """Process BBO data"""
+        # get the current timestamp and the order book timestamp
+        ts = message_data.get("ts")
+        data = message_data.get("data", {})
+
+        # convert timestamp into Date & Time
+        print(f"\nChannel: {self.current_channel}")
+        print(f"Timestamp Message Time: {self.format_timestamp(ts)}")
+        print(f"Timestamp Current Time: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')}")
+
         print("\nBBO Data:")
         print(f"Best Bid: {data.get('bid', '')}")
         print(f"Best Ask: {data.get('ask', '')}")
     
-    async def process_trade_data(self, data):
+    async def process_trade_data(self, message_data):
         """Process trade data"""
+        ts = message_data.get('ts')
+        data = message_data.get('data', {})
+        
+        print(f"\nChannel: {self.current_channel}")
+        print(f"Timestamp Message Time: {self.format_timestamp(ts)}")
+        print(f"Timestamp Current Time: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')}")
+        
         print("\nTrade Data:")
         print(f"Price: {data.get('price', '')}")
         print(f"Size: {data.get('size', '')}")
         print(f"Side: {data.get('side', '')}")
     
-    async def process_kline_data(self, data):
+    async def process_kline_data(self, message_data):
         """Process kline data"""
+        ts = message_data.get('ts')
+        data = message_data.get('data', {})
+
+        print(f"\nChannel: {self.current_channel}")
+        print(f"Timestamp Message Time: {self.format_timestamp(ts)}")
+        print(f"Timestamp Current Time: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')}")
+
         print("\nKline Data:")
         print(f"startTime: {data.get('startTime', '')}")
         print(f"endTime: {data.get('endTime', '')}")
@@ -129,8 +169,15 @@ class DataSubscriber:
         # 添加這一行來發布消息
         await self.redis.publish('latest_kline', json.dumps(data))
     
-    async def process_execution_report(self, data):
+    async def process_execution_report(self, message_data):
         """Process execution report data"""
+        ts = message_data.get('ts')
+        data = message_data.get('data', {})
+
+        print(f"\nChannel: {self.current_channel}")
+        print(f"Timestamp Message Time: {self.format_timestamp(ts)}")
+        print(f"Timestamp Current Time: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')}")
+
         print("\nExecution Report:")
         print(f"Order ID: {data.get('orderId', '')}")
         print(f"Symbol: {data.get('symbol', '')}")
@@ -139,16 +186,30 @@ class DataSubscriber:
         print(f"Quantity: {data.get('quantity', '')}")
         print(f"Status: {data.get('status', '')}")
     
-    async def process_position_data(self, data):
+    async def process_position_data(self, message_data):
         """Process position data"""
+        ts = message_data.get('ts')
+        data = message_data.get('data', {})
+
+        print(f"\nChannel: {self.current_channel}")
+        print(f"Timestamp Message Time: {self.format_timestamp(ts)}")
+        print(f"Timestamp Current Time: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')}")
+
         print("\nPosition Data:")
         print(f"Symbol: {data.get('symbol', '')}")
         print(f"Size: {data.get('size', '')}")
         print(f"Entry Price: {data.get('entryPrice', '')}")
         print(f"Unrealized PNL: {data.get('unrealizedPnl', '')}")
     
-    async def process_balance_data(self, data):
+    async def process_balance_data(self, message_data):
         """Process balance data"""
+        ts = message_data.get('ts')
+        data = message_data.get('data', {})
+
+        print(f"\nChannel: {self.current_channel}")
+        print(f"Timestamp Message Time: {self.format_timestamp(ts)}")
+        print(f"Timestamp Current Time: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')}")
+        
         print("\nBalance Data:")
         print(f"Asset: {data.get('asset', '')}")
         print(f"Total Balance: {data.get('total', '')}")
@@ -158,19 +219,18 @@ class DataSubscriber:
     async def process_message(self, channel: str, data: dict):
         """Process channel message"""
         try:
+            self.current_channel = channel
             # 檢查是否是 kline 數據
             if 'kline' in channel:
                 symbol = channel.split('-kline-')[0]
                 interval = channel.split('-kline-')[1]
                 
                 # 根據 kline 數據本身的時間來判斷是否處理
-                if not self.should_process_kline(symbol, interval, data):
+                if not self.should_process_kline(symbol, interval, data.get('data', {})):
                     return
             
             # 輸出處理信息
             print(f"\n{'='*50}")
-            print(f"Channel: {channel}")
-            print(f"Timestamp: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')}")
             
             # 根據不同類型處理數據
             if 'orderbook' in channel:
