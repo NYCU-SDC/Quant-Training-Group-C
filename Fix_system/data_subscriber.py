@@ -220,6 +220,8 @@ class DataSubscriber:
         """Process channel message"""
         try:
             self.current_channel = channel
+            # Analyze string to JSON
+            message_data = json.loads(data)
             # 檢查是否是 kline 數據
             if 'kline' in channel:
                 symbol = channel.split('-kline-')[0]
@@ -234,19 +236,19 @@ class DataSubscriber:
             
             # 根據不同類型處理數據
             if 'orderbook' in channel:
-                await self.process_orderbook_data(data)
+                await self.process_orderbook_data(message_data)
             elif 'bbo' in channel:
-                await self.process_bbo_data(data)
+                await self.process_bbo_data(message_data)
             elif 'trade' in channel:
-                await self.process_trade_data(data)
+                await self.process_trade_data(message_data)
             elif 'kline' in channel:
-                await self.process_kline_data(data)
+                await self.process_kline_data(message_data)
             elif channel == 'executionreport':
-                await self.process_execution_report(data)
+                await self.process_execution_report(message_data)
             elif channel == 'position':
-                await self.process_position_data(data)
+                await self.process_position_data(message_data)
             elif channel == 'balance':
-                await self.process_balance_data(data)
+                await self.process_balance_data(message_data)
             
             print(f"{'='*50}\n")
             
@@ -278,8 +280,7 @@ class DataSubscriber:
                 if message is not None:
                     channel = message['channel']
                     try:
-                        data = json.loads(message['data'])
-                        await self.process_message(channel, data)
+                        await self.process_message(channel, message['data'])
                     except json.JSONDecodeError:
                         print(f"Failed to decode message data: {message['data']}")
                 
