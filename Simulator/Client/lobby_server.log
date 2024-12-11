@@ -1,0 +1,1237 @@
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922083585}
+[ERROR] Error while sending params: [Errno 61] Connection refused
+[INFO] Action: send_order initiated with params {'client_order_id': 1, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922083587}
+[ERROR] Error while sending params: [Errno 61] Connection refused
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922083587}
+[ERROR] Error while sending params: [Errno 61] Connection refused
+[INFO] Action: send_order with params {'action': 'send_order', 'client_order_id': 1, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Sending params: {'action': 'send_order', 'client_order_id': 1, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT', 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922083588}
+[ERROR] Error while sending params: [Errno 61] Connection refused
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922083688}
+[ERROR] Error while sending params: [Errno 61] Connection refused
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922083688}
+[ERROR] Error while sending params: [Errno 61] Connection refused
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922083789}
+[ERROR] Error while sending params: [Errno 61] Connection refused
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922083790}
+[ERROR] Error while sending params: [Errno 61] Connection refused
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922083890}
+[ERROR] Error while sending params: [Errno 61] Connection refused
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922083891}
+[ERROR] Error while sending params: [Errno 61] Connection refused
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922083991}
+[ERROR] Error while sending params: [Errno 61] Connection refused
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922083993}
+[ERROR] Error while sending params: [Errno 61] Connection refused
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922084093}
+[ERROR] Error while sending params: [Errno 61] Connection refused
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922084095}
+[ERROR] Error while sending params: [Errno 61] Connection refused
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922084194}
+[ERROR] Error while sending params: [Errno 61] Connection refused
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922084196}
+[ERROR] Error while sending params: [Errno 61] Connection refused
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922084295}
+[ERROR] Error while sending params: [Errno 61] Connection refused
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922084297}
+[ERROR] Error while sending params: [Errno 61] Connection refused
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922084397}
+[ERROR] Error while sending params: [Errno 61] Connection refused
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922084398}
+[ERROR] Error while sending params: [Errno 61] Connection refused
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922084499}
+[ERROR] Error while sending params: [Errno 61] Connection refused
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922084500}
+[ERROR] Error while sending params: [Errno 61] Connection refused
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922084599}
+[ERROR] Error while sending params: [Errno 61] Connection refused
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922084600}
+[ERROR] Error while sending params: [Errno 61] Connection refused
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922084699}
+[ERROR] Error while sending params: [Errno 61] Connection refused
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922084700}
+[ERROR] Error while sending params: [Errno 61] Connection refused
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922084800}
+[ERROR] Error while sending params: [Errno 61] Connection refused
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922084802}
+[ERROR] Error while sending params: [Errno 61] Connection refused
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922084902}
+[ERROR] Error while sending params: [Errno 61] Connection refused
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922084903}
+[ERROR] Error while sending params: [Errno 61] Connection refused
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922085003}
+[ERROR] Error while sending params: [Errno 61] Connection refused
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922085005}
+[ERROR] Error while sending params: [Errno 61] Connection refused
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922085105}
+[ERROR] Error while sending params: [Errno 61] Connection refused
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922085106}
+[ERROR] Error while sending params: [Errno 61] Connection refused
+[INFO] Sending params: {'action': 'get_bbo', 'symbol': 'SPOT_BTC_USDT', 'max_level': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922100194}
+[INFO] Received response: {'success': True, 'symbol': 'SPOT_BTC_USDT', 'bid': '97872.73', 'bidSize': '2.42947', 'ask': '97911.9', 'askSize': '4.74615'}
+[INFO] Action: get_bbo for symbol SPOT_BTC_USDT, and it is {'success': True, 'symbol': 'SPOT_BTC_USDT', 'bid': '97872.73', 'bidSize': '2.42947', 'ask': '97911.9', 'askSize': '4.74615'}
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922100340}
+[INFO] Sending params: {'action': 'get_bbo', 'symbol': 'SPOT_BTC_USDT', 'max_level': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922273745}
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922273748}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922273748}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922273846}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Received response: {'success': True, 'symbol': 'SPOT_BTC_USDT', 'bid': '97872.73', 'bidSize': '2.42947', 'ask': '97911.9', 'askSize': '4.74615'}
+[INFO] Action: get_bbo for symbol SPOT_BTC_USDT, and it is {'success': True, 'symbol': 'SPOT_BTC_USDT', 'bid': '97872.73', 'bidSize': '2.42947', 'ask': '97911.9', 'askSize': '4.74615'}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922273947}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922274049}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922274150}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922274252}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922274354}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922274455}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922274556}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922274657}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922274758}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922274859}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922274961}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922275062}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922275164}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922275264}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922275365}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922275467}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922275568}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922275670}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: send_order initiated with params {'client_order_id': 1, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922275771}
+[INFO] Action: send_order with params {'action': 'send_order', 'client_order_id': 1, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Sending params: {'action': 'send_order', 'client_order_id': 1, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT', 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922275772}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922275873}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922275974}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922276077}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922276179}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922276280}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922276382}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922276482}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922276584}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922276685}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922276786}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922276888}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922276989}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922277090}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922277192}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922277293}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922277395}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922277496}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922277598}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922277699}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: send_order initiated with params {'client_order_id': 2, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922277801}
+[INFO] Action: send_order with params {'action': 'send_order', 'client_order_id': 2, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Sending params: {'action': 'send_order', 'client_order_id': 2, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT', 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922277801}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922277903}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922278004}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922278106}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922278207}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922278309}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922278410}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922278512}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922278613}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922278714}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922278816}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922278917}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922279018}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922279120}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922279221}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922279323}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922279424}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922279525}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922279627}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922279728}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: send_order initiated with params {'client_order_id': 3, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922279830}
+[INFO] Action: send_order with params {'action': 'send_order', 'client_order_id': 3, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Sending params: {'action': 'send_order', 'client_order_id': 3, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT', 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922279831}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922279932}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922280033}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922280135}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922280236}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922280337}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922280439}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922280539}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922280640}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922280742}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922280842}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922280944}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922281045}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922281146}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922281248}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922281349}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922281451}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922281552}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922281653}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922281754}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: send_order initiated with params {'client_order_id': 4, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922281856}
+[INFO] Action: send_order with params {'action': 'send_order', 'client_order_id': 4, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Sending params: {'action': 'send_order', 'client_order_id': 4, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT', 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922281857}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922281958}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922282060}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922282161}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922282262}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922282364}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922282466}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922282567}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922282668}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922282769}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922282870}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922282972}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922283073}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922283174}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922283275}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922283376}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922283478}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922283579}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922283681}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922283782}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: send_order initiated with params {'client_order_id': 5, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922283884}
+[INFO] Action: send_order with params {'action': 'send_order', 'client_order_id': 5, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Sending params: {'action': 'send_order', 'client_order_id': 5, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT', 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922283885}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922283985}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922284086}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922284188}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922284289}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922284391}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922284492}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922284594}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922284695}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922284796}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922284897}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922284998}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922285099}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922285200}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922285302}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922285403}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922285504}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922285606}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922285707}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922285808}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: send_order initiated with params {'client_order_id': 6, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922285910}
+[INFO] Action: send_order with params {'action': 'send_order', 'client_order_id': 6, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Sending params: {'action': 'send_order', 'client_order_id': 6, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT', 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922285911}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922286011}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922286112}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922286213}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922286315}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922286416}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922286517}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922286618}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922286720}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922286821}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922286923}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922287024}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922287125}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922287226}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922287327}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922287428}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922287529}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922287631}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922287732}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922287833}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: send_order initiated with params {'client_order_id': 7, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922287935}
+[INFO] Action: send_order with params {'action': 'send_order', 'client_order_id': 7, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Sending params: {'action': 'send_order', 'client_order_id': 7, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT', 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922287936}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922288036}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922288138}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922288239}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922288341}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922288441}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922288542}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922288643}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922288744}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922288845}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922288946}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922289047}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922289149}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922289250}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922289351}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922289453}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922289553}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922289655}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922289756}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922289857}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: send_order initiated with params {'client_order_id': 8, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922289959}
+[INFO] Action: send_order with params {'action': 'send_order', 'client_order_id': 8, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Sending params: {'action': 'send_order', 'client_order_id': 8, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT', 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922289960}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922290061}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922290162}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922290264}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922290365}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922290466}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922290567}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922290668}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922290770}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922290871}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922290973}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922291074}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922291175}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922291277}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922291378}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922291478}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922291580}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922291682}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922291783}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922291884}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: send_order initiated with params {'client_order_id': 9, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922291986}
+[INFO] Action: send_order with params {'action': 'send_order', 'client_order_id': 9, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Sending params: {'action': 'send_order', 'client_order_id': 9, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT', 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922291987}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922292088}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922292190}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922292291}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922292392}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922292493}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922292594}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922292695}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922292797}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922292898}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922292999}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922293100}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922293201}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922293302}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922293403}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922293504}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922293606}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922293707}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922293808}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922293909}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: send_order initiated with params {'client_order_id': 10, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922294011}
+[INFO] Action: send_order with params {'action': 'send_order', 'client_order_id': 10, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Sending params: {'action': 'send_order', 'client_order_id': 10, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT', 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922294012}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922294113}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922294214}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922294316}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922294417}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922294518}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922294619}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922294720}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922294821}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922294923}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922295023}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922295125}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922295226}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922295327}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922295427}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922295528}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922295630}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922295731}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922295833}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922295934}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: send_order initiated with params {'client_order_id': 11, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922296036}
+[INFO] Action: send_order with params {'action': 'send_order', 'client_order_id': 11, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Sending params: {'action': 'send_order', 'client_order_id': 11, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT', 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922296037}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922296138}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922296238}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922296339}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922296440}
+[INFO] Action: send_order initiated with params {'client_order_id': 12, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Action: send_order with params {'action': 'send_order', 'client_order_id': 12, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Sending params: {'action': 'send_order', 'client_order_id': 12, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT', 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922298060}
+[INFO] Action: send_order initiated with params {'client_order_id': 13, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Action: send_order with params {'action': 'send_order', 'client_order_id': 13, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Sending params: {'action': 'send_order', 'client_order_id': 13, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT', 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922300084}
+[INFO] Action: send_order initiated with params {'client_order_id': 14, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Action: send_order with params {'action': 'send_order', 'client_order_id': 14, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Sending params: {'action': 'send_order', 'client_order_id': 14, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT', 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922302108}
+[ERROR] Error while sending params: [Errno 54] Connection reset by peer
+[ERROR] Error while sending params: [Errno 54] Connection reset by peer
+[ERROR] Error while sending params: [Errno 54] Connection reset by peer
+[ERROR] Error while sending params: [Errno 54] Connection reset by peer
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922302411}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922302411}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922302512}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922302513}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922302614}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922302614}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922302716}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922302717}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922302817}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922302818}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922302918}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922302918}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922303020}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922303021}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922303121}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922303121}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922303222}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922303222}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922303323}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922303324}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922303425}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922303426}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922303525}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922303526}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922303627}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922303628}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922303728}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922303729}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922303829}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922303830}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922303930}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922303931}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922304032}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922304033}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: send_order initiated with params {'client_order_id': 15, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922304132}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922304133}
+[INFO] Action: send_order with params {'action': 'send_order', 'client_order_id': 15, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Sending params: {'action': 'send_order', 'client_order_id': 15, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT', 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922304133}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922304233}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922304234}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922304335}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922304335}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922304436}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922304437}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922304536}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922304537}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922304637}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922304638}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922304739}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922304740}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922304840}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922304841}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922304941}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922304941}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922305042}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922305043}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922305144}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922305145}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922305245}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922305246}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922305346}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922305347}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922305448}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922305449}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922305549}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922305550}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922305650}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922305651}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922305751}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922305752}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922305853}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922305854}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922305954}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922305956}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922306056}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922306057}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: send_order initiated with params {'client_order_id': 16, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922306158}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922306158}
+[INFO] Action: send_order with params {'action': 'send_order', 'client_order_id': 16, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Sending params: {'action': 'send_order', 'client_order_id': 16, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT', 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922306159}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922306259}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922306260}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922306361}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922306362}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922306462}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922306463}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922306563}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922306564}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922306664}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922306665}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922306766}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922306767}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922306867}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922306867}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922306968}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922306969}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922307070}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922307071}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922307172}
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922307172}
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[ERROR] Error while sending params: Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 10001), [Errno 61] Connect call failed ('::1', 10001, 0, 0)
+[INFO] Sending params: {'action': 'get_bbo', 'symbol': 'SPOT_BTC_USDT', 'max_level': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922325729}
+[INFO] Received response: {'success': True, 'symbol': 'SPOT_BTC_USDT', 'bid': '97872.73', 'bidSize': '2.42947', 'ask': '97911.9', 'askSize': '4.74615'}
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922325874}
+[INFO] Sending params: {'timestamp': 1733922411538, 'symbol': 'SPOT_BTC_USDT', 'api_key': 'sdFgbf5mnyDD/wahfC58Kw=='}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922411540}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922446853}
+[ERROR] Error while sending params: [Errno 61] Connection refused
+[INFO] Action: send_order initiated with params {'client_order_id': 1, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Action: send_order with params {'action': 'send_order', 'client_order_id': 1, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Sending params: {'action': 'send_order', 'client_order_id': 1, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT', 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922446854}
+[ERROR] Error while sending params: [Errno 61] Connection refused
+[INFO] Sending params: {'action': 'get_bbo', 'symbol': 'SPOT_BTC_USDT', 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922450329}
+[INFO] Received response: {'success': True, 'symbol': 'SPOT_BTC_USDT', 'bid': '97872.73', 'bidSize': '2.42947', 'ask': '97911.9', 'askSize': '4.74615'}
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922450470}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922536261}
+[ERROR] Error while sending params: [Errno 61] Connection refused
+[INFO] Action: send_order initiated with params {'client_order_id': 1, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Action: send_order with params {'action': 'send_order', 'client_order_id': 1, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Sending params: {'action': 'send_order', 'client_order_id': 1, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT', 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922536263}
+[ERROR] Error while sending params: [Errno 61] Connection refused
+[INFO] Sending params: {'action': 'get_bbo', 'symbol': 'SPOT_BTC_USDT', 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922540550}
+[INFO] Received response: {'success': True, 'symbol': 'SPOT_BTC_USDT', 'bid': '97872.73', 'bidSize': '2.42947', 'ask': '97911.9', 'askSize': '4.74615'}
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922540690}
+[INFO] Sending params: {'action': 'get_bbo', 'symbol': 'SPOT_BTC_USDT', 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922955857}
+[INFO] Received response: {'success': True, 'symbol': 'SPOT_BTC_USDT', 'bid': '97872.73', 'bidSize': '2.42947', 'ask': '97911.9', 'askSize': '4.74615'}
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_market_trades', 'symbol': 'SPOT_BTC_USDT', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922956001}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_kline', 'symbol': 'SPOT_BTC_USDT', 'interval': '1m', 'limit': 100, 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922956002}
+[INFO] Received response: {'success': True, 'open': '97882.35', 'close': '97874.96', 'low': '97874.96', 'high': '97902.3', 'volume': '4.220961', 'amount': '413212.03852921', 'type': '1m', 'startTime': '1733909160000', 'endTime': '1733909220000'}
+[INFO] Action: send_order initiated with params {'client_order_id': 1, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Action: send_order with params {'action': 'send_order', 'client_order_id': 1, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Sending params: {'action': 'send_order', 'client_order_id': 1, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT', 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922957934}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: send_order initiated with params {'client_order_id': 2, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Action: send_order with params {'action': 'send_order', 'client_order_id': 2, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Sending params: {'action': 'send_order', 'client_order_id': 2, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT', 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922959960}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: send_order initiated with params {'client_order_id': 3, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Action: send_order with params {'action': 'send_order', 'client_order_id': 3, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Sending params: {'action': 'send_order', 'client_order_id': 3, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT', 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922961986}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: send_order initiated with params {'client_order_id': 4, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Action: send_order with params {'action': 'send_order', 'client_order_id': 4, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Sending params: {'action': 'send_order', 'client_order_id': 4, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT', 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922964013}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: send_order initiated with params {'client_order_id': 5, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Action: send_order with params {'action': 'send_order', 'client_order_id': 5, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Sending params: {'action': 'send_order', 'client_order_id': 5, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT', 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922966040}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: send_order initiated with params {'client_order_id': 6, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Action: send_order with params {'action': 'send_order', 'client_order_id': 6, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Sending params: {'action': 'send_order', 'client_order_id': 6, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT', 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922968065}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: send_order initiated with params {'client_order_id': 7, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Action: send_order with params {'action': 'send_order', 'client_order_id': 7, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Sending params: {'action': 'send_order', 'client_order_id': 7, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT', 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922970091}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: send_order initiated with params {'client_order_id': 8, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Action: send_order with params {'action': 'send_order', 'client_order_id': 8, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Sending params: {'action': 'send_order', 'client_order_id': 8, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT', 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922972115}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Action: send_order initiated with params {'client_order_id': 9, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Action: send_order with params {'action': 'send_order', 'client_order_id': 9, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Sending params: {'action': 'send_order', 'client_order_id': 9, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT', 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733922974141}
+[ERROR] Error while sending params: Expecting value: line 1 column 1 (char 0)
+[INFO] Sending params: {'action': 'get_bbo', 'symbol': 'SPOT_BTC_USDT', 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733923252624}
+[ERROR] Error while sending params: object NoneType can't be used in 'await' expression
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Action: send_order initiated with params {'client_order_id': 1, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Sending params: {'action': 'get_bbo', 'symbol': 'SPOT_BTC_USDT', 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733923353876}
+[ERROR] Error while sending params: object NoneType can't be used in 'await' expression
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Action: send_order initiated with params {'client_order_id': 1, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}
+[INFO] Sending params: {'action': 'get_bbo', 'symbol': 'SPOT_BTC_USDT', 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733923360964}
+[ERROR] Error while sending params: object NoneType can't be used in 'await' expression
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Sending params: {'action': 'get_bbo', 'symbol': 'SPOT_BTC_USDT', 'api_key': 'sdFgbf5mnyDD/wahfC58Kw==', 'timestamp': 1733923470000}
+[ERROR] Error while sending params: object NoneType can't be used in 'await' expression
+[INFO] Action: get_market_trades for symbol SPOT_BTC_USDT
+[INFO] Action: get_kline for symbol SPOT_BTC_USDT
+[INFO] Action: send_order initiated with params {'client_order_id': 1, 'order_price': 3190, 'order_quantity': 0.001, 'order_type': 'MARKET', 'side': 'BUY', 'symbol': 'SPOT_ETH_USDT'}

@@ -1,0 +1,19 @@
+{
+  "server": {
+    "ip": "127.0.0.1",
+    "port": 10001,
+    "max_connections": 50,
+    "timeout": 1000000
+  },
+  "database": {
+    "type": "csv",
+    "file": "user_credentials.csv"
+  },
+  "logging": {
+    "level": "INFO",
+    "file": "lobby_server.log"
+  },
+  "security": {
+    "encryption": false
+  }
+}
