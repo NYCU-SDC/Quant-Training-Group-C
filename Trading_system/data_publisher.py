@@ -8,10 +8,8 @@ import hashlib
 from redis import asyncio as aioredis
 
 # Import your existing classes
-from data_processing.Kline import KlineData
 from data_processing.Orderbook import OrderBook
 from data_processing.BBO import BBO
-from data_processing.Trade import TradeData
 
 class WooXStagingAPI:
     def __init__(self, app_id: str, api_key: str, api_secret: str, redis_host: str, redis_port: int = 6379):
@@ -31,10 +29,6 @@ class WooXStagingAPI:
         
         self.orderbooks = {}
         self.bbo_data = {}
-        self.kline_handler = None
-        self.symbol = None
-        self.interval = None
-
     
     async def connect_to_redis(self):
         """Connect to Redis Server"""
@@ -182,83 +176,34 @@ class WooXStagingAPI:
                 await self.private_connection.send(json.dumps(subscription))
                 print(f"[Private Data Publisher] Subscribed to {sub_type}")
 
-    async def process_market_data(self, symbol: str, interval: str, message: dict):
+    async def process_market_data(self, symbol, interval, message):
         """Process market data and publish to Redis"""
         try:
-            data = message if isinstance(message, dict) else json.loads(message)
-
+            data = json.loads(message)
             if data.get("event") == "ping":
                 await self.handle_ping_pong(message, self.market_connection)
-                return
-            
-            if data.get("event") == "subscribe":
-                print(f"[Market Data Publisher] Subscription {data.get('success', False) and 'successful' or 'failed'} for {data.get('data', '')}")
-                return
-            
-            topic = data.get('topic')
-            if not topic:
                 return
             
             if 'topic' not in data:
                 print(f"[Market Data Publisher] Message missing topic: {data}")
                 return
             
-            if topic == f"{symbol}@kline_{interval}":
-                if not self.kline_handler:
-                    self.kline_handler = KlineData(symbol)
-                
-                kline_data = data.get('data', {})
-                
-                # data type
-                formatted_data = {
-                    "symbol": symbol,
-                    "startTime": kline_data.get('startTime'),
-                    "endTime": kline_data.get('endTime'),
-                    "interval": interval,
-                    "open": kline_data.get('open'),
-                    "high": kline_data.get('high'),
-                    "low": kline_data.get('low'),
-                    "close": kline_data.get('close'),
-                    "volume": kline_data.get('volume'),
-                    "timestamp": data.get('ts'),
-                }
-                # 檢查是否應該處理這個 K 線
-                if self.kline_handler.should_process_kline(symbol, interval, formatted_data):
-                    processed_data = self.kline_handler.process_kline_data({
-                        "ts": data.get('ts'),
-                        "data": formatted_data
-                    })
-                    
-                    if processed_data:
-                        # 發布處理過的 K 線數據
-                        await self.publish_to_redis(
-                            f"{symbol}-processed-kline-{interval}",
-                            {
-                                "type": "processed_kline",
-                                "interval": interval,
-                                "data": processed_data
-                            }
-                        )
-                        print(f"[Data Publisher] Published processed kline data")
-                
-                # 發布原始 K 線數據（使用格式化後的數據）
-                await self.publish_to_redis(
-                    f"{symbol}-kline-{interval}", 
-                    {"type": "kline", "data": formatted_data}
-                )
-                return
+            topic_mapping = {
+                f"{symbol}@orderbook": f"{symbol}-orderbook",
+                f"{symbol}@bbo": f"{symbol}-bbo",
+                f"{symbol}@trade": f"{symbol}-trade",
+                f"{symbol}@kline_{interval}": f"{symbol}-kline-{interval}"
+            }
             
-            # 處理訂單簿數據
-            if topic == f"{symbol}@orderbook":
-                # 格式化訂單簿數據
-                formatted_orderbook = {
-                    "symbol": symbol,
-                    "timestamp": data.get('ts'),
-                    "data": data.get('data', {})
+            redis_channel = topic_mapping.get(data['topic'])
+            if redis_channel and 'data' in data:
+                # Subscribed Message "ts" and "data", create the original structure
+                publish_data = {
+                    "ts": data.get("ts"), # the timestamp of this message
+                    "data": data['data']
                 }
-                await self.publish_to_redis(f"{symbol}-orderbook", formatted_orderbook)
-                print(f"[Data Publisher] Published orderbook data")
-                return
+                await self.publish_to_redis(redis_channel, json.dumps(publish_data))
+                print(f"[Market Data Publisher] Published {redis_channel} data to Redis")
         
         except json.JSONDecodeError as e:
             print(f"[Market Data Publisher] JSON decode error: {e}")
@@ -360,9 +305,9 @@ async def main():
     symbol = "PERP_BTC_USDT"
     interval = "1m"
     market_config = {
-        "orderbook": False,
+        "orderbook": True,
         "bbo": False,
-        "trade": True,
+        "trade": False,
         "kline": False
     }
     

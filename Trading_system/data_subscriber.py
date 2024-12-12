@@ -47,14 +47,6 @@ class DataSubscriber:
             channels.append("balance")
         return channels
     
-    def get_processed_channel_names(self, symbol: str, config: dict, interval: str = '1m') -> list:
-        """Get processed data channel names"""
-        channels = []
-        if config.get("kline"):  # 檢查 "kline" 而不是 "processed-kline"
-            channels.append(f"{symbol}-processed-kline-{interval}")  
-        return channels
-
-    
     def format_timestamp(self, ts):
         """Convert ms Timestamp into Date/Time"""
         if ts:
@@ -102,7 +94,7 @@ class DataSubscriber:
             # Get kline end time from the data
             kline_end_time = int(kline_data.get('endTime', 0))
 
-            # Calculate the end time of the last completed interval
+             # Calculate the end time of the last completed interval
             last_completed_interval_end = (current_time // (interval_seconds * 1000)) * (interval_seconds * 1000)
             
             # Only process if:
@@ -246,16 +238,13 @@ class DataSubscriber:
             message_data = json.loads(data)
 
             # 檢查是否是 kline 數據
-            if 'processed-kline' in channel:
-                # 處理已處理的K線數據
-                await self.process_processed_kline_data(message_data)
-            elif 'kline' in channel:
-                # 檢查是否應該處理這個K線數據
+            if 'kline' in channel:
                 symbol = channel.split('-kline-')[0]
                 interval = channel.split('-kline-')[1]
+                
+                # 根據 kline 數據本身的時間來判斷是否處理
                 if not self.should_process_kline(symbol, interval, message_data.get('data', {})):
                     return
-                await self.process_kline_data(message_data)
             
             # 輸出處理信息
             print(f"\n{'='*50}")
@@ -284,32 +273,6 @@ class DataSubscriber:
         # print(f"收到的原始數據類型: {type(data)}")
         # print(f"解析後的數據類型: {type(message_data)}")
     
-    async def process_processed_kline_data(self, message_data):
-        """Process the processed kline data"""
-        ts = message_data.get('ts')
-        data = message_data.get('data', {})
-
-        # Extract times for better logging
-        start_time = self.format_timestamp(int(data.get('startTime', 0)))
-        end_time = self.format_timestamp(int(data.get('endTime', 0)))
-
-        print(f"\nChannel: {self.current_channel}")
-        print(f"Timestamp Message Time: {self.format_timestamp(ts)}")
-        print(f"Timestamp Current Time: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')}")
-
-        print("\nKline Data:")
-        print(f"Period: {start_time} to {end_time}")
-        print(f"open: {data.get('open', '')}")
-        print(f"high: {data.get('high', '')}")
-        print(f"low: {data.get('low', '')}")
-        print(f"close: {data.get('close', '')}")
-        print(f"volume: {data.get('volume', '')}")
-        
-        # # 將處理後的數據存儲到Redis
-        # await self.redis.set('latest_kline', json.dumps(data))
-        # # 添加這一行來發布消息
-        # await self.redis.publish('latest_kline', json.dumps(data))
-    
     async def subscribe_to_data(self, symbol: str, market_config: dict, private_config: dict, interval: str = '1m'):
         """Subscribe to both market and private data"""
         if not self.redis:
@@ -320,8 +283,7 @@ class DataSubscriber:
         # Get all channel names
         market_channels = self.get_market_channel_names(symbol, market_config, interval)
         private_channels = self.get_private_channel_names(private_config)
-        processed_channels = self.get_processed_channel_names(symbol, market_config, interval)
-        channels = market_channels + private_channels + processed_channels
+        channels = market_channels + private_channels
         
         if not channels:
             print("No channels selected for subscription")
@@ -357,7 +319,7 @@ async def main():
     
     # Market data configuration
     market_config = {
-        "orderbook": False,
+        "orderbook": True,
         "bbo": True,
         "trade": True,
         "kline": True
