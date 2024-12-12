@@ -5,7 +5,7 @@ import time
 import datetime
 import hmac
 import hashlib
-import aioredis  # Redis client for async operations
+from redis import asyncio as aioredis  # Redis client for async operations
 import aiohttp
 from WooX_REST_API_Client import WooX_REST_API_Client
 
@@ -213,7 +213,7 @@ async def main():
     for i in range(5):
         signal = {
             "target": "send_order",
-            "order_price": 90000,
+            "order_price": 96900,
             "order_quantity": 0.0001,
             "order_type": "LIMIT",
             "side": "BUY",
