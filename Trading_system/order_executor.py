@@ -41,13 +41,11 @@ class OrderExecutor:
     async def listen_for_signals(self, pubsub):
         """Listen for incoming signals."""
         print("[Order Executor] Listening for signals...")
-        count = 1
         async with aiohttp.ClientSession() as session:
             async for message in pubsub.listen():
                 if message["type"] == "message":
                     signal = json.loads(message["data"])
-                    await self.execute_order(signal, client_order_id=count, session=session)
-                    count += 1
+                    await self.execute_order(signal, session=session)
 
     async def listen_for_execution_report(self, pubsub):
         """Listen for incoming execution reports."""
@@ -80,24 +78,31 @@ class OrderExecutor:
 
     async def process_execution_report(self, execution_report):
         """Process the execution report."""
-        print(f"[Order Executor] Processing execution report: {execution_report}")
-        if execution_report['magType'] == 0:
+        # print(f"[Order Executor] Processing execution report: {execution_report}")
+        if execution_report['msgType'] == 0:
             if execution_report['status'] == 'FILLED':
-                client_order_id = execution_report['client_order_id']
+                client_order_id = execution_report['clientOrderId']
                 if execution_report['side'] == 'SELL':
-                    self.ask_limit_order[client_order_id] -= execution_report['executedQuantity']
-                    if self.ask_limit_order[client_order_id] == 0:
+                    self.ask_limit_order[client_order_id]['quantity'] -= execution_report['executedQuantity']
+                    if self.ask_limit_order[client_order_id]['quantity'] == 0:
                         self.ask_limit_order.remove(execution_report)
-                    if self.ask_limit_order[client_order_id] < 0:
+                    if self.ask_limit_order[client_order_id]['quantity'] < 0:
                         raise Exception("[Order Executor] Error: Negative order quantity")
                 elif execution_report['side'] == 'BUY':
-                    self.bid_limit_order[client_order_id] -= execution_report['executedQuantity']
-                    if self.bid_limit_order[client_order_id] == 0:
+                    self.bid_limit_order[client_order_id]['quantity'] -= execution_report['executedQuantity']
+                    if self.bid_limit_order[client_order_id]['quantity'] == 0:
                         self.bid_limit_order.remove(execution_report)
-                    if self.bid_limit_order[client_order_id] < 0:
+                    if self.bid_limit_order[client_order_id]['quantity'] < 0:
                         raise Exception("[Order Executor] Error: Negative order quantity")
-
-        if execution_report['magType'] == 1:
+            if execution_report['status'] == 'NEW':
+                client_order_id = execution_report['clientOrderId']
+                if execution_report['side'] == 'BUY':
+                    self.bid_limit_order[client_order_id] = {'price': execution_report['price'], 'quantity': execution_report['quantity'], 'status': 'PENDING'}
+                    print(f"[Order Executor] Added new order: {self.bid_limit_order[client_order_id]}")
+                elif execution_report['side'] == 'SELL':
+                    self.ask_limit_order[client_order_id] = {'price': execution_report['price'], 'quantity': execution_report['quantity'], 'status': 'PENDING'}
+                    print(f"[Order Executor] Added new order: {self.ask_limit_order[client_order_id]}")
+        if execution_report['msgType'] == 1:
             pass
         await asyncio.sleep(0.1)
 
@@ -120,6 +125,7 @@ class OrderExecutor:
 
                 for order_task in list(self.order_tasks):  # Iterate over a copy
                     if order_task.done():
+                        print("done !!!!!!!!")
                         try:
                             now = time.time()  # Set timestamp as float
                             result = await order_task
@@ -144,10 +150,11 @@ class OrderExecutor:
                             self.order_tasks.remove(order_task)
                         await asyncio.sleep(0.1)
 
-    async def execute_order(self, signal, client_order_id, session):
+    async def execute_order(self, signal, session):
         """Process the signal and execute an order."""
         if signal['target'] == 'send_order':
             print(f"[Order Executor] Sending order to exchange: {signal}")
+            client_order_id = signal['order_id']
             params = {
                 'client_order_id': client_order_id,
                 'order_price': signal['order_price'],
@@ -190,7 +197,7 @@ async def main():
 
     # Start the order loop and listen for signals
     signal_pubsub = await executor.subscribe_to_signals("order-executor")
-    execution_report = await executor.subscribe_to_private_data("execution-reports")
+    execution_report = await executor.subscribe_to_private_data("executionreport")
 
     # Start listening tasks
     listen_tasks = asyncio.gather(

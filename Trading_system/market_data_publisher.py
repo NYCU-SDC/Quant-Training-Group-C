@@ -110,22 +110,22 @@ class MarketWooXStagingAPI:
             if data['topic'] == f"{symbol}@orderbook":
                 # self.orderbooks[symbol].update(data['orderbook'])
                 # Publish the updated orderbook to Redis
-                await self.publish_to_redis(f"{symbol}-orderbook", data['data'])
+                await self.publish_to_redis(f"[MD]{symbol}-orderbook", data['data'])
 
             if data['topic'] == f"{symbol}@bbo":
                 # self.bbo_data[symbol].update(data['bbo'])
                 # Publish the updated BBO to Redis
-                await self.publish_to_redis(f"{symbol}-bbo", data['data'])
+                await self.publish_to_redis(f"[MD]{symbol}-bbo", data['data'])
             
             if data['topic'] == f"{symbol}@trade":
                 # Publish the trade data to Redis
                 print("[Maeket data publisher] add trade")
-                await self.publish_to_redis(f"{symbol}-trade", data['data'])
+                await self.publish_to_redis(f"[MD]{symbol}-trade", data['data'])
             
             if data['topic'] == f"{symbol}@kline_{interval}":
                 # Publish the kline data to Redis
                 print("[Maeket data publisher] add kline")
-                await self.publish_to_redis(f"{symbol}-kline", data['data'])
+                await self.publish_to_redis(f"[MD]{symbol}-kline", data['data'])
 
     async def listen_for_data(self, websocket, symbol, config):
         """Listen for incoming market data and publish to Redis."""

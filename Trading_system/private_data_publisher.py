@@ -118,21 +118,21 @@ class PrivateWooXStagingAPI:
         if 'topic' in data:
             # Assuming message contains 'executionreport', 'position', 'balance' data
             if data['topic'] == "executionreport":
-                print(f"[Private data publisher] Received execution report: {data['data']}")
-                await self.publish_to_redis(f"executionreport", data['data'])
+                # print(f"[Private data publisher] Received execution report: {data['data']}")
+                await self.publish_to_redis(f"[PD]executionreport", data['data'])
 
             if data['topic'] == "position":
                 # print(f"[Private data publisher] Received position data: {data['data']}")
-                await self.publish_to_redis(f"position", data['data'])
+                await self.publish_to_redis(f"[PD]position", data['data'])
 
             if data['topic'] == "balance":
                 # print(f"[Private data publisher] Received balance data: {data['data']}")
-                await self.publish_to_redis(f"balance", data['data'])
+                await self.publish_to_redis(f"[PD]balance", data['data'])
 
     async def listen_for_data(self, websocket, config):
         """Listen for incoming market data and publish to Redis."""
         async for message in websocket:
-            print(f"[Private data publisher] Received message: {message}")
+            # print(f"[Private data publisher] Received message: {message}")
             await self.process_market_data(message)
 
     async def close_connection(self):
