@@ -4,10 +4,11 @@ import pandas as pd
 import numpy as np
 from collections import deque
 from redis import asyncio as aioredis
-from strategy_init import Strategy
+from .strategy_init import Strategy, SignalData, OrderType, PositionType, OrderAction
 import datetime
 import time 
 import logging
+from typing import Optional, List, Dict
 
 # Set up logging
 logging.basicConfig(
@@ -17,7 +18,7 @@ logging.basicConfig(
 logger = logging.getLogger('ExampleStrategy')
 
 class ExampleStrategy(Strategy):
-    def __init__(self, signal_channel, max_records=500):
+    def __init__(self, signal_channel: str, max_records: int =500):
         """
         Initialize strategy
         Args:
@@ -35,23 +36,46 @@ class ExampleStrategy(Strategy):
 
         self.last_update_time = None
         self.redis_client = None
+        self.trading_symbol = "PERP_BTC_USDT"
+        self.position_size = 0.001 # 部位大小
         logger.info("Strategy initialization completed")
 
-    def create_dataframe(self):
+    def create_dataframe(self) -> pd.DataFrame:
         """Convert kline data to DataFrame with Taipei timezone"""
         if not self.kline_data:
             return pd.DataFrame()
         
         try:
-            # Create DataFrame using startTime as timestamp
-            df = pd.DataFrame(list(self.kline_data))
+            # 從隊列中提取數據並確保正確的格式
+            df_data = []
+            for kline in self.kline_data:
+                # 檢查數據是否是字符串，如果是則解析
+                if isinstance(kline, str):
+                    kline = json.loads(kline)
+                
+                # 獲取實際的K線數據
+                if isinstance(kline, dict):
+                    kline_data = kline.get('data', kline)
+                    
+                    # 創建數據行
+                    row = {
+                        'ts': pd.to_datetime(kline_data.get('ts', 0), unit='ms'),
+                        'startTime': pd.to_datetime(kline_data.get('startTime', 0), unit='ms'),
+                        'date': pd.to_datetime(kline_data.get('startTime', 0), unit='ms') + pd.Timedelta(hours=8),
+                        'open': float(kline_data.get('open', 0)),
+                        'high': float(kline_data.get('high', 0)),
+                        'low': float(kline_data.get('low', 0)),
+                        'close': float(kline_data.get('close', 0)),
+                        'volume': float(kline_data.get('volume', 0))
+                    }
+                    df_data.append(row)
             
-            # Convert timestamp from milliseconds to datetime and add 8 hours for Taipei time
-            df['timestamp'] = pd.to_datetime(df['startTime'], unit='ms') + pd.Timedelta(hours=8)
+            # 創建 DataFrame
+            df = pd.DataFrame(df_data)
             
             # Keep and rename required columns
             keep_columns = {
-                'timestamp': 'timestamp',
+                'date': 'date',
                 'open': 'open',
                 'high': 'high',
                 'low': 'low',
@@ -64,8 +88,6 @@ class ExampleStrategy(Strategy):
             for col in ['open', 'high', 'low', 'close', 'volume']:
                 df[col] = pd.to_numeric(df[col], errors='coerce')
                 
-            # Sort by timestamp
-            df.sort_values('timestamp', inplace=True)
             df.reset_index(drop=True, inplace=True)
             return df
             
@@ -73,7 +95,7 @@ class ExampleStrategy(Strategy):
             logger.error(f"Error creating DataFrame: {str(e)}")
             return pd.DataFrame()
 
-    def calculate_tr(self, df):
+    def calculate_tr(self, df: pd.DataFrame) -> pd.Series:
         """Calculate True Range"""
         if len(df) == 0:
             return pd.Series()
@@ -98,7 +120,7 @@ class ExampleStrategy(Strategy):
         
         return pd.Series(tr_list, index=df.index)
 
-    def calculate_atr(self, df, period=14):
+    def calculate_atr(self, df: pd.DataFrame, period: int=14) -> pd.Series:
         """Calculate ATR using Wilder's Smoothing Method with proper handling of initial periods"""
         if len(df) < 1:
             return pd.Series([0] * len(df))
@@ -118,10 +140,8 @@ class ExampleStrategy(Strategy):
         
         return pd.Series(atr_list, index=df.index)
 
-    def get_direction(self, df):
-        """
-        Determine trend direction using ATR or fixed threshold
-        """
+    def get_direction(self, df: pd.DataFrame) ->pd.DataFrame:
+        """Determine trend direction using ATR or fixed threshold"""
         if len(df) < 1:
             return df
 
@@ -130,9 +150,9 @@ class ExampleStrategy(Strategy):
         last_low_i = 0
         last_high = df.iloc[0]['high']
         last_low = df.iloc[0]['low']
-        tops = []
-        bottoms = []
-        directions = []
+        tops: List[List[float]] = []
+        bottoms: List[List[float]] = []
+        directions: List[str] = []
 
         for i in range(len(df)):
             # whether use atr mode or not
@@ -203,16 +223,8 @@ class ExampleStrategy(Strategy):
                 print(f"Direction: {latest['direction']}")
         print("="*50 + "\n")
     
-    def generate_signal(self, df):
-        """
-        Generate trading signals based on direction changes.
-        
-        Args:
-            df (pd.DataFrame): DataFrame containing direction column
-        
-        Returns:
-            pd.DataFrame: DataFrame with new signals column
-        """
+    def generate_signal(self, df: pd.DataFrame)-> pd.DataFrame:
+        """Generate detailed trading signals including position management"""
         # Initialize signals column with zeros
         df['signal'] = 0
         
@@ -226,14 +238,78 @@ class ExampleStrategy(Strategy):
             curr_direction = df['direction'].iloc[i]
             
             if prev_direction != curr_direction:
-                if curr_direction == 'down':
-                    df.loc[df.index[i], 'signal'] = -1  # Sell signal
-                else:  # curr_direction == 'up'
-                    df.loc[df.index[i], 'signal'] = 1   # Buy signal
-        
-        return df
+                current_price = df['close'].iloc[i]
+                # 從'date'get timestamp
+                timestamp = int(pd.to_datetime(df['date'].iloc[i]).timestamp() * 1000)
 
-    async def execute(self, channel, data, redis_client):
+                # Trend turns downward 
+                if curr_direction == 'down':
+                    if self.current_position == PositionType.LONG:
+                        # Close long position
+                        signal_data = SignalData(
+                            timestamp=timestamp,
+                            action=OrderAction.CLOSE,
+                            position_type=PositionType.LONG,
+                            order_type=OrderType.MARKET,
+                            symbol=self.trading_symbol,
+                            quantity=self.position_size,
+                            reduce_only=True
+                        )
+                        df.loc[df.index[i], 'signal'] = -1
+                        self.publish_trading_signal(signal_data)
+
+                        # Open short position
+                        signal_data = SignalData(
+                            timestamp=timestamp,
+                            action=OrderAction.OPEN,
+                            position_type=PositionType.SHORT,
+                            order_type=OrderType.MARKET,
+                            symbol=self.trading_symbol,
+                            quantity=self.position_size
+                        )
+                        df.loc[df.index[i], 'signal'] = -2
+                        self.publish_trading_signal(signal_data)
+                # Trend turns upward
+                else:
+                    if self.current_position == PositionType.SHORT:
+                        # Close short position
+                        signal_data = SignalData(
+                            timestamp=timestamp,
+                            action=OrderAction.CLOSE,
+                            position_type=PositionType.SHORT,
+                            order_type=OrderType.MARKET,
+                            symbol=self.trading_symbol,
+                            quantity=self.position_size,
+                            reduce_only=True
+                        )
+                        df.loc[df.index[i], 'signal'] = 1
+                        self.publish_trading_signal(signal_data)
+                    
+                    # Open long position
+                    signal_data = SignalData(
+                        timestamp=timestamp,
+                        action=OrderAction.OPEN,
+                        position_type=PositionType.LONG,
+                        order_type=OrderType.MARKET,
+                        symbol=self.trading_symbol,
+                        quantity=self.position_size
+                    )
+                    df.loc[df.index[i], 'signal'] = 2
+                    self.publish_trading_signal(signal_data)
+        return df
+    
+    def publish_trading_signal(self, signal_data: SignalData) -> None:
+        """Prepare and store trading signal for publishing"""
+        if signal_data.action == OrderAction.CLOSE:
+            self.current_position = None
+            self.position_size = 0.0
+            self.entry_price = None
+        elif signal_data.action == OrderAction.OPEN:
+            self.current_position = signal_data.position_type
+            self.position_size = signal_data.quantity
+            # Entry price will be updated when the order is executed
+
+    async def execute(self, channel: str, data: dict, redis_client: aioredis.Redis) -> None:
         """Process received kline data and generate signals"""
         try:
             self.redis_client = redis_client
@@ -252,15 +328,7 @@ class ExampleStrategy(Strategy):
                 self.df = self.get_direction(self.df)
                 self.df = self.generate_signal(self.df)
                 
-                if len(self.df) > 0 and self.df['signal'].iloc[-1] != 0:
-                    signal_data = {
-                        'timestamp': int(self.df.iloc[-1].timestamp.timestamp() * 1000),  
-                        'signal': int(self.df['signal'].iloc[-1]),
-                        'price': float(self.df['close'].iloc[-1]),
-                        'direction': self.df['direction'].iloc[-1]
-                    }
-                    await self.publish_signal(signal_data, self.redis_client)
-                
+                # Store processed data for analysis
                 await self.redis_client.set('processed_klines', self.df.to_json())
                 
         except Exception as e:

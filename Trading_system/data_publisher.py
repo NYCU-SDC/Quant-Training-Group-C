@@ -305,10 +305,10 @@ async def main():
     symbol = "PERP_BTC_USDT"
     interval = "1m"
     market_config = {
-        "orderbook": False,
+        "orderbook": True,
         "bbo": False,
         "trade": False,
-        "kline": True
+        "kline": False
     }
     
     # Private data configuration
