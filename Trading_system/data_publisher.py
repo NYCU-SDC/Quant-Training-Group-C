@@ -189,10 +189,10 @@ class WooXStagingAPI:
                 return
             
             topic_mapping = {
-                f"{symbol}@orderbook": f"{symbol}-orderbook",
-                f"{symbol}@bbo": f"{symbol}-bbo",
-                f"{symbol}@trade": f"{symbol}-trade",
-                f"{symbol}@kline_{interval}": f"{symbol}-kline-{interval}"
+                f"{symbol}@orderbook": f"[MD]{symbol}-orderbook",
+                f"{symbol}@bbo": f"[MD]{symbol}-bbo",
+                f"{symbol}@trade": f"[MD]{symbol}-trade",
+                f"{symbol}@kline_{interval}": f"[MD]{symbol}-kline-{interval}"
             }
             
             redis_channel = topic_mapping.get(data['topic'])
@@ -227,9 +227,9 @@ class WooXStagingAPI:
                 return
             
             topic_mapping = {
-                "executionreport": "executionreport",
-                "balance": "balance",
-                "position": "position",
+                "executionreport": "[PD]executionreport",
+                "balance": "[PD]balance",
+                "position": "[PD]position",
             }
             
             redis_channel = topic_mapping.get(data['topic'])
