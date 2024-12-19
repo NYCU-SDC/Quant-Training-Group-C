@@ -100,8 +100,15 @@ class Strategy:
                 msg_type = execution_report.get("msgType")
                 if msg_type == 0:  # New order or fill
                     await self.handle_order_status_update(client_order_id, execution_report)
-                elif msg_type == 1:  # Other messages
-                    pass
+                elif msg_type == 1:  # Edit rejected
+                    print(f"[{self.strategy_name}] Edit rejected: {execution_report}")
+                    #inform order manager
+                elif msg_type == 2:  # Cancel rejected
+                    print(f"[{self.strategy_name}] Cancel rejected: {execution_report}")
+                    #inform order manager
+                elif msg_type == 3:  # Cancelled
+                    print(f"[{self.strategy_name}] Order cancelled: {execution_report}")
+                    #inform order manager
                 self.order_id.remove(client_order_id)
         except KeyError as e:
             self.logger.error(f"[{self.strategy_name}] Missing key in execution report: {e}")
@@ -133,6 +140,17 @@ class Strategy:
             elif side == "SELL":
                 self.ask_limit_order[client_order_id] = new_order
             self.logger.info(f"[{self.strategy_name}] Added new order: {new_order}")
+        elif status == "PARTIAL_FILLED":
+            order_book = self.ask_limit_order if side == "SELL" else self.bid_limit_order
+            if client_order_id in order_book:
+                # Log the fill order details
+                self.log_fill_order(client_order_id, side, price, quantity)
+
+                # Update the order book
+                order_book[client_order_id]["quantity"] -= quantity
+                if order_book[client_order_id]["quantity"] <= 0:
+                    del order_book[client_order_id]
+                    self.logger.info(f"[{self.strategy_name}] Order {client_order_id} partially filled {quantity} remain {order_book[client_order_id][quantity]}.")
 
     def create_order_signal(self, price, quantity, side, symbol):
         """Generate an order signal."""
