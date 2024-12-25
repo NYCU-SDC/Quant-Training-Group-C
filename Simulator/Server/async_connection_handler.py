@@ -1,7 +1,12 @@
 # async_connection_handler.py
+import os
+import csv
 import json
 import asyncio
 import time
+import datetime
+from collections import deque
+from datetime import datetime
 from utils import send_message, receive_message, log_event
 
 class AsyncConnectionHandler:
@@ -9,6 +14,12 @@ class AsyncConnectionHandler:
         self.data_manager = data_manager
         self.subscribe_manager = subscribe_manager
         self.matching_manager = matching_manager
+        self.fee_rate = 0.04            # 手續費率
+
+        self.lock = asyncio.Lock()        # 鎖定共享資源
+        self.orders = deque(maxlen=1000)  # 儲存訂單 (FIFO)
+        self.balance = 0.0                # 初始餘額為 0
+        self.realized_pnl = 0
 
     async def handle_client_connection(self, client_socket):
         try:
@@ -27,13 +38,13 @@ class AsyncConnectionHandler:
                 print(f"event received: {event}")
                 
                 if event == 'get_bbo':
-                    await self.handle_get_bbo(client_socket, request)
+                    tasks.append(asyncio.create_task(self.handle_get_bbo(client_socket, request)))
                 elif event == 'get_kline':
-                    await self.handle_get_kline(client_socket, request)
+                    tasks.append(asyncio.create_task(self.handle_get_kline(client_socket, request)))
                 elif event == 'get_market_trades':
-                    await self.handle_get_market_trades(client_socket, request)
+                    tasks.append(asyncio.create_task(self.handle_get_market_trades(client_socket, request)))
                 elif event == 'get_orderbook':
-                    await self.handle_get_orderbook(client_socket, request)
+                    tasks.append(asyncio.create_task(self.handle_get_orderbook(client_socket, request)))
                 
                 elif event == 'subscribe':
                     topic = request.get('topic')
@@ -49,11 +60,11 @@ class AsyncConnectionHandler:
                 #     await self.handle_subscribe_executionreport(client_socket, request)
 
                 elif event == 'subscribe_executionreport':
-                    await self.handle_subscribe_executionreport(client_socket, request)
+                    tasks.append(asyncio.create_task(self.handle_subscribe_executionreport(client_socket, request)))
                 elif event == 'subscribe_position':
-                    await self.handle_subscribe_position(client_socket, request)
+                    tasks.append(asyncio.create_task(self.handle_subscribe_position(client_socket, request)))
                 elif event == 'subscribe_balance':
-                    await self.handle_subscribe_balance(client_socket, request)
+                    tasks.append(asyncio.create_task(self.handle_subscribe_balance(client_socket, request)))
 
                 elif event == 'send_order':
                     tasks.append(asyncio.create_task(self.handle_send_order(client_socket, request)))
@@ -300,36 +311,154 @@ class AsyncConnectionHandler:
         pass
     
     async def handle_subscribe_executionreport(self, client_socket, request):
-        # {
-        #     "event": "subscribe",
-        #     "success": true,
-        #     "ts": 1609924478533,
-        #     "data": "executionreport"
-        # }
-        # print(f"\nrequest: {request}\n")
-        try:
-            subscribe_executionreport_response = {
-                'event': "subscribe",
-                'success': True,
-                'ts': int(time.time() * 1000),
-                'data': 'executionreport'
-            }
-            await send_message(client_socket, json.dumps(subscribe_executionreport_response))
-        except:
-            subscribe_bbo_response = {
-                "success": False
-            }
-            await send_message(client_socket, json.dumps(subscribe_bbo_response))
+        pass
 
     async def handle_subscribe_position(self, client_socket, request):
         pass
+    
     async def handle_subscribe_balance(self, client_socket, request):
         pass
 
     async def handle_send_order(self, client_socket, request):
-        print(f"\nrequest: {request}\n")
-        if request['order_type'] == 'MARKET':
-            loop = asyncio.get_event_loop()
-            order_response = await loop.run_in_executor(None, self.matching_manager.handle_send_order, request)
-            print(f"\order_response: {order_response}\n")
-            await send_message(client_socket, json.dumps(order_response))
+        """
+        處理市價單 (MARKET)，包含 BUY 和 SELL 操作邏輯
+        """
+        print(f"\n[REQUEST] {request}\n")  # 印出請求內容
+
+        try:
+            if request['order_type'] == 'MARKET':
+                print('[INFO] Processing MARKET order...')
+                
+                # 模擬撮合訂單
+                loop = asyncio.get_event_loop()
+                order_response = await loop.run_in_executor(
+                    None, self.matching_manager.handle_market_order, request
+                )
+                print(f"[RESPONSE] {order_response}\n")  # 印出撮合回應
+                
+                # 解析訂單資訊
+                executed_price = float(order_response.get('order_price', 0))
+                quantity = float(request.get('order_quantity', 0))
+                symbol = request['symbol']  # 新增 symbol
+                side = request['side']  # BUY 或 SELL
+                print(f"[INFO] Executed {side} Order - Price: {executed_price}, Quantity: {quantity}, Symbol: {symbol}")
+
+                async with self.lock:
+                    turnover = 0.0
+                    gross_pnl = 0.0
+                    long_gross_pnl = 0.0
+                    pnl = 0.0
+                    taker_fee = 0.0
+                    maker_fee = 0.0
+                    long_position_usd = 0.0
+                    short_position_usd = 0.0
+
+                    # 更新帳戶與倉位
+                    if side == 'BUY':
+                        # 購買時，新增倉位並更新餘額
+                        turnover = executed_price * quantity
+                        fee = turnover * self.fee_rate
+                        self.balance -= (turnover + taker_fee)  # 扣除買入成本與手續費
+                        print(f"[BUY] Deducting cost: {turnover:.2f}, Fee: {taker_fee:.2f}, New Balance: {self.balance:.2f}")
+
+                        self.orders.append({
+                            'timestamp': int(datetime.now().timestamp() * 1000),
+                            'symbol': symbol,  # 加入 symbol
+                            'quantity': quantity,
+                            'executed_price': executed_price
+                        })
+                        print(f"[BUY] New Position Added: {self.orders[-1]}")
+
+                        # 更新 BUY 統計數據
+                        gross_pnl = -turnover
+                        pnl = gross_pnl - fee
+                        long_gross_pnl = pnl
+                        long_position_usd = turnover
+
+                    elif side == 'SELL':
+                        # 賣出時，按價格低到高排序倉位
+                        print("[SELL] Sorting orders by executed price...")
+                        sorted_orders = sorted(
+                            (o for o in self.orders if o['symbol'] == symbol),  # 篩選相同 symbol
+                            key=lambda x: x['executed_price']
+                        )
+                        remaining_quantity = quantity
+
+                        # 遍歷低價格倉位，逐步賣出
+                        for order in sorted_orders:
+                            if remaining_quantity <= 0:
+                                break
+
+                            # 計算可出售數量
+                            sold_quantity = min(remaining_quantity, order['quantity'])
+                            remaining_quantity -= sold_quantity
+                            order['quantity'] -= sold_quantity
+
+                            # 計算損益
+                            sell_proceeds = executed_price * sold_quantity
+                            taker_fee += sell_proceeds * self.fee_rate
+                            realized_pnl = (executed_price - order['executed_price']) * sold_quantity - taker_fee
+
+                            # 更新計算結果
+                            turnover += sell_proceeds
+                            gross_pnl += (executed_price - order['executed_price']) * sold_quantity
+                            pnl += realized_pnl
+                            short_position_usd += sell_proceeds
+
+                            # 更新餘額與盈虧
+                            self.balance += (sell_proceeds - taker_fee)
+                            self.realized_pnl += realized_pnl
+                            print(f"[SELL] Sold {sold_quantity:.6f} from {order}. Remaining Quantity: {remaining_quantity:.6f}")
+                            print(f"[SELL] realized_pnl: {self.realized_pnl:.2f}, Fee: {taker_fee:.2f}")
+
+                            # 移除已清空的倉位
+                            if order['quantity'] == 0:
+                                self.orders.remove(order)
+                                print(f"[SELL] Position Removed: {order}")
+
+                        # 更新帳戶餘額
+                        print(f"[SELL] Updated Balance: {self.balance:.2f}")
+
+                    # 保存結果至 CSV
+                    result = {
+                        "pnl": pnl,
+                        "gross_pnl": gross_pnl,
+                        "taker_fee": taker_fee,
+                        "maker_fee": maker_fee,
+                        "turnover": turnover,
+                        "benchmark_price": executed_price,
+                        "fee": taker_fee,
+                        "ts_ms": int(datetime.now().timestamp() * 1000),
+                        "long_gross_pnl": long_gross_pnl,
+                        "long_position_usd": long_position_usd,
+                        "long_turnover": turnover if side == 'BUY' else 0.0,
+                        "short_gross_pnl": gross_pnl,
+                        "short_position_usd": short_position_usd,
+                        "short_turnover": turnover if side == 'SELL' else 0.0
+                    }
+
+                    csv_file = 'pnl_log.csv'
+                    headers = [
+                        "pnl", "gross_pnl", "taker_fee", "maker_fee", "turnover",
+                        "benchmark_price", "fee", "ts_ms", "long_gross_pnl",
+                        "long_position_usd", "long_turnover", "short_gross_pnl",
+                        "short_position_usd", "short_turnover"
+                    ]
+
+                    file_exists = os.path.isfile(csv_file)
+                    with open(csv_file, mode='a', newline='') as file:
+                        writer = csv.DictWriter(file, fieldnames=headers)
+                        if not file_exists:
+                            writer.writeheader()
+                        writer.writerow(result)
+                    print(f"[LOG] PnL data saved to {csv_file}")
+
+                    # 最終確認帳戶狀態
+                    print(f"[SUMMARY] Balance: {self.balance:.2f}, \n\nOrders: {list(self.orders)}\n\n")
+
+                    # 傳回訂單結果
+                    await send_message(client_socket, json.dumps(order_response))
+
+        except Exception as e:
+            print(f"[ERROR] Exception in handle_send_order: {e}")
+            await send_message(client_socket, json.dumps({'success': False, 'error': str(e)}))

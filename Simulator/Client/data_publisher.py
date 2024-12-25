@@ -232,7 +232,6 @@ class WooXStagingAPI:
         except Exception as e:
             print(f"Error in reading connection: {e}")
 
-
     async def start(self, symbol: str, market_config: dict, private_config: dict, interval: str = '1m'):
         """Start both market and private data streams"""
         # Connect to Redis
@@ -280,7 +279,6 @@ class WooXStagingAPI:
             await self.close_connections()
 
 
-    
 async def main():
     # Initialize 
     app_id = "460c97db-f51d-451c-a23e-3cce56d4c932"
