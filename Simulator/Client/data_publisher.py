@@ -1,10 +1,6 @@
 import json
 import asyncio
-import websockets
 import time
-import datetime
-import hmac
-import hashlib
 from redis import asyncio as aioredis
 
 # Import your existing classes
@@ -17,14 +13,17 @@ class WooXStagingAPI:
         self.api_key = api_key
         self.api_secret = api_secret
         
-        self.market_data_url = f"wss://wss.staging.woox.io/ws/stream/{self.app_id}"
-        self.private_data_url = f"wss://wss.staging.woox.io/v2/ws/private/stream/{self.app_id}"
+        self.market_reader = None
+        self.market_writer = None
+        self.market_connection = False
+
+        self.private_reader = None
+        self.private_writer = None
+        self.private_connection = False
         
         self.redis_host = redis_host
         self.redis_port = redis_port
         
-        self.market_connection = None
-        self.private_connection = None
         self.redis_client = None
         
         self.orderbooks = {}
@@ -48,85 +47,51 @@ class WooXStagingAPI:
             await self.redis_client.publish(channel, json.dumps(data))
     
     async def market_connect(self):
-        """Handles WebSocket connection to market data."""
-        if self.market_connection is None:
-            self.market_connection = await websockets.connect(self.market_data_url)
-            print(f"[Market Data Publisher] Connected to {self.market_data_url}")
-        return self.market_connection
+        """Handles TCP connection to market data."""
+        if self.market_connection is False:
+            # 使用 TCP 連線 (asyncio.open_connection)
+            self.market_reader, self.market_writer = await asyncio.open_connection(
+                host='localhost', 
+                port=10001, 
+                local_addr=('127.0.0.1', 50001) # IPv6 格式
+            )
+            # 儲存連線物件
+            self.market_connection = True
+            print(f"[Market Data Publisher] Connected to TCP server at localhost:50001")
+        return (self.market_reader, self.market_writer)
     
     async def private_connect(self):
-        """Handles WebSocket connection to private data."""
-        if self.private_connection is None:
-            self.private_connection = await websockets.connect(self.private_data_url)
-            print(f"[Private Data Publisher] Connected to {self.private_data_url}")
-        return self.private_connection
+        """Handles TCP connection to private data."""
+        if self.private_connection is False:
+            # 使用 asyncio.open_connection 建立 TCP 連線
+            self.private_reader, self.private_writer = await asyncio.open_connection(
+                host='localhost', 
+                port=10001, 
+                local_addr=('127.0.0.1', 50002) # IPv6 格式
+            )
+            self.private_connection = True
+            print(f"[Private Data Publisher] Connected to TCP server at localhost:50002")
+        return (self.private_reader, self.private_writer)
     
     async def close_connections(self):
         """Close all connections"""
-        if self.market_connection:
-            await self.market_connection.close()
-            self.market_connection = None
-            print("[Market Data Publisher] Market WebSocket connection closed")
-            
-        if self.private_connection:
-            await self.private_connection.close()
-            self.private_connection = None
-            print("[Private Data Publisher] Private WebSocket connection closed")
+        if self.market_writer:
+            self.market_writer.close()
+            await self.market_writer.wait_closed()
+        
+        if self.private_writer:
+            self.private_writer.close()
+            await self.private_writer.wait_closed()
             
         if self.redis_client:
             await self.redis_client.aclose()
             self.redis_client = None
             print("[Data Publisher] Redis connection closed")
     
-    def generate_signature(self, body):
-        """Generate signature for authentication"""
-        key_bytes = bytes(self.api_secret, 'utf-8')
-        body_bytes = bytes(body, 'utf-8')
-        return hmac.new(key_bytes, body_bytes, hashlib.sha256).hexdigest()
-    
-    async def authenticate(self):
-        """Authenticate private connection"""
-        connection = await self.private_connect()
-        timestamp = int(time.time() * 1000)
-        data = f"|{timestamp}"
-        signature = self.generate_signature(data)
-        
-        auth_message = {
-            "event": "auth",
-            "params": {
-                "apikey": self.api_key,
-                "sign": signature,
-                "timestamp": timestamp
-            }
-        }
-        await connection.send(json.dumps(auth_message))
-        response = json.loads(await connection.recv())
-        
-        if response.get("success"):
-            print("[Private Data Publisher] Authentication successful")
-        else:
-            print(f"[Private Data Publisher] Authentication failed: {response.get('errorMsg')}")
-    
-    async def respond_pong(self, connection, publisher_type="Market"):
-        """Responds to server PINGs with a PONG."""
-        if connection and not connection.closed:
-            pong_message = {
-                "event": "pong",
-                "ts": int(time.time() * 1000)
-            }
-            await connection.send(json.dumps(pong_message))
-            print(f"[{publisher_type} Data Publisher] Sent PONG response")
-    
-    async def handle_ping_pong(self, message, connection, publisher_type="Market"):
-        """Handle ping-pong mechanism"""
-        data = json.loads(message)
-        if data.get("event") == "ping":
-            print(f"[{publisher_type} Data Publisher] Received PING from server")
-            await self.respond_pong(connection, publisher_type)
-    
     async def subscribe_market(self, symbol, config, interval: str):
-        """Subscribe to market data streams"""
-        if self.market_connection is None or self.market_connection.closed:
+        """Subscribe to market data streams via TCP connection"""
+        # 檢查連線狀態，若無連線則重新連線
+        if self.market_connection is False:
             print("[Market Data Publisher] No active connection. Attempting to reconnect...")
             await self.market_connect()
         
@@ -136,49 +101,69 @@ class WooXStagingAPI:
             "trade": {"topic": f"{symbol}@trade"},
             "kline": {"topic": f"{symbol}@kline_{interval}" if config.get("kline") else None}
         }
-        
+    
         for sub_type, params in subscription_types.items():
             if config.get(sub_type) and params["topic"]:
                 subscription = {
                     "event": "subscribe",
                     "topic": params["topic"],
-                    "symbol": symbol
+                    "symbol": symbol,
+                    # "timestamp": int(time.time() * 1000)
+                    "timestamp": 1733982717759
                 }
                 if "type" in params:
                     subscription["type"] = params["type"]
                 
-                await self.market_connection.send(json.dumps(subscription))
-                print(f"[Market Data Publisher] Subscribed to {sub_type} for {symbol}")
-    
+                try:
+                    # 發送訂閱請求到 TCP 伺服器
+                    self.market_writer.write(json.dumps(subscription).encode('utf-8') + b'\n')
+                    await self.market_writer.drain()
+                    print(f"[Market Data Publisher] Subscribed to {sub_type} for {symbol}")
+
+                    # 接收伺服器回應 (可選)
+                    response = await self.market_reader.read(16384)
+                    print(f"[Market Data Publisher] Response: {response.decode('utf-8')}")
+                except Exception as e:
+                    print(f"[Market Data Publisher] Error subscribing to {sub_type}: {e}")
+
     async def subscribe_private(self, config):
-        """Subscribe to private data streams"""
-        if self.private_connection is None or self.private_connection.closed:
+        """Subscribe to private data streams via TCP connection"""
+        # 檢查連線狀態，若無連線則重新連線
+        if self.private_connection is False:
             print("[Private Data Publisher] No active connection. Attempting to reconnect...")
             await self.private_connect()
         
+        # 設定訂閱主題
         subscription_types = {
             "executionreport": {"topic": "executionreport"},
             "position": {"topic": "position"},
             "balance": {"topic": "balance"}
         }
-        
+
         for sub_type, params in subscription_types.items():
             if config.get(sub_type):
                 subscription = {
                     "event": "subscribe",
-                    "topic": params["topic"]
+                    "topic": params["topic"],
+                    # "timestamp": int(time.time() * 1000)
+                    "timestamp": 1733983629770
                 }
-                await self.private_connection.send(json.dumps(subscription))
-                print(f"[Private Data Publisher] Subscribed to {sub_type}")
+                try:
+                    # 發送訂閱請求到 TCP 伺服器
+                    self.private_writer.write(json.dumps(subscription).encode('utf-8') + b'\n')
+                    await self.private_writer.drain()
+                    print(f"[Private Data Publisher] Subscribed to {sub_type}")
+
+                    # 接收伺服器回應 (可選)
+                    response = await self.private_reader.read(16384)
+                    print(f"[Private Data Publisher] Response: {response.decode('utf-8')}")
+                except Exception as e:
+                    print(f"[Private Data Publisher] Error subscribing to {sub_type}: {e}")
 
     async def process_market_data(self, symbol, interval, message):
         """Process market data and publish to Redis"""
         try:
             data = json.loads(message)
-            if data.get("event") == "ping":
-                await self.handle_ping_pong(message, self.market_connection)
-                return
-            
             if 'topic' not in data:
                 print(f"[Market Data Publisher] Message missing topic: {data}")
                 return
@@ -204,9 +189,6 @@ class WooXStagingAPI:
         """Process private data and publish to Redis"""
         try:
             data = json.loads(message)
-            if data.get("event") == "ping":
-                await self.handle_ping_pong(message, self.private_connection, "Private")
-                return
             
             if data.get("event") == "subscribe":
                 print(f"[Private Data Publisher] Subscription {data.get('success', False) and 'successful' or 'failed'}")
@@ -231,17 +213,31 @@ class WooXStagingAPI:
             print(f"[Private Data Publisher] JSON decode error: {e}")
         except Exception as e:
             print(f"[Private Data Publisher] Processing error: {e}")
-    
+
+    async def read_from_connection(self, reader):
+        """從指定連線讀取資料"""
+        try:
+            while True:
+                # 使用 reader 讀取資料
+                data = await reader.readline()
+                if not data:
+                    print("[Connection Closed] No more data received.")
+                    break
+
+                # 解析並處理資料
+                message = json.loads(data.decode('utf-8').strip())
+                print(f"[Data Received] {message}")
+                await self.process_message(message)
+
+        except Exception as e:
+            print(f"Error in reading connection: {e}")
+
+
     async def start(self, symbol: str, market_config: dict, private_config: dict, interval: str = '1m'):
         """Start both market and private data streams"""
         # Connect to Redis
         await self.connect_to_redis()
-        
-        # Connect and authenticate private stream
-        await self.authenticate()
         await self.subscribe_private(private_config)
-        
-        # Connect and subscribe market stream
         await self.subscribe_market(symbol, market_config, interval)
         
         try:
@@ -250,9 +246,12 @@ class WooXStagingAPI:
                 private_task = None
                 
                 if any(market_config.values()):
-                    market_task = asyncio.create_task(self.market_connection.recv())
+                    # market_task = asyncio.create_task(self.market_connection.recv())
+                    market_task = asyncio.create_task(self.market_reader.read(16384))
+
                 if any(private_config.values()):
-                    private_task = asyncio.create_task(self.private_connection.recv())
+                    # private_task = asyncio.create_task(self.private_connection.recv())
+                    private_task = asyncio.create_task(self.private_reader.read(16384))
                 
                 tasks = [task for task in [market_task, private_task] if task is not None]
                 done, pending = await asyncio.wait(
@@ -292,20 +291,20 @@ async def main():
     api = WooXStagingAPI(app_id=app_id, api_key=api_key, api_secret=api_secret, redis_host="localhost")
     
     # Market data configuration
-    symbol = "PERP_BTC_USDT"
+    symbol = "SPOT_BTC_USDT"
     interval = "1m"
     market_config = {
-        "orderbook": False,
-        "bbo": False,
+        "bbo": True,
+        "orderbook": True,
         "trade": False,
-        "kline": True
+        "kline": False
     }
     
     # Private data configuration
     private_config = {
-        "executionreport": True,
-        "position": True,
-        "balance": True
+        "executionreport": False,
+        "position": False,
+        "balance": False
     }
     
     try:

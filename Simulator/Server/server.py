@@ -1,33 +1,41 @@
-# server.py
+import asyncio
 import socket
-import threading
 import sys
 from config import load_config
-from bbo_management import BBOManager
-from connection_handler import ConnectionHandler
+from management_data import DataManager
+from management_subscribe import SubscribeManager
+from management_matching import MatchingManager
+from async_connection_handler import AsyncConnectionHandler
 
-def main():
+async def main():
     try:
         # Load server configuration
         config = load_config("config.json")
-        bbo_manager = BBOManager(config['database']['file'])
-        connection_handler = ConnectionHandler(bbo_manager)
+        data_manager = DataManager()
+        subscribe_manager = SubscribeManager()
+        matching_manager = MatchingManager()
+        connection_handler = AsyncConnectionHandler(data_manager, subscribe_manager, matching_manager)
 
         # Set up the server socket
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)  # Allow reuse of the port
         server_socket.bind((config['server']['ip'], config['server']['port']))
         server_socket.listen(config['server']['max_connections'])
-        
+        server_socket.setblocking(False)  # Set the socket to non-blocking mode
+
         # Display server start status
         print(f"Lobby server started on {config['server']['ip']}:{config['server']['port']}")
         print("The server is ready to receive connection requests.")
 
-        # Accept connections from players
-        while True:
-            client_socket, client_address = server_socket.accept()
-            print(f"Accepted connection from {client_address}")
-            threading.Thread(target=connection_handler.handle_client_connection, args=(client_socket,)).start()
+        loop = asyncio.get_event_loop()
+
+        async def accept_connections():
+            while True:
+                client_socket, client_address = await loop.sock_accept(server_socket)
+                print(f"Accepted connection from {client_address}")
+                loop.create_task(connection_handler.handle_client_connection(client_socket))
+
+        await accept_connections()
 
     except socket.error as e:
         # Handle port or configuration errors
@@ -41,4 +49,4 @@ def main():
         sys.exit(1)  # Exit the program with an error status
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

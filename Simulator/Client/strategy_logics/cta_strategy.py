@@ -6,7 +6,6 @@ from collections import deque
 from redis import asyncio as aioredis
 from strategy_init import Strategy
 import datetime
-import time 
 import logging
 
 # Set up logging

@@ -1,8 +1,7 @@
-# modifing
+# don't change
 import asyncio
 import json
 import time
-import socket
 
 class WooX_REST_API_Client:
     def __init__(self, api_key, api_secret, server_port):
@@ -11,21 +10,33 @@ class WooX_REST_API_Client:
         self.server_port = server_port
 
     async def send_params(self, params):
-        """Send params to the simulated server using a socket connection."""
+        """Send params to the simulated server using a TCP socket connection."""
         try:
+            # 添加 API 金鑰和時間戳
             params["api_key"] = self.api_key
             params["timestamp"] = int(time.time() * 1000)
 
             print(f"Sending params: {params}")
 
-            reader, writer = await asyncio.open_connection('localhost', self.server_port)
-            writer.write(json.dumps(params).encode('utf-8'))
-            await writer.drain()
+            # 建立 TCP 連線
+            reader, writer = await asyncio.open_connection(
+                host='localhost',          # 替換為您的伺服器主機名或IP
+                port=self.server_port,     # 使用指定的埠號
+                local_addr=('::1', 0)      # 可指定本地來源 IP 和埠號 (這裡讓系統自動分配)
+            )
 
+            # 將參數轉換為 JSON 字串並編碼後發送
+            writer.write(json.dumps(params).encode('utf-8') + b'\n')  # 添加換行符號
+            await writer.drain()  # 確保資料已經寫入並傳送
+
+            # 等待伺服器回應
             response = await reader.read(4096)
+
+            # 關閉連線
             writer.close()
             await writer.wait_closed()
 
+            # 解碼回應
             if response:
                 decoded_response = json.loads(response.decode('utf-8'))
                 print(f"Received response from action {params['action']}: {decoded_response}")
@@ -37,6 +48,7 @@ class WooX_REST_API_Client:
         except Exception as e:
             print(f"Error while sending params: {e}")
             return {"error": str(e)}
+
 
     async def get_bbo(self, symbol):
         params = {
@@ -79,7 +91,7 @@ class WooX_REST_API_Client:
             kline_response = {"error": "No response from send_params"}
         return kline_response
 
-    # need modify
+
     async def send_order(self, params):
         params = {
             "action": "send_order",

@@ -235,7 +235,7 @@ class DataSubscriber:
 async def main():
     subscriber = DataSubscriber()
     
-    symbol = "PERP_BTC_USDT"
+    symbol = "SPOT_BTC_USDT"
     interval = "1m"
     
     # Market data configuration

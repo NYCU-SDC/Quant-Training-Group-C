@@ -1,5 +1,4 @@
 # don't change 
-import pandas as pd
 import matplotlib.pyplot as plt
 
 def plot_daily_pnl(df):

@@ -1,13 +1,14 @@
 import json
 import asyncio
 import time
-import pandas as pd
-from redis import asyncio as aioredis
 import aiohttp
-from WooX_REST_API_Client import WooX_REST_API_Client
 import logging
 
-from io import StringIO
+from typing import Optional, Dict, Any
+from redis import asyncio as aioredis
+from datetime import datetime
+from WooX_REST_API_Client import WooX_REST_API_Client
+from strategy_logics.strategy_init import OrderType, PositionType, OrderAction
 
 # Set up logging
 logging.basicConfig(
@@ -18,253 +19,176 @@ logger = logging.getLogger('OrderExecutor')
 
 class OrderExecutor:
     def __init__(self, api_key, api_secret, redis_url="redis://localhost:6379"):
-        """Initialize order executor"""
+        """Initialize order executor, getting the trading signals and send the order"""
         self.redis_url = redis_url
         self.redis_client = None
-        self.api = WooX_REST_API_Client(api_key, api_secret)
-        self.order_tasks = []
-        self.ask_market_order = dict()
-        self.bid_market_order = dict()
-        self.condition = asyncio.Condition()
-        self.current_position = None
-        self.position_size = 0.0
-        self.entry_price = None
-        self.current_atr = None
+        self.api = WooX_REST_API_Client(api_key, api_secret, server_port=10001)
+        self.positions: Dict[str, Dict[str, Any]] = {}  # track all positions
+        # self.order_tasks = []
+        # self.ask_market_order = dict()
+        # self.bid_market_order = dict()
+        # self.condition = asyncio.Condition()
+        # self.current_position = None
+        # self.position_size = 0.0
+        # self.entry_price = None
+        # self.current_atr = None
         logger.info("OrderExecutor initialized")
 
-    async def connect_redis(self):
+    async def connect_to_redis(self):
         """Establish Redis connection"""
         self.redis_client = await aioredis.from_url(self.redis_url)
         logger.info(f"Connected to Redis at {self.redis_url}")
+    
+    async def subscribe_to_channels(self, strategy_channel: str, execution_channel: str) -> tuple:
+        """Subscribe strategy channel and pub to execution channel"""
+        """Return: tuple: two pubsub 對象"""
+        try:
+            strategy_pubsub = self.redis_client.pubsub()
+            execution_pubsub = self.redis_client.pubsub()
 
-    async def subscribe_to_signals(self, signal_channel):
-        """"Subscribe to order signal channel"""
-        pubsub = self.redis_client.pubsub()
-        await pubsub.subscribe(signal_channel)
-        logger.info(f"Subscribed to signal channel: {signal_channel}")
-        return pubsub
+            await strategy_pubsub.subscribe(strategy_channel)
+            await execution_pubsub.subscribe(execution_channel)
 
-    async def subscribe_to_private_data(self, private_data_channel):
-        """Subscribe to private data channel"""
-        pubsub = self.redis_client.pubsub()
-        await pubsub.subscribe(private_data_channel)
-        logger.info(f"Subscribed to private data channel: {private_data_channel}")
-        return pubsub
+            logger.info(f"Subscribed to channels: {strategy_channel}, {execution_channel}")
+            return strategy_pubsub, execution_pubsub
+        
+        except Exception as e:
+            logger.error(f"Failed to subscribe to channels: {e}")
+            raise
+    
+    async def execute_order(self, signal_data: dict, session: aiohttp.ClientSession) -> dict:
+        """execute the order"""
+        """Return: the result of the executed order"""
+        # Construct order parameters
+        try:
+            params = {
+                'client_order_id': int(time.time() * 1000),
+                'order_quantity': signal_data['quantity'],
+                'order_type': signal_data['order_type'],
+                'symbol': signal_data['symbol'],
+                'margin_mode': 'CROSS',
+                'position_side': signal_data['position_type'],
+                'reduce_only': signal_data['reduce_only']
+            }
+            # According to the operation type and position type to determine the direction of order.
+            if signal_data['action'] == OrderAction.CLOSE.value:
+                params['side'] = "SELL" if signal_data['position_type'] == PositionType.LONG.value else "BUY"
+            else:  # OPEN
+                params['side'] = "BUY" if signal_data['position_type'] == PositionType.LONG.value else "SELL"
+            
+            # Add the order price if it's limit order
+            if signal_data['order_type'] == OrderType.LIMIT.value:
+                if not signal_data.get('price'):
+                    raise ValueError("Limit order requires price")
+                params['order_price'] = signal_data['price']
 
-    async def subscribe_to_strategy_signals(self, strategy_channel):
-        """Subscribe to strategy signal channel"""
-        pubsub = self.redis_client.pubsub()
-        await pubsub.subscribe(strategy_channel)
-        logger.info(f"Subscribed to strategy channel: {strategy_channel}")
-        return pubsub
+            logger.info(f"Sending order with parameters: {params}")
+            result = await self.api.send_order(session, params)
+            
+            if not result.get('error'):
+                await self.update_position_tracking(signal_data, result)
+            
+            return result
+        
+        except Exception as e:
+            logger.error(f"Error executing order: {e}")
+            return {'error': str(e)}
+    
+    async def process_execution_report(self, report_data: dict) -> None:
+        """Args: process execution_report """
+        try:
+            logger.info(f"Processing execution report: {report_data}")
+            if report_data.get('status') == 'FILLED':
+                symbol = report_data.get('symbol')
+                if symbol in self.positions:
+                    position = self.positions[symbol]
+                    position['filled_price'] = report_data.get('price')
+                    position['filled_time'] = datetime.now().isoformat()
+                    
+                    # Sub filled order message to Redis 
+                    await self.redis_client.set(f"position_{symbol}",json.dumps(position))
+                    logger.info(f"Updated position for {symbol}: {position}")
+        except Exception as e:
+            logger.error(f"Error processing execution report: {e}")
 
-    async def subscribe_to_processed_klines(self):
-        """Subscribe and monitor processed kline data"""
-        while True:
-            try:
-                processed_klines = await self.redis_client.get('processed_klines')
-                if processed_klines:
-                    # Use StringIO to properly handle JSON strings
-                    klines_str = processed_klines.decode('utf-8') if isinstance(processed_klines, bytes) else processed_klines
-                    df = pd.read_json(StringIO(klines_str))
-                    if not df.empty:
-                        self.current_atr = df['atr'].iloc[-1]
-                        current_price = df['close'].iloc[-1]
-                        await self.check_exit_conditions(current_price)
-            except Exception as e:
-                logger.error(f"Error processing klines: {str(e)}")
-            await asyncio.sleep(1)
+    async def update_position_tracking(self, signal_data: dict, order_result: dict) -> None:
+        """update the position tracking message"""
+        """Args: signal_data, the result of executed order"""
+        symbol = signal_data['symbol']
+        if signal_data['action'] == OrderAction.CLOSE.value:
+            self.positions.pop(symbol, None)
+        else:  # OPEN
+            self.positions[symbol] = {
+                'position_type': signal_data['position_type'],
+                'quantity': signal_data['quantity'],
+                'entry_time': datetime.now().isoformat(),
+                'order_id': order_result.get('order_id')
+            }
 
-    async def check_exit_conditions(self, current_price):
-        """Check if position closing conditions are met"""
-        if not self.current_position or not self.entry_price or not self.current_atr:
-            return
-
-        async with aiohttp.ClientSession() as session:
-            if self.current_position == 'LONG':
-                take_profit = self.entry_price + (self.current_atr * 9)
-                stop_loss = self.entry_price - (self.current_atr * 3)
-                
-                if current_price >= take_profit or current_price <= stop_loss:
-                    close_signal = {
-                        "target": "send_order",
-                        "order_quantity": self.position_size,
-                        "side": "SELL",
-                        "position_side": "LONG",
-                        "symbol": "PERP_BTC_USDT",
-                        "reduce_only": True
-                    }
-                    result = await self.execute_order(close_signal, int(time.time()*1000), session)
-                    if not result.get('error'):
-                        logger.info(f"Closed long position - Reason: {'Take Profit' if current_price >= take_profit else 'Stop Loss'}")
-                        self.current_position = None
-                        self.entry_price = None
-                        self.position_size = 0.0
-
-            elif self.current_position == 'SHORT':
-                take_profit = self.entry_price - (self.current_atr * 9)
-                stop_loss = self.entry_price + (self.current_atr * 3)
-                
-                if current_price <= take_profit or current_price >= stop_loss:
-                    close_signal = {
-                        "target": "send_order",
-                        "order_quantity": self.position_size,
-                        "side": "BUY",
-                        "position_side": "SHORT",
-                        "symbol": "PERP_BTC_USDT",
-                        "reduce_only": True
-                    }
-                    result = await self.execute_order(close_signal, int(time.time()*1000), session)
-                    if not result.get('error'):
-                        logger.info(f"Closed short position - Reason: {'Take Profit' if current_price <= take_profit else 'Stop Loss'}")
-                        self.current_position = None
-                        self.entry_price = None
-                        self.position_size = 0.0
-
-    async def listen_for_strategy_signals(self, pubsub):
-        """Listen for strategy signals"""
+    async def listen_for_signals(self, pubsub) -> None:
+        """listen Strategy Signals """""
+        """Args: pubsub: Redis pubsub 對象"""
+            
         logger.info("Started listening for strategy signals")
         async for message in pubsub.listen():
             if message["type"] == "message":
-                strategy_signal = json.loads(message["data"])
-                await self.process_strategy_signal(strategy_signal)
-
-    async def listen_for_execution_report(self, pubsub):
-        """Listen for execution reports"""
-        logger.info("Started listening for execution reports")
+                try:
+                    signal_data = json.loads(message["data"])
+                    logger.info(f"Received strategy signal: {signal_data}")
+                    
+                    async with aiohttp.ClientSession() as session:
+                        result = await self.execute_order(signal_data, session)
+                        logger.info(f"Order execution result: {result}")
+                        
+                except json.JSONDecodeError as e:
+                    logger.error(f"Failed to decode strategy signal: {e}")
+                except Exception as e:
+                    logger.error(f"Error processing strategy signal: {e}")
+    
+    async def listen_for_execution_reports(self, pubsub) -> None:
+        """listen for execution reports"""
+        logger.info(f"Started listening for execution reports")
         async for message in pubsub.listen():
             if message["type"] == "message":
-                execution_report = json.loads(message["data"])
-                await self.process_execution_report(execution_report)
+                try:
+                    report_data = json.loads(message["data"])
+                    await self.process_execution_report(report_data)
+                except json.JSONDecodeError as e:
+                    logger.error(f"Failed to decode execution report: {e}")
+                except Exception as e:
+                    logger.error(f"Error processing execution report: {e}")
 
-    async def process_execution_report(self, execution_report):
-        """Process execution report"""
-        logger.info(f"Processing execution report: {execution_report}")
-        if execution_report.get('msgType') == 0 and execution_report.get('status') == 'FILLED':
-            client_order_id = execution_report.get('client_order_id')
-            if execution_report.get('side') == 'SELL':
-                self.ask_market_order.pop(client_order_id, None)
-            elif execution_report.get('side') == 'BUY':
-                self.bid_market_order.pop(client_order_id, None)
+    async def cleanup(self) -> None:
+        """clean redis"""
+        try:
+            if self.redis_client:
+                await self.redis_client.aclose()
+            logger.info("Cleaned up resources")
+        except Exception as e:
+            logger.error(f"Error during cleanup: {e}")
 
-    async def execute_order(self, signal, client_order_id, session):
-        """Execute order"""
-        if signal['target'] == 'send_order':
-            logger.info(f"Preparing hedge mode market order: {signal}")
-            
-            params = {
-                'client_order_id': client_order_id,
-                'order_quantity': signal['order_quantity'],
-                'order_type': 'MARKET',
-                'side': signal['side'],
-                'symbol': signal['symbol'],
-                'margin_mode': 'CROSS',
-                'position_side': signal['position_side'],
-                'reduce_only': signal.get('reduce_only', False)
-            }
 
-            logger.info(f"Sending order with parameters: {params}")
-            try:
-                result = await self.api.send_order(session, params)
-                logger.info(f"Order result: {result}")
-                return result
-            except Exception as e:
-                logger.error(f"Error executing order: {e}")
-                return {'error': str(e)}
-
-    async def process_strategy_signal(self, strategy_signal):
-        """Process strategy signal"""
-        signal = strategy_signal['signal']
-        price = strategy_signal.get('price')
-        quantity = 0.0001
-
-        async with aiohttp.ClientSession() as session:
-            try:
-                if self.current_position is None:
-                    if signal == 1:
-                        signal_data = {
-                            "target": "send_order",
-                            "order_quantity": quantity,
-                            "side": "BUY",
-                            "position_side": "LONG",
-                            "symbol": "PERP_BTC_USDT",
-                            "reduce_only": False
-                        }
-                        result = await self.execute_order(signal_data, int(time.time()*1000), session)
-                        if not result.get('error'):
-                            self.current_position = 'LONG'
-                            self.position_size = quantity
-                            self.entry_price = price
-                            
-                    elif signal == -1:
-                        signal_data = {
-                            "target": "send_order",
-                            "order_quantity": quantity,
-                            "side": "SELL",
-                            "position_side": "SHORT",
-                            "symbol": "PERP_BTC_USDT",
-                            "reduce_only": False
-                        }
-                        result = await self.execute_order(signal_data, int(time.time()*1000), session)
-                        if not result.get('error'):
-                            self.current_position = 'SHORT'
-                            self.position_size = quantity
-                            self.entry_price = price
-
-                elif self.current_position == 'LONG' and signal == -1:
-                    close_signal = {
-                        "target": "send_order",
-                        "order_quantity": self.position_size,
-                        "side": "SELL",
-                        "position_side": "LONG",
-                        "symbol": "PERP_BTC_USDT",
-                        "reduce_only": True
-                    }
-                    result = await self.execute_order(close_signal, int(time.time()*1000), session)
-                    if not result.get('error'):
-                        await asyncio.sleep(1)
-                        open_signal = {
-                            "target": "send_order",
-                            "order_quantity": quantity,
-                            "side": "SELL",
-                            "position_side": "SHORT",
-                            "symbol": "PERP_BTC_USDT",
-                            "reduce_only": False
-                        }
-                        result = await self.execute_order(open_signal, int(time.time()*1000), session)
-                        if not result.get('error'):
-                            self.current_position = 'SHORT'
-                            self.position_size = quantity
-                            self.entry_price = price
-
-                elif self.current_position == 'SHORT' and signal == 1:
-                    close_signal = {
-                        "target": "send_order",
-                        "order_quantity": self.position_size,
-                        "side": "BUY",
-                        "position_side": "SHORT",
-                        "symbol": "PERP_BTC_USDT",
-                        "reduce_only": True
-                    }
-                    result = await self.execute_order(close_signal, int(time.time()*1000), session)
-                    if not result.get('error'):
-                        await asyncio.sleep(1)
-                        open_signal = {
-                            "target": "send_order",
-                            "order_quantity": quantity,
-                            "side": "BUY",
-                            "position_side": "LONG",
-                            "symbol": "PERP_BTC_USDT",
-                            "reduce_only": False
-                        }
-                        result = await self.execute_order(open_signal, int(time.time()*1000), session)
-                        if not result.get('error'):
-                            self.current_position = 'LONG'
-                            self.position_size = quantity
-                            self.entry_price = price
-
-            except Exception as e:
-                logger.error(f"Error in strategy signal processing: {e}")
+    async def run(self) -> None:
+        try:
+            # sub channels 
+            strategy_pubsub, execution_pubsub = await self.subscribe_to_channels(
+                "strategy_signals",
+                "execution-reports"
+            )
+            # create listen tasks
+            tasks = [
+                asyncio.create_task(self.listen_for_signals(strategy_pubsub)),
+                asyncio.create_task(self.listen_for_execution_reports(execution_pubsub))
+            ]
+            # wait for all tasks
+            await asyncio.gather(*tasks)
+        except asyncio.CancelledError:
+            logger.info("Order executor shutdown initiated")
+        except Exception as e:
+            logger.error(f"Error in order executor main loop: {e}")
+        finally:
+            # cleanup
+            await self.cleanup()
 
 async def main():
     try:
@@ -275,48 +199,20 @@ async def main():
         logger.info("Connected to Redis")
 
         executor = OrderExecutor(api_key=api_key, api_secret=api_secret)
-        await executor.connect_redis()
+        await executor.connect_to_redis()
         logger.info("Order executor initialized")
-
-        strategy_signal = await executor.subscribe_to_strategy_signals("strategy_signals")
-        execution_report = await executor.subscribe_to_private_data("execution-reports")
-        logger.info("Subscribed to necessary channels")
-
-        listen_tasks = asyncio.gather(
-            executor.listen_for_strategy_signals(strategy_signal),
-            executor.listen_for_execution_report(execution_report),
-            executor.subscribe_to_processed_klines()
-        )
-
-        await listen_tasks
-        
-    except asyncio.CancelledError:
-        logger.info("Program shutdown initiated")
-    except Exception as e:
-        logger.error(f"Error in main program: {e}")
-        raise
-    finally:
-        logger.info("Cleaning up resources...")
-        await redis_client.aclose()
-        logger.info("Program terminated")
-
-if __name__ == "__main__":
-    try:
-        # Use new_event_loop to avoid warnings
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        main_task = loop.create_task(main())
-        loop.run_forever()
+        await executor.run()
+    
     except KeyboardInterrupt:
-        logger.info("Keyboard interrupt received, shutting down...")
-        tasks = asyncio.all_tasks(loop)
-        for task in tasks:
-            task.cancel()
-        
-        group = asyncio.gather(*tasks, return_exceptions=True)
-        loop.run_until_complete(group)
-        loop.close()
-        logger.info("Shutdown complete")
+        logger.info("Program terminated by user")
     except Exception as e:
         logger.error(f"Fatal error: {e}")
         raise
+
+if __name__ == "__main__":
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        logger.info("Program terminated by user")
+    except Exception as e:
+        logger.error(f"Fatal error: {e}")

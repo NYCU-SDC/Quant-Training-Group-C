@@ -1,6 +1,24 @@
 import json
+import logging
 import asyncio
-from redis import asyncio as aioredis  # Redis client for async operations
+from typing import Optional, Dict
+from redis import asyncio as aioredis
+from enum import Enum
+from datetime import datetime
+from dataclasses import dataclass
+
+class OrderType(Enum):
+    MARKET = "MARKET"
+    LIMIT = "LIMIT"
+
+# order 的 side
+class PositionType(Enum):
+    LONG = "LONG"
+    SHORT = "SHORT"
+
+class OrderAction(Enum):
+    OPEN = "OPEN"
+    CLOSE = "CLOSE"
 
 class Strategy:
     """Base class for strategies."""

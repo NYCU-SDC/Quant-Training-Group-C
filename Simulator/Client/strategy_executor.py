@@ -1,11 +1,6 @@
 import json
 import asyncio
-import websockets
-import time
-import datetime
-import hmac
-import hashlib
-from redis import asyncio as aioredis  # Redis client for async operations
+from redis import asyncio as aioredis
 from strategy_logics.cta_strategy import ExampleStrategy
 
 class StrategyExecutor:

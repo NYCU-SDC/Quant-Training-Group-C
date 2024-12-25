@@ -56,6 +56,14 @@ class DataCollector:
             response = json.loads(await websocket.recv())
             print(response)
 
+        if config.get("executionreport"):
+            subscribe_message = {
+                "event": "subscribe",
+                "topic": "executionreport",
+            }
+            await websocket.send(json.dumps(subscribe_message))
+            print(f"Subscribed to executionreport")
+        
         if config.get("trades"):
             params = {
                 "id": str(self.app_id),
@@ -134,6 +142,44 @@ class DataCollector:
                     }
                     print(f"Trades updated for {symbol}")
                     await self.write_to_csv(data_with_timestamp, fileName="orderbook.csv")
+                
+                elif "executionreport" in data.get("topic"):
+                    #  ==  f"executionreport":
+                    print(f"data is {data}")
+                    executionreport = data['data']
+                    data_with_timestamp = {
+                        'timestamp': executionreport['ts'],
+                        'msgType': executionreport['msgType'],
+                        'symbol': executionreport['symbol'],
+                        'clientOrderId': executionreport['clientOrderId'],
+                        'orderId': executionreport['orderId'],
+                        'type': executionreport['type'],
+                        'side': executionreport['side'],
+                        'quantity': executionreport['quantity'],
+                        'price': executionreport['price'],
+                        'tradeId': executionreport['tradeId'],
+                        'executedPrice': executionreport['executedPrice'],
+                        'executedQuantity': executionreport['executedQuantity'],
+                        'fee': executionreport['fee'],
+                        'feeAsset': executionreport['feeAsset'],
+                        'totalExecutedQuantity': executionreport['totalExecutedQuantity'],
+                        'avgPrice': executionreport['avgPrice'],
+                        'status': executionreport['status'],
+                        'reason': executionreport['reason'],
+                        'orderTag': executionreport['orderTag'],
+                        'totalFee': executionreport['totalFee'],
+                        'feeCurrency': executionreport['feeCurrency'],
+                        'totalRebate': executionreport['totalRebate'],
+                        'rebateCurrency': executionreport['rebateCurrency'],
+                        'visible': executionreport['visible'],
+                        'timestamp': executionreport['timestamp'],
+                        'reduceOnly': executionreport['reduceOnly'],
+                        'maker': executionreport['maker'],
+                        'leverage': executionreport['leverage'],
+                        'marginMode': executionreport['marginMode']
+                    }
+                    print(f"Trades updated for {symbol}")
+                    await self.write_to_csv(data_with_timestamp, fileName="executionreport.csv")
 
             except websockets.ConnectionClosed as e:
                 print(f"Connection closed for {symbol}: {e}")
@@ -161,6 +207,14 @@ class DataCollector:
             fieldnames = ['timestamp', 'symbol', 'price', 'size', 'side', 'source']
         elif fileName == 'orderbook.csv':
             fieldnames = ['timestamp', 'symbol', 'asks', 'bids']
+        elif fileName == 'executionreport':
+            fieldnames = [
+                'timestamp', 'msgType', 'symbol', 'clientOrderId', 'orderId', 'type', 'side',
+                'quantity', 'price', 'tradeId', 'executedPrice', 'executedQuantity', 'fee',
+                'feeAsset', 'totalExecutedQuantity', 'avgPrice', 'status', 'reason',
+                'orderTag', 'totalFee', 'feeCurrency', 'totalRebate', 'rebateCurrency',
+                'visible', 'reduceOnly', 'maker', 'leverage', 'marginMode'
+            ]
 
         try:
             with open(file_name, mode='a', newline='', encoding='utf-8') as file:
@@ -188,8 +242,8 @@ if __name__ == "__main__":
     woox_api = DataCollector(app_id)
 
     symbols = ['SPOT_WOO_USDT', 'SPOT_BTC_USDT', 'SPOT_ETH_USDT']
-    config = {'bbo': True, 'kline': True, 'trades': True, 'orderbook': True}
-    # config = {'bbo': False, 'kline': False, 'trades': False, 'orderbook': False, 'market_trades': True}
+    config = {'bbo': True, 'kline': True, 'trades': True, 'orderbook': True, 'executionreport': False}
+    # config = {'bbo': False, 'kline': False, 'trades': False, 'orderbook': False, 'executionreport': True}
     interval = '1m'
 
     try:
