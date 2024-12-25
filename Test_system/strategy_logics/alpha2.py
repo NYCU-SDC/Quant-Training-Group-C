@@ -70,7 +70,7 @@ async def main():
     logging.basicConfig(level=logging.INFO)
 
     config = {
-        'symbol': 'SPOT_BTC_USDT',
+        'symbol': 'PERP_BTC_USDT',
         'bid_offset': 0.001,
         'ask_offset': 0.001,
         'trade_size': 0.01,
@@ -81,7 +81,7 @@ async def main():
     executor = StrategyExecutor(redis_url="redis://localhost:6379", config={})
     await executor.add_strategy(MarketMakingStrategy, config)
 
-    market_channels = ['[MD]SPOT_BTC_USDT-orderbook']
+    market_channels = ['[MD]PERP_BTC_USDT-orderbook']
     private_channels = []
 
     await executor.start(market_channels, private_channels)
@@ -91,3 +91,4 @@ if __name__ == "__main__":
         asyncio.run(main())
     except KeyboardInterrupt:
         print("\nStrategy terminated by user.")
+
