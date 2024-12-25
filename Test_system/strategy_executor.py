@@ -22,11 +22,11 @@ class StrategyExecutor:
         
         # Setup logging
         self.logger = logging.getLogger("StrategyExecutor")
-        handler = logging.StreamHandler()
-        handler.setFormatter(
-            logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        )
-        self.logger.addHandler(handler)
+        # 避免重複新增 handler
+        if not self.logger.handlers:
+            handler = logging.StreamHandler()
+            handler.setFormatter(...)
+            self.logger.addHandler(handler)
         self.logger.setLevel(logging.INFO)
 
         # Track connection status
