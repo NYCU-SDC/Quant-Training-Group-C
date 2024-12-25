@@ -8,8 +8,10 @@ import hashlib
 from redis import asyncio as aioredis
 
 # Import your existing classes
+from data_processing.Kline import KlineData
 from data_processing.Orderbook import OrderBook
 from data_processing.BBO import BBO
+# from data_processing.Trade import TradeData
 
 class WooXStagingAPI:
     def __init__(self, app_id: str, api_key: str, api_secret: str, redis_host: str, redis_port: int = 6379):
@@ -29,7 +31,10 @@ class WooXStagingAPI:
         
         self.orderbooks = {}
         self.bbo_data = {}
-    
+        self.kline_handlers = {}
+        self.kline_handler = None
+        self.symbol = None
+        self.interval = None    
     async def connect_to_redis(self):
         """Connect to Redis Server"""
         try:
@@ -42,15 +47,25 @@ class WooXStagingAPI:
         except Exception as e:
             print(f"[Data Publisher] Failed to connect to Redis: {str(e)}")
     
-    async def publish_to_redis(self, channel, data):
-        """Publish data to Redis Channel"""
+    # 處理資料序列的問題（疑問
+    async def publish_to_redis(self, channel: str, data):
+        """Publish data to Redis Channel with appropriate prefix"""
         if self.redis_client:
-            # If data is already string, using it directly
-            if isinstance(data, str):
-                await self.redis_client.publish(channel, data)
+            # 根據頻道類型添加前綴
+            if any(keyword in channel for keyword in ['kline', 'orderbook', 'bbo', 'trade']):
+                prefixed_channel = f"[MD]{channel}"
             else:
-                # If data is dict, 序列化一次
-                await self.redis_client.publish(channel, json.dumps(data))
+                prefixed_channel = f"[PD]{channel}"
+
+            # 如果數據是字符串，直接使用
+            if isinstance(data, str):
+                await self.redis_client.publish(prefixed_channel, data)
+            else:
+                # 如果數據是dict，序列化
+                await self.redis_client.publish(prefixed_channel, json.dumps(data))
+            
+            print(f"[Data Publisher] Published to Redis channel: {prefixed_channel}")
+            
 
     async def market_connect(self):
         """Handles WebSocket connection to market data."""
@@ -175,86 +190,130 @@ class WooXStagingAPI:
                 }
                 await self.private_connection.send(json.dumps(subscription))
                 print(f"[Private Data Publisher] Subscribed to {sub_type}")
+    
+    async def process_kline_data(self, symbol: str, interval: str, message: dict) -> None:
+        """Process kline data and publish both raw and processed data"""
+        try:
+            # 1. 發布原始數據
+            if message.get('topic'):
+                channel = f"{symbol}-kline_{interval}"
+                await self.publish_to_redis(channel, message)
+                
+            # 2. 處理 kline 數據
+            if symbol not in self.kline_handlers:
+                self.kline_handlers[symbol] = KlineData(symbol)
+            
+            kline_handler = self.kline_handlers[symbol]
+            kline_data = message.get('data', {})
+            
+            # 檢查是否應該處理這個k線
+            if kline_handler.should_process_kline(symbol, interval, kline_data):
+                # 處理數據
+                processed_data = kline_handler.process_kline_data(message)
+                
+                # 3. 發布處理後的數據
+                processed_message = {
+                    'topic': f"{symbol}@processed_kline_{interval}",
+                    'ts': message.get('ts'),
+                    'data': {
+                        'kline_data': {
+                            'symbol': symbol,
+                            'startTime': kline_data.get('startTime'),
+                            'endTime': kline_data.get('endTime'),
+                            'open': kline_data.get('open'),
+                            'high': kline_data.get('high'),
+                            'low': kline_data.get('low'),
+                            'close': kline_data.get('close'),
+                            'volume': kline_data.get('volume'),
+                        },
+                        'message_time': kline_handler.format_timestamp(message.get('ts')),
+                        'current_time': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f'),
+                        'start_time': kline_handler.format_timestamp(kline_data.get('startTime')),
+                        'end_time': kline_handler.format_timestamp(kline_data.get('endTime'))
+                    }
+                }
+                
+                processed_channel = f"{symbol}-processed-kline_{interval}"
+                await self.publish_to_redis(processed_channel, processed_message)
+                
+        except Exception as e:
+            print(f"[Data Publisher] Error processing kline data: {e}")
 
-    async def process_market_data(self, symbol, interval, message):
+    async def process_market_data(self, symbol: str, interval: str, message: dict):
         """Process market data and publish to Redis"""
         try:
-            data = json.loads(message)
+            data = json.loads(message) if isinstance(message, str) else message
+
+            # Handle ping-pong
             if data.get("event") == "ping":
                 await self.handle_ping_pong(message, self.market_connection)
                 return
             
-            if 'topic' not in data:
-                print(f"[Market Data Publisher] Message missing topic: {data}")
+            # Handle subscription confirmation
+            if data.get("event") == "subscribe":
+                print(f"[Market Data Publisher] Subscription {data.get('success', False) and 'successful' or 'failed'} for {data.get('topic', '')}")
                 return
             
-            topic_mapping = {
-                f"{symbol}@orderbook": f"[MD]{symbol}-orderbook",
-                f"{symbol}@bbo": f"[MD]{symbol}-bbo",
-                f"{symbol}@trade": f"[MD]{symbol}-trade",
-                f"{symbol}@kline_{interval}": f"[MD]{symbol}-kline-{interval}"
-            }
-            
-            redis_channel = topic_mapping.get(data['topic'])
-            if redis_channel and 'data' in data:
-                # Subscribed Message "ts" and "data", create the original structure
-                publish_data = {
-                    "ts": data.get("ts"), # the timestamp of this message
-                    "data": data['data']
-                }
-                await self.publish_to_redis(redis_channel, json.dumps(publish_data))
-                print(f"[Market Data Publisher] Published {redis_channel} data to Redis")
-        
-        except json.JSONDecodeError as e:
-            print(f"[Market Data Publisher] JSON decode error: {e}")
+            # 根據不同的數據類型進行處理
+            if data.get('topic'):
+                topic_parts = data['topic'].split('@')
+                if len(topic_parts) > 1:
+                    data_type = topic_parts[1]
+                    if data_type.startswith('kline'):
+                        await self.process_kline_data(symbol, interval, data)
+                    else:
+                        # 處理其他類型的市場數據...
+                        channel = f"{symbol}-{data_type}"
+                        await self.publish_to_redis(channel, data)
+                        print(f"[Data Publisher] Published to Redis channel: {channel}")
+
         except Exception as e:
             print(f"[Market Data Publisher] Processing error: {e}")
     
     async def process_private_data(self, message):
         """Process private data and publish to Redis"""
         try:
-            data = json.loads(message)
+            data = json.loads(message) if isinstance(message, str) else message
+
+            # Handle ping-pong
             if data.get("event") == "ping":
                 await self.handle_ping_pong(message, self.private_connection, "Private")
                 return
             
+            # Handle subscription confirmation
             if data.get("event") == "subscribe":
-                print(f"[Private Data Publisher] Subscription {data.get('success', False) and 'successful' or 'failed'}")
+                print(f"[Private Data Publisher] Subscription {data.get('success', False) and 'successful' or 'failed'} for {data.get('topic', '')}")
                 return
-            
-            if 'topic' not in data:
-                print(f"[Private Data Publisher] Message missing topic: {data}")
-                return
-            
-            topic_mapping = {
-                "executionreport": "[PD]executionreport",
-                "balance": "[PD]balance",
-                "position": "[PD]position",
-            }
-            
-            redis_channel = topic_mapping.get(data['topic'])
-            if redis_channel and 'data' in data:
-                await self.publish_to_redis(redis_channel, data['data'])
-                print(f"[Private Data Publisher] Published {redis_channel} data to Redis")
-        
-        except json.JSONDecodeError as e:
-            print(f"[Private Data Publisher] JSON decode error: {e}")
+
+            # Print and publish all other messages
+            # print("\n=== Private Data ===")
+            # print(f"Topic: {data.get('topic')}")
+            # print(f"Timestamp: {data.get('ts')}")
+            # print("Data Content:")
+            # print(json.dumps(data.get('data', {}), indent=2))
+            # print("==================\n")
+
+            # Publish to Redis with topic as channel name
+            if data.get('topic'):
+                await self.publish_to_redis(data['topic'], data)
+                print(f"[Private Data Publisher] Published to Redis channel: {data['topic']}")
+
         except Exception as e:
             print(f"[Private Data Publisher] Processing error: {e}")
     
     async def start(self, symbol: str, market_config: dict, private_config: dict, interval: str = '1m'):
-        """Start both market and private data streams"""
-        # Connect to Redis
-        await self.connect_to_redis()
-        
-        # Connect and authenticate private stream
-        await self.authenticate()
-        await self.subscribe_private(private_config)
-        
-        # Connect and subscribe market stream
-        await self.subscribe_market(symbol, market_config, interval)
-        
+        """Start both market and private data streams with proper cleanup"""
         try:
+            # Connect to Redis
+            await self.connect_to_redis()
+            
+            # Connect and authenticate private stream
+            await self.authenticate()
+            await self.subscribe_private(private_config)
+            
+            # Connect and subscribe market stream
+            await self.subscribe_market(symbol, market_config, interval)
+            
             while True:
                 market_task = None
                 private_task = None
@@ -265,26 +324,35 @@ class WooXStagingAPI:
                     private_task = asyncio.create_task(self.private_connection.recv())
                 
                 tasks = [task for task in [market_task, private_task] if task is not None]
-                done, pending = await asyncio.wait(
-                    tasks,
-                    return_when=asyncio.FIRST_COMPLETED
-                )
                 
-                for task in done:
-                    if task == market_task:
-                        message = await task
-                        await self.process_market_data(symbol, interval, message)
-                    elif task == private_task:
-                        message = await task
-                        await self.process_private_data(message)
-                
-                for task in pending:
-                    task.cancel()
-                
-                await asyncio.sleep(0.1)
-        
+                try:
+                    done, pending = await asyncio.wait(
+                        tasks,
+                        return_when=asyncio.FIRST_COMPLETED
+                    )
+                    
+                    for task in done:
+                        if task == market_task:
+                            message = await task
+                            await self.process_market_data(symbol, interval, message)
+                        elif task == private_task:
+                            message = await task
+                            await self.process_private_data(message)
+                    
+                    for task in pending:
+                        task.cancel()
+                        
+                    await asyncio.sleep(0.1)
+                    
+                except asyncio.CancelledError:
+                    # Handle the cancellation more gracefully
+                    for task in tasks:
+                        if not task.done():
+                            task.cancel()
+                    raise
+                    
         except asyncio.CancelledError:
-            print("\nShutting down...")
+            print("\nReceived shutdown signal...")
         except Exception as e:
             print(f"Error in main loop: {e}")
         finally:
