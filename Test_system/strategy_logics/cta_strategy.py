@@ -1,9 +1,20 @@
 import json
 import asyncio
+import logging
+import time
+import pytz
 import pandas as pd
 import numpy as np
+import io 
+from datetime import datetime
 from collections import deque
+from typing import Optional, Dict
 from redis import asyncio as aioredis
+
+# 假設您在同專案有一個 woox_data_loader.py
+# 其中包含 WooXPublicAPI / fetch_recent_kline_woo
+from strategy_logics.Woox_loader_for_cta import WooXPublicAPI, fetch_recent_kline_woo
+
 from strategy_logics.strategy_init import (
     Strategy,
     SignalData,
@@ -11,307 +22,368 @@ from strategy_logics.strategy_init import (
     PositionSide,
     OrderAction
 )
-import datetime
-import time
-import logging
-from typing import Optional, List, Dict
-import pytz
-import io
 
-logger = logging.getLogger('CTA strategy')
+logger = logging.getLogger(__name__)
+
 
 class ExampleStrategy(Strategy):
+    """
+    每次程式啟動:
+      1) 清空self.kline_data, self.df
+      2) 從現在(本地UTC+8)往前14根抓K線 => 生成df
+      3) 後續由WebSocket => execute => 追加新的row => 計算ATR/direction/signal
+
+    不再從Redis或檔案載入舊DataFrame，以免「繼承上一輪程式」的紀錄。
+    """
+
     def __init__(self, signal_channel: str, config: Dict = None):
-        """
-        Initialize strategy
-        Args:
-            signal_channel: Redis signal channel
-            config: Strategy configuration dictionary
-        """
-        # 先調用父類的初始化
         super().__init__(signal_channel, config)
-        
-        # 從配置中獲取參數
+
+        # === 讀取配置
         trading_params = self.config.get('trading_params', {})
         self.max_records = trading_params.get('max_records', 500)
-        self.kline_data = deque(maxlen=self.max_records)
-        self.df = pd.DataFrame()
-
-        # 策略參數設置
-        self.atr_period = 14
-        self.threshold = 0.05
-        self.atr_mode = True
-        self.chart_type = 'OHLC'
-
-        # 其他初始化
-        self.last_update_time = None
-        self.redis_client = None
         self.trading_symbol = trading_params.get('symbol', "PERP_BTC_USDT")
-        self.position_size = trading_params.get('position_size', 0.001)
+        self.position_size  = trading_params.get('position_size', 0.001)
 
-        # 設定台灣時區
-        self.tz = pytz.timezone('Asia/Taipei')
-        
-        self.logger.info("CTA Strategy initialization completed")
-    
-    def setup_logger(self, name: str, log_file: Optional[str] = None,
-                     level: int = logging.INFO) -> logging.Logger:
-        logger = logging.getLogger(name)
-        logger.setLevel(level)
+        # === 清空, 從零開始
+        self.df = pd.DataFrame()
+        self.kline_data = deque(maxlen=self.max_records)
 
-        # 避免重複添加Handler
-        if not logger.handlers:
-            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-            console_handler = logging.StreamHandler()
-            console_handler.setFormatter(formatter)
-            logger.addHandler(console_handler)
+        self.atr_period = 14
+        self.threshold_multiplier = 3.0   # direction翻轉閾值 = 3*ATR
+        self.take_profit_atr = 9.0       # 停利
+        self.stop_loss_atr   = 3.0       # 停損
+        self.current_position: Optional[PositionSide] = None
+        self.entry_price: Optional[float] = None
+        self.last_update_time: Optional[int] = None
+        self.redis_client = None
 
-            if log_file:
-                file_handler = logging.FileHandler(log_file)
-                file_handler.setFormatter(formatter)
-                logger.addHandler(file_handler)
-        return logger
+        # 本地(UTC+8)
+        self.local_tz = pytz.timezone("Asia/Taipei")
 
-    def create_dataframe(self) -> pd.DataFrame:
-        if not self.kline_data:
-            return pd.DataFrame()
-        
-        df_data = []
-        for kline in self.kline_data:
-            if isinstance(kline, str):
-                kline = json.loads(kline)
-            if isinstance(kline, dict):
-                # 原本資料是毫秒timestamp，轉為datetime
-                timestamp = pd.to_datetime(kline.get('endTime', 0), unit='ms', utc=True)
-                # 建立row
-                row = {
-                    'date': timestamp,
-                    'open': float(kline.get('open', 0)),
-                    'high': float(kline.get('high', 0)),
-                    'low': float(kline.get('low', 0)),
-                    'close': float(kline.get('close', 0)),
-                    'volume': float(kline.get('volume', 0))
-                }
-                df_data.append(row)
+        # === 在初始化時, 透過REST抓取前14根K線
+        try:
+            # 這裡請改成您的WooX API key
+            api_key = "sdFgbf5mnyDD/wahfC58Kw"
+            woo_api = WooXPublicAPI(api_key=api_key, base_url="https://api-pub.woo.org")
+            
+            # interval由 config 決定, 預設 "5m"
+            interval = self.config.get('timeframe', '5m')
+            
+            warmup_df = fetch_recent_kline_woo(
+                api=woo_api,
+                symbol=self.trading_symbol,
+                interval=interval,
+                warmup_bars=self.atr_period  # 14
+            )
+            if not warmup_df.empty:
+                # 將 warmup_df 轉為 self.kline_data
+                for _, row in warmup_df.iterrows():
+                    candle = {
+                        "date":   row['date'],   # 這是本地(UTC+8) datetime
+                        "open":   row['open'],
+                        "high":   row['high'],
+                        "low":    row['low'],
+                        "close":  row['close'],
+                        "volume": row['volume']
+                    }
+                    self.kline_data.append(candle)
+                self.logger.info(f"Warmup loaded {len(warmup_df)} bars for {self.trading_symbol}")
+                
+                # 建立 df
+                self.df = self._kline_data_to_df()
+                self.logger.info(f"Initial DF shape: {self.df.shape}")
+            else:
+                self.logger.warning("Warmup DF is empty => no historical bars fetched.")
 
-        df = pd.DataFrame(df_data)
-        if 'date' in df.columns:
-            df.sort_values('date', inplace=True)
-        
-        # 將index轉換為台灣時區時間
-        if 'date' in df.columns:
-            df['date'] = df['date'].dt.tz_convert('Asia/Taipei')
-        
-        return df
+        except Exception as e:
+            self.logger.error(f"Error fetching warmup bars: {e}")
+
+        self.logger.info("CTA Strategy init complete, no old data loaded.")
+
+    def _kline_data_to_df(self) -> pd.DataFrame:
+        """
+        將 self.kline_data 轉成 DataFrame(columns=[date, open, high, low, close, volume]),
+        依 date 排序
+        """
+        rows = []
+        for cdl in self.kline_data:
+            rows.append({
+                'date':   cdl['date'],
+                'open':   cdl['open'],
+                'high':   cdl['high'],
+                'low':    cdl['low'],
+                'close':  cdl['close'],
+                'volume': cdl['volume']
+            })
+        df_out = pd.DataFrame(rows)
+        df_out.sort_values('date', inplace=True)
+        df_out.reset_index(drop=True, inplace=True)
+        return df_out
 
     def calculate_tr(self, df: pd.DataFrame) -> pd.Series:
-        if len(df) == 0:
-            return pd.Series(dtype=float)
         tr_list = []
         for i in range(len(df)):
             if i == 0:
-                tr = df['high'].iloc[i] - df['low'].iloc[i]
+                tr_val = df['high'].iloc[i] - df['low'].iloc[i]
             else:
-                previous_close = df['close'].iloc[i-1]
-                tr = max(
-                    df['high'].iloc[i] - df['low'].iloc[i],
-                    abs(df['high'].iloc[i] - previous_close),
-                    abs(df['low'].iloc[i] - previous_close)
-                )
-            tr_list.append(tr)
+                prev_close = df['close'].iloc[i-1]
+                hi = df['high'].iloc[i]
+                lo = df['low'].iloc[i]
+                tr_val = max(hi - lo, abs(hi - prev_close), abs(lo - prev_close))
+            tr_list.append(tr_val)
         return pd.Series(tr_list, index=df.index, dtype=float)
 
     def calculate_atr(self, df: pd.DataFrame, period: int=14) -> pd.Series:
-        """Calculate ATR using Wilder's Smoothing Method"""
-        if len(df) < 1:
-            return pd.Series([0]*len(df), index=df.index, dtype=float)
-        
+        if df.empty:
+            return pd.Series([0]*len(df), index=df.index)
         tr = self.calculate_tr(df)
-        atr_list = []
-        for i in range(len(tr)):
-            if i < period:
-                # For initial periods, use simple moving average of TR
-                atr = np.mean(tr[max(0, i-period+1):i+1])
-            else:
-                # Use Wilder's smoothing
-                previous_atr = atr_list[-1]
-                atr = (previous_atr * (period - 1) + tr.iloc[i]) / period
-            atr_list.append(atr)
-        return pd.Series(atr_list, index=df.index, dtype=float)
-        
+        atr = tr.rolling(period).mean()
+        return atr
 
     def get_direction(self, df: pd.DataFrame) -> pd.DataFrame:
-        if len(df) < 1:
+        """
+        up-> if close < (last_high - threshold) => down
+        down-> if close > (last_low + threshold) => up
+        threshold = threshold_multiplier * df['atr']
+        """
+        if df.empty:
             df['direction'] = []
             return df
+
         up_trend = True
-        last_high = df.iloc[0]['high']
-        last_low = df.iloc[0]['low']
+        last_high = df['high'].iloc[0]
+        last_low  = df['low'].iloc[0]
         directions = []
         for i in range(len(df)):
-            # 設定閾值為幾倍ATR，要在這裡修改
-            threshold = df.iloc[i]['atr'] if self.atr_mode else self.threshold
+            threshold = self.threshold_multiplier * df.loc[i, 'atr']
             if up_trend:
-                if df.iloc[i]['high'] > last_high:
-                    last_high = df.iloc[i]['high']
-                elif (self.atr_mode and (df.iloc[i]['close'] < last_high - threshold)) or \
-                     (not self.atr_mode and (df.iloc[i]['close'] < last_high*(1-threshold))):
+                if df.loc[i, 'high'] > last_high:
+                    last_high = df.loc[i, 'high']
+                elif df.loc[i, 'close'] < (last_high - threshold):
                     up_trend = False
-                    last_low = df.iloc[i]['low']
+                    last_low = df.loc[i, 'low']
             else:
-                if df.iloc[i]['low'] < last_low:
-                    last_low = df.iloc[i]['low']
-                elif (self.atr_mode and (df.iloc[i]['close'] > last_low + threshold)) or \
-                     (not self.atr_mode and (df.iloc[i]['close'] > last_low*(1+threshold))):
+                if df.loc[i, 'low'] < last_low:
+                    last_low = df.loc[i, 'low']
+                elif df.loc[i, 'close'] > (last_low + threshold):
                     up_trend = True
-                    last_high = df.iloc[i]['high']
-
+                    last_high = df.loc[i, 'high']
             directions.append('up' if up_trend else 'down')
         df['direction'] = directions
         return df
 
-
     async def generate_signals_and_publish(self, df: pd.DataFrame) -> pd.DataFrame:
-        df['signal'] = 0
-        if len(df) < 2:
+        """
+        1) 預設 signal=0
+        2) 若 current_position=None => up->down => signal=-2 (開空), down->up => signal=2 (開多)
+        3) 若 current_position=LONG => dist = (close - entry_price)
+             if dist>=9*atr => signal=9 => 平倉
+             if dist<=-3*atr => signal=-3 => 平倉
+             if direction翻轉 => 先平多 => 再開空 => signal=-2
+        4) SHORT => dist=(entry_price - close), 同理
+        """
+        if df.empty:
             return df
 
-        i = len(df) - 1  # 只看最後一筆
-        prev_direction = df['direction'].iloc[i - 1]
-        curr_direction = df['direction'].iloc[i]
+        # 若 df 裏沒有 'signal' 欄位 => 建立. 
+        if 'signal' not in df.columns:
+            df['signal'] = 0
+        else:
+            df['signal'] = df['signal'].fillna(0)
 
-        # 若方向一樣，就不動作
-        if prev_direction == curr_direction:
-            df.iat[i, df.columns.get_loc('signal')] = 0
-            return df
+        i = len(df) - 1
+        prev_dir = df.loc[i-1, 'direction'] if i>=1 else None
+        curr_dir = df.loc[i, 'direction']
 
-        # 以下才是「方向改變」的情況
-        timestamp = int(df['date'].iloc[i].timestamp() * 1000)
+        current_close = df.loc[i, 'close']
+        current_atr   = df.loc[i, 'atr'] if 'atr' in df.columns else 0
+        signal_val    = 0
 
-        if prev_direction == 'up' and curr_direction == 'down':
-            # 若有多倉，先平多
-            if self.current_position == PositionSide.LONG:
-                close_long_signal = SignalData(
-                    timestamp=timestamp,
-                    action=OrderAction.CLOSE,
-                    position_side=PositionSide.LONG,
-                    order_type=OrderType.MARKET,
-                    symbol=self.trading_symbol,
-                    quantity=self.position_size,
-                    reduce_only=True
-                )
-                await self.publish_signal(close_long_signal)
-                self.current_position = None
-
-            # 接著開空
-            open_short_signal = SignalData(
-                timestamp=timestamp,
-                action=OrderAction.OPEN,
-                position_side=PositionSide.SHORT,
-                order_type=OrderType.MARKET,
-                symbol=self.trading_symbol,
-                quantity=self.position_size
-            )
-            df.iat[i, df.columns.get_loc('signal')] = -2
-            await self.publish_signal(open_short_signal)
-            self.current_position = PositionSide.SHORT
-
-        elif prev_direction == 'down' and curr_direction == 'up':
-            # 若有空倉，先平空
-            if self.current_position == PositionSide.SHORT:
-                close_short_signal = SignalData(
-                    timestamp=timestamp,
-                    action=OrderAction.CLOSE,
+        if self.current_position is None:
+            # 沒倉 => 方向翻轉 => 開倉
+            if prev_dir=='up' and curr_dir=='down':
+                signal_val = -2  # 開空
+                # publish open short
+                ts_ms = int(df.loc[i, 'date'].timestamp()*1000)
+                open_short = SignalData(
+                    timestamp=ts_ms,
+                    action=OrderAction.OPEN,
                     position_side=PositionSide.SHORT,
                     order_type=OrderType.MARKET,
                     symbol=self.trading_symbol,
-                    quantity=self.position_size,
-                    reduce_only=True
+                    quantity=self.position_size
                 )
-                await self.publish_signal(close_short_signal)
-                self.current_position = None
+                await self.publish_signal(open_short)
+                self.current_position = PositionSide.SHORT
+                self.entry_price = current_close
 
-            # 接著開多
-            open_long_signal = SignalData(
-                timestamp=timestamp,
-                action=OrderAction.OPEN,
-                position_side=PositionSide.LONG,
-                order_type=OrderType.MARKET,
-                symbol=self.trading_symbol,
-                quantity=self.position_size
-            )
-            df.iat[i, df.columns.get_loc('signal')] = 2
-            await self.publish_signal(open_long_signal)
-            self.current_position = PositionSide.LONG
+            elif prev_dir=='down' and curr_dir=='up':
+                signal_val = 2   # 開多
+                ts_ms = int(df.loc[i, 'date'].timestamp()*1000)
+                open_long = SignalData(
+                    timestamp=ts_ms,
+                    action=OrderAction.OPEN,
+                    position_side=PositionSide.LONG,
+                    order_type=OrderType.MARKET,
+                    symbol=self.trading_symbol,
+                    quantity=self.position_size
+                )
+                await self.publish_signal(open_long)
+                self.current_position = PositionSide.LONG
+                self.entry_price = current_close
 
+        else:
+            # 有倉 => 檢查停利停損
+            if self.current_position == PositionSide.LONG:
+                dist = current_close - (self.entry_price or 0)
+                # take profit
+                if dist >= self.take_profit_atr * current_atr:
+                    signal_val = 9
+                    await self.close_position(PositionSide.LONG, reason="TP by 9*ATR")
+                # stop loss
+                elif dist <= -self.stop_loss_atr * current_atr:
+                    signal_val = -3
+                    await self.close_position(PositionSide.LONG, reason="SL by 3*ATR")
+                else:
+                    # direction翻轉 => 先平多 => 開空
+                    if prev_dir=='up' and curr_dir=='down':
+                        signal_val = -2
+                        await self.close_position(PositionSide.LONG, reason="direction up->down")
+                        ts_ms = int(df.loc[i, 'date'].timestamp()*1000)
+                        open_short = SignalData(
+                            timestamp=ts_ms,
+                            action=OrderAction.OPEN,
+                            position_side=PositionSide.SHORT,
+                            order_type=OrderType.MARKET,
+                            symbol=self.trading_symbol,
+                            quantity=self.position_size
+                        )
+                        await self.publish_signal(open_short)
+                        self.current_position = PositionSide.SHORT
+                        self.entry_price = current_close
+
+            elif self.current_position == PositionSide.SHORT:
+                dist = (self.entry_price or 0) - current_close
+                # take profit
+                if dist >= self.take_profit_atr * current_atr:
+                    signal_val = 9
+                    await self.close_position(PositionSide.SHORT, reason="TP by 9*ATR")
+                # stop loss
+                elif dist <= -self.stop_loss_atr * current_atr:
+                    signal_val = -3
+                    await self.close_position(PositionSide.SHORT, reason="SL by 3*ATR")
+                else:
+                    # direction翻轉 => 先平空 => 開多
+                    if prev_dir=='down' and curr_dir=='up':
+                        signal_val = 2
+                        await self.close_position(PositionSide.SHORT, reason="direction down->up")
+                        ts_ms = int(df.loc[i, 'date'].timestamp()*1000)
+                        open_long = SignalData(
+                            timestamp=ts_ms,
+                            action=OrderAction.OPEN,
+                            position_side=PositionSide.LONG,
+                            order_type=OrderType.MARKET,
+                            symbol=self.trading_symbol,
+                            quantity=self.position_size
+                        )
+                        await self.publish_signal(open_long)
+                        self.current_position = PositionSide.LONG
+                        self.entry_price = current_close
+
+        df.loc[i, 'signal'] = signal_val
         return df
 
+    async def close_position(self, pos_side: PositionSide, reason: str=""):
+        if self.current_position == pos_side:
+            ts_ms = int(time.time()*1000)
+            close_signal = SignalData(
+                timestamp=ts_ms,
+                action=OrderAction.CLOSE,
+                position_side=pos_side,
+                order_type=OrderType.MARKET,
+                symbol=self.trading_symbol,
+                quantity=self.position_size,
+                reduce_only=True
+            )
+            await self.publish_signal(close_signal)
+            self.logger.info(f"[CTA] Close {pos_side.value} => {reason}, entry_price={self.entry_price}")
+            self.current_position = None
+            self.entry_price = None
 
+    def rebuild_df(self):
+        """
+        重新由 self.kline_data -> df, 計算 ATR + direction
+        """
+        self.df = self._kline_data_to_df()
+        if not self.df.empty:
+            self.df['atr'] = self.calculate_atr(self.df, self.atr_period)
+            self.df = self.get_direction(self.df)
+            if 'signal' not in self.df.columns:
+                self.df['signal'] = 0
+            else:
+                self.df['signal'] = self.df['signal'].fillna(0)
 
     async def execute(self, channel: str, data: dict, redis_client: aioredis.Redis) -> None:
-        """Process received kline data and generate signals"""
+        """
+        即時階段: WebSocket => parse => append => rebuild => generate_signals => pickled => Redis
+        """
         try:
-            # Debug log at the beginning of execute
-            self.logger.info(f"execute() triggered - Channel: {channel}")
-
             self.redis_client = redis_client
-            
-            # 檢查是否是處理過的K線數據
-            if "processed-kline" in channel:
-                self.logger.info("Processing processed-kline data...")
-                # 解析數據
-                if isinstance(data, str):
-                    kline_data = json.loads(data)
-                else:
-                    kline_data = data
-                    
-                self.logger.info(f"Kline data: {kline_data}")
-                    
-                # 從數據中提取K線信息
-                candle_data = kline_data.get('data', {}).get('kline_data', {})
-                
-                if not candle_data:
-                    self.logger.info("No kline_data found, skipping...")
-                    return
-                    
-                current_time = candle_data.get('endTime')
-                
-                # 避免重複處理
-                if self.last_update_time and current_time <= self.last_update_time:
-                    self.logger.info("Received an older or same timestamp kline, skipping...")
-                    return
-                
-                # 添加到K線數據隊列
-                self.kline_data.append(candle_data)
-                self.last_update_time = current_time
-                
-                # 創建和處理DataFrame
-                self.df = self.create_dataframe()
 
-                # Debug log after DataFrame creation
-                self.logger.info(f"DataFrame created with shape: {self.df.shape}")
-                self.logger.info(f"DataFrame head:\n{self.df.head()}")
+            # 只處理 kline
+            if "kline" not in channel:
+                return
 
-                if len(self.df) > 0:
-                    # 計算技術指標
-                    self.df['atr'] = self.calculate_atr(self.df, self.atr_period)
-                    self.df = self.get_direction(self.df)
-                    self.df = await self.generate_signals_and_publish(self.df)
+            self.logger.info(f"execute => channel={channel}")
 
-                    self.logger.info(f"DataFrame after calculations:\n{self.df.head()}")
-                    
-                    # 改用pickle序列化後存入Redis
-                    buffer = io.BytesIO()
-                    self.df.to_pickle(buffer)
-                    buffer.seek(0)
-                    await self.redis_client.set('strategy_df', buffer.read())
+            if isinstance(data, str):
+                kline_data = json.loads(data)
+            else:
+                kline_data = data
 
-                    # Debug log after saving to Redis
-                    self.logger.info("DataFrame saved to Redis as 'strategy_df' (pickled)")
-                    
+            cdata = kline_data.get('data', {}).get('kline_data', {})
+            if not cdata:
+                return
+
+            new_start = cdata.get('startTime')
+            if not new_start:
+                return
+
+            if self.last_update_time and new_start <= self.last_update_time:
+                return
+            self.last_update_time = new_start
+
+            # candle
+            dt_utc = pd.to_datetime(new_start, unit='ms', utc=True)
+            dt_local = dt_utc.tz_convert(self.local_tz)
+
+            new_candle = {
+                "date":   dt_local,
+                "open":   float(cdata.get('open', 0)),
+                "high":   float(cdata.get('high', 0)),
+                "low":    float(cdata.get('low', 0)),
+                "close":  float(cdata.get('close', 0)),
+                "volume": float(cdata.get('volume', 0))
+            }
+            self.kline_data.append(new_candle)
+
+            self.rebuild_df()
+            if not self.df.empty:
+                self.df = await self.generate_signals_and_publish(self.df)
+
+                # pickled => redis
+                buf = io.BytesIO()
+                self.df.to_pickle(buf)
+                buf.seek(0)
+                await self.redis_client.set('strategy_df', buf.read())
+
         except Exception as e:
             self.logger.error(f"Error in strategy execution: {e}")
             raise
+
+
+
 
 # async def main():
 #     strategy = ExampleStrategy("strategy_signals")
