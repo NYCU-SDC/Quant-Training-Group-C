@@ -6,12 +6,13 @@ import pytz
 import pandas as pd
 import numpy as np
 import io 
+import os
 from datetime import datetime
 from collections import deque
 from typing import Optional, Dict
 from redis import asyncio as aioredis
 
-# 假設您在同專案有一個 woox_data_loader.py
+# 同project有一個 woox_data_loader.py
 # 其中包含 WooXPublicAPI / fetch_recent_kline_woo
 from strategy_logics.Woox_loader_for_cta import WooXPublicAPI, fetch_recent_kline_woo
 
@@ -26,7 +27,7 @@ from strategy_logics.strategy_init import (
 logger = logging.getLogger(__name__)
 
 
-class ExampleStrategy(Strategy):
+class CTAStrategy(Strategy):
     """
     每次程式啟動:
       1) 清空self.kline_data, self.df
@@ -38,6 +39,17 @@ class ExampleStrategy(Strategy):
 
     def __init__(self, signal_channel: str, config: Dict = None):
         super().__init__(signal_channel, config)
+
+        # === 設置檔案 logger ===
+        self.logger = logging.getLogger("CTAStrategy")
+        self.logger.setLevel(logging.INFO)  
+        # 上面這行表明, 只有 level>=INFO 會被寫入檔案
+        os.makedirs("logs", exist_ok=True)
+        fh = logging.FileHandler("logs/cta_strategy_trades.log")
+        fh.setLevel(logging.INFO)  # 只記錄 INFO 級別以上
+        formatter = logging.Formatter('%(asctime)s - CTAStrategy - %(levelname)s - %(message)s')
+        fh.setFormatter(formatter)
+        self.logger.addHandler(fh)
 
         # === 讀取配置
         trading_params = self.config.get('trading_params', {})
@@ -53,6 +65,7 @@ class ExampleStrategy(Strategy):
         self.threshold_multiplier = 3.0   # direction翻轉閾值 = 3*ATR
         self.take_profit_atr = 9.0       # 停利
         self.stop_loss_atr   = 3.0       # 停損
+
         self.current_position: Optional[PositionSide] = None
         self.entry_price: Optional[float] = None
         self.last_update_time: Optional[int] = None
@@ -60,6 +73,9 @@ class ExampleStrategy(Strategy):
 
         # 本地(UTC+8)
         self.local_tz = pytz.timezone("Asia/Taipei")
+
+        # 每次啟動都 log initialization
+        self.logger.info("CTA Strategy initialization completed")
 
         # === 在初始化時, 透過REST抓取前14根K線
         try:
@@ -100,6 +116,13 @@ class ExampleStrategy(Strategy):
             self.logger.error(f"Error fetching warmup bars: {e}")
 
         self.logger.info("CTA Strategy init complete, no old data loaded.")
+    
+    def start(self):
+        # Strategy父類 maybe no define, just log or pass
+        self.logger.info("Strategy started: CTAStrategy")
+    
+    def stop(self):
+        self.logger.info("Strategy stopped: CTAStrategy")
 
     def _kline_data_to_df(self) -> pd.DataFrame:
         """
@@ -328,14 +351,21 @@ class ExampleStrategy(Strategy):
         """
         即時階段: WebSocket => parse => append => rebuild => generate_signals => pickled => Redis
         """
+        """
+        原本若有 logger.info(f"execute => channel={channel}")
+        改為: 
+        - if "processed-kline" in channel: logger.info(...)
+        - else: logger.debug(...)
+        """
         try:
             self.redis_client = redis_client
 
-            # 只處理 kline
-            if "kline" not in channel:
-                return
-
-            self.logger.info(f"execute => channel={channel}")
+            # 如果是 processed-kline, 就用 info (您想保留)
+            if "processed-kline" in channel:
+                self.logger.info(f"execute => channel={channel}")
+            else:
+                # 其餘kline => debug
+                self.logger.debug(f"execute => channel={channel}")
 
             if isinstance(data, str):
                 kline_data = json.loads(data)
@@ -384,9 +414,8 @@ class ExampleStrategy(Strategy):
 
 
 
-
 # async def main():
-#     strategy = ExampleStrategy("strategy_signals")
+#     strategy = CTAStrategy("strategy_signals")
 #     strategy.threshold = 0.05  # initial threshold
 #     strategy.atr_mode = True  # change atr mode, if it is True, threshold = 3 atr
 #     strategy.chart_type = 'line'  # change type
