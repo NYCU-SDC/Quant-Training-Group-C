@@ -41,8 +41,8 @@ class MarketMakingStrategy:
 
                     await self.cancel_orders(redis_client)
 
-                    await self.place_order(redis_client, 'LONG', 'LIMIT', self.trade_size, new_bid_price)
-                    await self.place_order(redis_client, 'SHORT', 'LIMIT', self.trade_size, new_ask_price)
+                    await self.place_order(redis_client, 'LONG', 'BUY', 'LIMIT', self.trade_size, new_bid_price)
+                    await self.place_order(redis_client, 'SHORT', 'SELL', 'LIMIT', self.trade_size, new_ask_price)
 
                     self.current_bid_order = new_bid_price
                     self.current_ask_order = new_ask_price
@@ -50,17 +50,18 @@ class MarketMakingStrategy:
         except Exception as e:
             self.logger.error(f"Error executing market making strategy: {e}")
 
-    async def place_order(self, redis_client, position_side, order_type, quantity, price):
+    async def place_order(self, redis_client, position_side, side, order_type, quantity, price):
         signal = {
             'symbol': self.symbol,
             'position_side': position_side,
+            'side': side,
             'order_type': order_type,
             'quantity': quantity,
             'price': price,
             'reduce_only': False
         }
         await redis_client.publish(self.signal_channel, json.dumps(signal))
-        self.logger.info(f"Placed {position_side} order: {signal}")
+        self.logger.info(f"Placed {position_side} ({side}) order: {signal}")
 
     async def cancel_orders(self, redis_client):
         self.logger.info("Cancelling all outstanding orders.")
