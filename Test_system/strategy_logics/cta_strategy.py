@@ -176,80 +176,75 @@ class ExampleStrategy(Strategy):
         if len(df) < 2:
             return df
 
-        for i in range(1, len(df)):
-            prev_direction = df['direction'].iloc[i-1]
-            curr_direction = df['direction'].iloc[i]
+        i = len(df) - 1  # 只看最後一筆
+        prev_direction = df['direction'].iloc[i - 1]
+        curr_direction = df['direction'].iloc[i]
 
-            # 若方向未變，不動作，signal=0，繼續處理下一筆
-            if prev_direction == curr_direction:
-                df.iloc[i, df.columns.get_loc('signal')] = 0
-                continue
-            
-            # 執行到這裡代表 direction 改變了
-            timestamp = int(df['date'].iloc[i].timestamp() * 1000)
+        # 若方向一樣，就不動作
+        if prev_direction == curr_direction:
+            df.iat[i, df.columns.get_loc('signal')] = 0
+            return df
 
-            if prev_direction == 'up' and curr_direction == 'down':
-                # 由up -> down
-                # 若有多倉，先平多（不改signal的數值），再開空(-2)
-                if self.current_position == PositionSide.LONG:
-                    close_long_signal = SignalData(
-                        timestamp=timestamp,
-                        action=OrderAction.CLOSE,
-                        position_side=PositionSide.LONG,
-                        order_type=OrderType.MARKET,
-                        symbol=self.trading_symbol,
-                        quantity=self.position_size,
-                        reduce_only=True
-                    )
-                    await self.publish_signal(close_long_signal)
-                    self.current_position = None
-                
-                # 接著開空(-2)
-                open_short_signal = SignalData(
+        # 以下才是「方向改變」的情況
+        timestamp = int(df['date'].iloc[i].timestamp() * 1000)
+
+        if prev_direction == 'up' and curr_direction == 'down':
+            # 若有多倉，先平多
+            if self.current_position == PositionSide.LONG:
+                close_long_signal = SignalData(
                     timestamp=timestamp,
-                    action=OrderAction.OPEN,
-                    position_side=PositionSide.SHORT,
-                    order_type=OrderType.MARKET,
-                    symbol=self.trading_symbol,
-                    quantity=self.position_size
-                )
-                df.iloc[i, df.columns.get_loc('signal')] = -2
-                await self.publish_signal(open_short_signal)
-                self.current_position = PositionSide.SHORT
-
-            elif prev_direction == 'down' and curr_direction == 'up':
-                # 由down -> up
-                # 若有空倉，先平空（不改signal的數值），再開多(2)
-                if self.current_position == PositionSide.SHORT:
-                    close_short_signal = SignalData(
-                        timestamp=timestamp,
-                        action=OrderAction.CLOSE,
-                        position_side=PositionSide.SHORT,
-                        order_type=OrderType.MARKET,
-                        symbol=self.trading_symbol,
-                        quantity=self.position_size,
-                        reduce_only=True
-                    )
-                    await self.publish_signal(close_short_signal)
-                    self.current_position = None
-
-                # 接著開多(2)
-                open_long_signal = SignalData(
-                    timestamp=timestamp,
-                    action=OrderAction.OPEN,
+                    action=OrderAction.CLOSE,
                     position_side=PositionSide.LONG,
                     order_type=OrderType.MARKET,
                     symbol=self.trading_symbol,
-                    quantity=self.position_size
+                    quantity=self.position_size,
+                    reduce_only=True
                 )
-                df.iloc[i, df.columns.get_loc('signal')] = 2
-                await self.publish_signal(open_long_signal)
-                self.current_position = PositionSide.LONG
+                await self.publish_signal(close_long_signal)
+                self.current_position = None
+
+            # 接著開空
+            open_short_signal = SignalData(
+                timestamp=timestamp,
+                action=OrderAction.OPEN,
+                position_side=PositionSide.SHORT,
+                order_type=OrderType.MARKET,
+                symbol=self.trading_symbol,
+                quantity=self.position_size
+            )
+            df.iat[i, df.columns.get_loc('signal')] = -2
+            await self.publish_signal(open_short_signal)
+            self.current_position = PositionSide.SHORT
+
+        elif prev_direction == 'down' and curr_direction == 'up':
+            # 若有空倉，先平空
+            if self.current_position == PositionSide.SHORT:
+                close_short_signal = SignalData(
+                    timestamp=timestamp,
+                    action=OrderAction.CLOSE,
+                    position_side=PositionSide.SHORT,
+                    order_type=OrderType.MARKET,
+                    symbol=self.trading_symbol,
+                    quantity=self.position_size,
+                    reduce_only=True
+                )
+                await self.publish_signal(close_short_signal)
+                self.current_position = None
+
+            # 接著開多
+            open_long_signal = SignalData(
+                timestamp=timestamp,
+                action=OrderAction.OPEN,
+                position_side=PositionSide.LONG,
+                order_type=OrderType.MARKET,
+                symbol=self.trading_symbol,
+                quantity=self.position_size
+            )
+            df.iat[i, df.columns.get_loc('signal')] = 2
+            await self.publish_signal(open_long_signal)
+            self.current_position = PositionSide.LONG
 
         return df
-
-
-
 
 
 
