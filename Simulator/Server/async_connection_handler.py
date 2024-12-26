@@ -15,46 +15,47 @@ class AsyncConnectionHandler:
         self.data_manager = data_manager
         self.subscribe_manager = subscribe_manager
         self.matching_manager = matching_manager
-        self.fee_rate = 0.04            # 手續費率
-
-        self.lock = asyncio.Lock()        # 鎖定共享資源
-        self.orders = deque(maxlen=1000)  # 儲存訂單 (FIFO)
-        self.balance = 0.0                # 初始餘額為 0
-        self.realized_pnl = 0
-
+        self.fee_rate = 0.04
+        self.lock = asyncio.Lock()
+        self.orders = deque(maxlen=1000)
+        self.balance = 0.0
+        self.realized_pnl = 0.0
         self.simulate_speed = simulate_speed
         self.start_timestamp = start_timestamp
         self.base_timestamp = base_timestamp
 
     def get_timestamp(self):
-        return (time.time() - self.start_timestamp) * self.simulate_speed  + self.base_timestamp
+        return (time.time() - self.start_timestamp) * self.simulate_speed + self.base_timestamp
 
     async def handle_client_connection(self, client_socket):
         try:
-            tasks = []  # 任務列表
+            tasks = []
             while True:
                 message = await receive_message(client_socket)
                 if not message:
                     break
                 try:
                     request = json.loads(message)
-                    # print(f"request is {request}")
                 except json.JSONDecodeError:
                     await send_message(client_socket, "invalid_message_format")
                     continue
+
                 event = request.get("event")
                 print(f"event received: {event}")
-                
                 if event == 'get_bbo':
                     tasks.append(asyncio.create_task(self.handle_get_bbo(client_socket, request)))
+
                 elif event == 'get_kline':
                     tasks.append(asyncio.create_task(self.handle_get_kline(client_socket, request)))
+
                 elif event == 'get_market_trades':
                     tasks.append(asyncio.create_task(self.handle_get_market_trades(client_socket, request)))
+
                 elif event == 'get_orderbook':
                     tasks.append(asyncio.create_task(self.handle_get_orderbook(client_socket, request)))
-                
+
                 elif event == 'subscribe':
+                    # 根據 topic 判斷要訂閱哪種行情
                     topic = request.get('topic')
                     if 'bbo' in topic:
                         tasks.append(asyncio.create_task(self.handle_subscribe_bbo(client_socket, request)))
@@ -64,6 +65,7 @@ class AsyncConnectionHandler:
                         tasks.append(asyncio.create_task(self.handle_subscribe_orderbook(client_socket, request)))
                     elif 'trade' in topic:
                         tasks.append(asyncio.create_task(self.handle_subscribe_trade(client_socket, request)))
+
                 # elif event == 'subscribe_executionreport':
                 #     await self.handle_subscribe_executionreport(client_socket, request)
 
@@ -76,10 +78,9 @@ class AsyncConnectionHandler:
 
                 elif event == 'send_order':
                     tasks.append(asyncio.create_task(self.handle_send_order(client_socket, request)))
-                
+
                 else:
                     await send_message(client_socket, json.dumps({"error": "invalid_event"}))
-
 
         except asyncio.CancelledError:
             log_event("Connection handler task cancelled.")
@@ -89,26 +90,20 @@ class AsyncConnectionHandler:
     async def handle_get_bbo(self, client_socket, request):
         loop = asyncio.get_event_loop()
         bbo_response = await loop.run_in_executor(None, self.data_manager.get_bbo, request)
-
         if not bbo_response or 'data' not in bbo_response:
             error_response = {"error": "invalid_bbo_response"}
             await send_message(client_socket, json.dumps(error_response))
             return
-        
         await send_message(client_socket, json.dumps(bbo_response))
 
     async def handle_get_kline(self, client_socket, request):
-        # print(f"\nrequest: {request}\n")
         loop = asyncio.get_event_loop()
         kline_response = await loop.run_in_executor(None, self.data_manager.get_kline, request)
-        # print(f"\nget_kline: {kline_response}\n")
         await send_message(client_socket, json.dumps(kline_response))
 
     async def handle_get_market_trades(self, client_socket, request):
-        # print(f"\nrequest: {request}\n")
         loop = asyncio.get_event_loop()
         market_trades_response = await loop.run_in_executor(None, self.data_manager.get_market_trades, request)
-        # print(f"\nget_market_trades: {market_trades_response}\n")
         await send_message(client_socket, json.dumps(market_trades_response))
 
     async def handle_get_orderbook(self, client_socket, request):
@@ -128,18 +123,16 @@ class AsyncConnectionHandler:
                 "ts": self.get_timestamp(),
                 "data": request['topic']
             }
-            # 加入換行符號並發送訊息
             response_message = json.dumps(subscribe_bbo_response) + "\n"
             await send_message(client_socket, response_message)
             print(f"[Server Response] Sent response to client: {response_message}")
 
-            # 啟動背景任務處理資料流
             asyncio.create_task(self.stream_bbo_data(client_socket, request))
-        except:
+
+        except Exception:
             subscribe_bbo_response = {
                 "success": False
             }
-            # 加入換行符號並發送訊息
             response_message = json.dumps(subscribe_bbo_response) + "\n"
             await send_message(client_socket, response_message)
             print(f"[Server Response] Sent response to client: {response_message}")
@@ -147,25 +140,21 @@ class AsyncConnectionHandler:
     async def stream_bbo_data(self, client_socket, request):
         while True:
             try:
-                # 檢查連線是否有效
                 if client_socket.fileno() == -1:
                     print("[Server] Client disconnected. Stopping BBO stream.")
                     break
-                # 處理請求
                 print("[Request] Processing BBO request")
                 data = await self.subscribe_manager.get_bbo(request)
                 print("[Response] Received BBO data")
 
-                # 確保 'timestamp' 是整數格式
                 data_timestamp = None
                 if 'timestamp' in data:
                     try:
-                        data_timestamp = int(data['timestamp'])  # 轉換為整數
+                        data_timestamp = int(data['timestamp'])
                     except ValueError:
                         data_timestamp = None
                     del data['timestamp']
 
-                # 傳送資料
                 if data['success'] and data_timestamp is not None:
                     bbo_response = {
                         "topic": request['topic'],
@@ -176,13 +165,12 @@ class AsyncConnectionHandler:
                     await send_message(client_socket, response_message)
                     print(f"[Server BBO Update] Sent: {response_message}")
 
-                    # 更新時間戳
                     request['timestamp'] = data_timestamp + 1
                 else:
                     print("[Server BBO] No valid data or error occurred.")
 
-                # 等待 0.1 秒
                 await asyncio.sleep(0.1 / self.simulate_speed)
+
             except Exception as e:
                 print(f"[Server BBO Error] {str(e)}")
                 break
@@ -195,18 +183,15 @@ class AsyncConnectionHandler:
                 "ts": self.get_timestamp(),
                 "data": request['topic']
             }
-            # 加入換行符號並發送訊息
             response_message = json.dumps(subscribe_kline_response) + "\n"
             await send_message(client_socket, response_message)
             print(f"[Server Response] Sent response to client: {response_message}")
 
-             # 啟動背景任務處理資料流
             asyncio.create_task(self.stream_kline_data(client_socket, request))
-        except:
+        except Exception:
             subscribe_kline_response = {
                 "success": False
             }
-            # 加入換行符號並發送訊息
             response_message = json.dumps(subscribe_kline_response) + "\n"
             await send_message(client_socket, response_message)
             print(f"[Server Response] Sent response to client: {response_message}")
@@ -215,7 +200,7 @@ class AsyncConnectionHandler:
         interval = request['topic'].split('_')[-1]
         wait_time = 60
         if interval == "1m":
-            wait_time = 60  # 秒
+            wait_time = 60
         elif interval == "5m":
             wait_time = 300
         elif interval == "15m":
@@ -236,24 +221,23 @@ class AsyncConnectionHandler:
             wait_time = 2592000
         elif interval == "1y":
             wait_time = 31536000
+
         while True:
             try:
-                # 檢查連線是否有效
                 if client_socket.fileno() == -1:
-                    print("[Server] Client disconnected. Stopping BBO stream.")
+                    print("[Server] Client disconnected. Stopping Kline stream.")
                     break
-                # 處理請求
                 print("[Request] Processing kline request:", request)
                 data = await self.subscribe_manager.get_kline(request)
                 print("[Response] Received kline data:", data)
 
-                # 確保 'timestamp' 是整數格式
                 data_timestamp = None
                 try:
-                    data_timestamp = int(data['endTime'])  # 轉換為整數
-                except ValueError:
+                    data_timestamp = int(data['endTime'])
+                except (ValueError, KeyError):
                     data_timestamp = None
-                if data['success'] and data_timestamp is not None:
+
+                if data.get('success') and data_timestamp is not None:
                     kline_response = {
                         "topic": request['topic'],
                         "ts": data_timestamp,
@@ -261,20 +245,18 @@ class AsyncConnectionHandler:
                     }
                     response_message = json.dumps(kline_response) + "\n"
                     await send_message(client_socket, response_message)
-
-                    # 在伺服器端打印傳送的訊息
                     print(f"[Server kline Update] Sent: {response_message}")
-                    #  更新先前資料，確保下一次請求時間更新
-                    request['timestamp'] = data_timestamp + 1  # 更新為下一個時間點
+
+                    request['timestamp'] = data_timestamp + 1
                 else:
                     print("No valid data or error occurred.")
-                # 等待 0.1 秒後繼續下一次請求
+
                 await asyncio.sleep(wait_time / self.simulate_speed)
-                
+
             except Exception as e:
-                print(f"[Server BBO Error] {str(e)}")
+                print(f"[Server kline Error] {str(e)}")
                 break
-    
+
     async def handle_subscribe_orderbook(self, client_socket, request):
         try:
             subscribe_orderbook_response = {
@@ -283,42 +265,36 @@ class AsyncConnectionHandler:
                 "ts": self.get_timestamp(),
                 "data": request['topic']
             }
-            # 加入換行符號並發送訊息
             response_message = json.dumps(subscribe_orderbook_response) + "\n"
             await send_message(client_socket, response_message)
             print(f"[Server Response] Sent response to client: {response_message}")
-            # 啟動背景任務處理資料流
+
             asyncio.create_task(self.stream_orderbook_data(client_socket, request))
-        except:
+        except Exception:
             subscribe_orderbook_response = {
                 "success": False
             }
-            # 加入換行符號並發送訊息
             response_message = json.dumps(subscribe_orderbook_response) + "\n"
             await send_message(client_socket, response_message)
 
     async def stream_orderbook_data(self, client_socket, request):
         while True:
             try:
-                # 檢查連線是否有效
                 if client_socket.fileno() == -1:
                     print("[Server] Client disconnected. Stopping orderbook stream.")
                     break
-                # 處理請求
                 print("[Request] Processing orderbook request")
                 data = await self.subscribe_manager.get_orderbook(request)
                 print("[Response] Received orderbook data:")
 
-                # 確保 'timestamp' 是整數格式
                 data_timestamp = None
                 if 'timestamp' in data:
                     try:
-                        data_timestamp = int(data['timestamp'])  # 轉換為整數
+                        data_timestamp = int(data['timestamp'])
                     except ValueError:
                         data_timestamp = None
                     del data['timestamp']
-                
-                # 傳送資料
+
                 if data['success'] and data_timestamp is not None:
                     orderbook_response = {
                         "topic": f"{request['symbol']}@orderbook",
@@ -333,125 +309,125 @@ class AsyncConnectionHandler:
                 else:
                     print("No valid data or error occurred.")
 
-                # 等待 0.1 秒後繼續下一次請求
                 await asyncio.sleep(0.1 / self.simulate_speed)
+
             except Exception as e:
-                print(f"[Server BBO Error] {str(e)}")
+                print(f"[Server orderbook Error] {str(e)}")
                 break
 
     async def handle_subscribe_trade(self, client_socket, request):
         pass
-    
+
     async def handle_subscribe_executionreport(self, client_socket, request):
         pass
 
     async def handle_subscribe_position(self, client_socket, request):
         pass
-    
+
     async def handle_subscribe_balance(self, client_socket, request):
         pass
 
     async def handle_send_order(self, client_socket, request):
-        """
-        處理市價單 (MARKET)，包含 BUY 和 SELL 操作邏輯
-        """
-        print(f"\n[REQUEST] {request}\n")  # 印出請求內容
-
+        print(f"\n[REQUEST] {request}\n")
         try:
             if request['order_type'] == 'MARKET':
                 print('[INFO] Processing MARKET order...')
-                
-                # 模擬撮合訂單
+
                 loop = asyncio.get_event_loop()
                 order_response = await loop.run_in_executor(
                     None, self.matching_manager.handle_market_order, request
                 )
-                print(f"[RESPONSE] {order_response}\n")  # 印出撮合回應
-                
-                # 解析訂單資訊
-                executed_price = float(order_response.get('order_price', 0))
-                quantity = float(request.get('order_quantity', 0))
-                symbol = request['symbol']  # 新增 symbol
-                side = request['side']  # BUY 或 SELL
-                print(f"[INFO] Executed {side} Order - Price: {executed_price}, Quantity: {quantity}, Symbol: {symbol}")
+                print(f"[RESPONSE] {order_response}\n")
+
+                executed_price = float(order_response.get('order_price', 0.0))
+                quantity = float(request.get('order_quantity', 0.0))
+                symbol = request['symbol']
+                side = request['side']
+
+                print(f"[INFO] Executed {side} Order - Price: {executed_price}, "
+                      f"Quantity: {quantity}, Symbol: {symbol}")
 
                 async with self.lock:
+                    # ---------------------------
+                    # PnL + 餘額計算邏輯
+                    # ---------------------------
                     turnover = 0.0
                     gross_pnl = 0.0
-                    long_gross_pnl = 0.0
-                    pnl = 0.0
                     taker_fee = 0.0
                     maker_fee = 0.0
+                    pnl = 0.0
+                    long_gross_pnl = 0.0
+                    short_gross_pnl = 0.0
                     long_position_usd = 0.0
                     short_position_usd = 0.0
 
-                    # 更新帳戶與倉位
                     if side == 'BUY':
-                        # 購買時，新增倉位並更新餘額
                         turnover = executed_price * quantity
-                        fee = turnover * self.fee_rate
-                        self.balance -= (turnover + taker_fee)  # 扣除買入成本與手續費
-                        print(f"[BUY] Deducting cost: {turnover:.2f}, Fee: {taker_fee:.2f}, New Balance: {self.balance:.2f}")
+                        taker_fee = turnover * self.fee_rate
+                        fee = taker_fee
+
+                        self.balance -= (turnover + fee)
+
 
                         self.orders.append({
                             'timestamp': int(datetime.now().timestamp() * 1000),
-                            'symbol': symbol,  # 加入 symbol
+                            'symbol': symbol,
                             'quantity': quantity,
                             'executed_price': executed_price
                         })
-                        print(f"[BUY] New Position Added: {self.orders[-1]}")
 
-                        # 更新 BUY 統計數據
-                        gross_pnl = -turnover
-                        pnl = gross_pnl - fee
-                        long_gross_pnl = pnl
+                        pnl = 0.0
+                        gross_pnl = 0.0
+                        long_gross_pnl = 0.0
                         long_position_usd = turnover
 
+                        print(f"[BUY] Deducting cost: {turnover:.2f}, Fee: {fee:.2f}, "
+                              f"New Balance: {self.balance:.2f}")
+
                     elif side == 'SELL':
-                        # 賣出時，按價格低到高排序倉位
-                        print("[SELL] Sorting orders by executed price...")
+                        turnover = executed_price * quantity
+                        taker_fee = turnover * self.fee_rate
+                        fee = taker_fee
+
                         sorted_orders = sorted(
-                            (o for o in self.orders if o['symbol'] == symbol),  # 篩選相同 symbol
+                            (o for o in self.orders if o['symbol'] == symbol),
                             key=lambda x: x['executed_price']
                         )
                         remaining_quantity = quantity
 
-                        # 遍歷低價格倉位，逐步賣出
                         for order in sorted_orders:
                             if remaining_quantity <= 0:
                                 break
 
-                            # 計算可出售數量
                             sold_quantity = min(remaining_quantity, order['quantity'])
                             remaining_quantity -= sold_quantity
                             order['quantity'] -= sold_quantity
 
-                            # 計算損益
+                            buy_price = order['executed_price']
+                            single_gross_pnl = (executed_price - buy_price) * sold_quantity
+                            gross_pnl += single_gross_pnl
+
                             sell_proceeds = executed_price * sold_quantity
-                            taker_fee += sell_proceeds * self.fee_rate
-                            realized_pnl = (executed_price - order['executed_price']) * sold_quantity - taker_fee
+                            self.balance += sell_proceeds
 
-                            # 更新計算結果
-                            turnover += sell_proceeds
-                            gross_pnl += (executed_price - order['executed_price']) * sold_quantity
-                            pnl += realized_pnl
-                            short_position_usd += sell_proceeds
-
-                            # 更新餘額與盈虧
-                            self.balance += (sell_proceeds - taker_fee)
-                            self.realized_pnl += realized_pnl
-                            print(f"[SELL] Sold {sold_quantity:.6f} from {order}. Remaining Quantity: {remaining_quantity:.6f}")
-                            print(f"[SELL] realized_pnl: {self.realized_pnl:.2f}, Fee: {taker_fee:.2f}")
-
-                            # 移除已清空的倉位
                             if order['quantity'] == 0:
                                 self.orders.remove(order)
-                                print(f"[SELL] Position Removed: {order}")
 
-                        # 更新帳戶餘額
-                        print(f"[SELL] Updated Balance: {self.balance:.2f}")
+                            print(f"[SELL] Sold {sold_quantity:.6f} from {order}, "
+                                  f"Remaining to sell: {remaining_quantity:.6f}")
 
-                    # 保存結果至 CSV
+                        self.balance -= fee
+                        short_gross_pnl = gross_pnl
+
+                        pnl = gross_pnl - fee
+                        self.realized_pnl += pnl
+                        short_position_usd = turnover
+
+                        print(f"[SELL] total SELL turnover: {turnover:.2f}, Fee: {fee:.2f}, "
+                              f"gross_pnl: {gross_pnl:.2f}, realized_pnl: {pnl:.2f}, "
+                              f"Updated Balance: {self.balance:.2f}")
+
+
                     result = {
                         "pnl": pnl,
                         "gross_pnl": gross_pnl,
@@ -464,7 +440,7 @@ class AsyncConnectionHandler:
                         "long_gross_pnl": long_gross_pnl,
                         "long_position_usd": long_position_usd,
                         "long_turnover": turnover if side == 'BUY' else 0.0,
-                        "short_gross_pnl": gross_pnl,
+                        "short_gross_pnl": short_gross_pnl,
                         "short_position_usd": short_position_usd,
                         "short_turnover": turnover if side == 'SELL' else 0.0
                     }
@@ -476,7 +452,6 @@ class AsyncConnectionHandler:
                         "long_position_usd", "long_turnover", "short_gross_pnl",
                         "short_position_usd", "short_turnover"
                     ]
-
                     file_exists = os.path.isfile(csv_file)
                     with open(csv_file, mode='a', newline='') as file:
                         writer = csv.DictWriter(file, fieldnames=headers)
@@ -485,11 +460,19 @@ class AsyncConnectionHandler:
                         writer.writerow(result)
                     print(f"[LOG] PnL data saved to {csv_file}")
 
-                    # 最終確認帳戶狀態
-                    print(f"[SUMMARY] Balance: {self.balance:.2f}, \n\nOrders: {list(self.orders)}\n\n")
+                    print(f"[SUMMARY] Balance: {self.balance:.2f}, \n"
+                          f"RealizedPnL: {self.realized_pnl:.2f}, \n"
+                          f"Orders: {list(self.orders)}\n")
 
-                    # 傳回訂單結果
-                    await send_message(client_socket, json.dumps(order_response))
+                    order_response.update({
+                        "pnl": pnl,
+                        "gross_pnl": gross_pnl,
+                        "fee": taker_fee,
+                        "balance": self.balance,
+                        "realized_pnl_total": self.realized_pnl
+                    })
+
+                await send_message(client_socket, json.dumps(order_response))
 
         except Exception as e:
             print(f"[ERROR] Exception in handle_send_order: {e}")
