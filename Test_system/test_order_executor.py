@@ -76,6 +76,7 @@ class OrderExecutor:
             # if not can_trade:
             #     return {'success': False, 'error': reason}
 
+<<<<<<< HEAD
             action = signal.get('action')               # 'OPEN' or 'CLOSE'
             pos_side = signal.get('position_side')      # 'LONG' or 'SHORT'
 
@@ -91,6 +92,16 @@ class OrderExecutor:
                 return {'success': False, 'error': f"Invalid action/position_side: {action}/{pos_side}"}
             
 
+=======
+            # 將position_side SHOW出來，Hedge需要
+            if signal['position_side'] == 'LONG':
+                side = 'BUY'
+            elif signal['position_side'] == 'SHORT':
+                side = 'SELL'
+            else:
+                return {'success': False, 'error': f"Unknown position_side: {signal['position_side']}"}
+            
+>>>>>>> f17cd50ce8ce04c2b6620088d01e193a5571f6c3
             # Prepare order parameters
             order_params = {
                 'client_order_id': int(time.time() * 1000),
@@ -104,7 +115,11 @@ class OrderExecutor:
             # 若需要margin_mode，則加上：
             if 'margin_mode' in signal:
                 order_params['margin_mode'] = signal['margin_mode']  # 加入margin_mode
+<<<<<<< HEAD
             # 若是 LIMIT，需加上 'order_price'
+=======
+
+>>>>>>> f17cd50ce8ce04c2b6620088d01e193a5571f6c3
             if signal['order_type'] == 'LIMIT':
                 order_params['order_price'] = signal['price']
             

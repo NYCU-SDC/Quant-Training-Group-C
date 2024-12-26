@@ -31,6 +31,10 @@ class SignalData:
     price: Optional[float] = None
     reduce_only: bool = False
     margin_mode: str = 'CROSS'
+<<<<<<< HEAD
+=======
+    order_number: Optional[int] = None
+>>>>>>> f17cd50ce8ce04c2b6620088d01e193a5571f6c3
 
     def to_dict(self) -> Dict:
         return {
@@ -41,6 +45,10 @@ class SignalData:
             'symbol': self.symbol,
             'quantity': self.quantity,
             'price': self.price,
+<<<<<<< HEAD
+=======
+            'order_id': self.order_number,
+>>>>>>> f17cd50ce8ce04c2b6620088d01e193a5571f6c3
             'reduce_only': self.reduce_only,
             'margin_mode': self.margin_mode
         }
@@ -64,6 +72,15 @@ class Strategy:
         self.position_size: float = 0.0
         self.entry_price: Optional[float] = None
 
+<<<<<<< HEAD
+=======
+        # Order tracking
+        self.order_id = []
+        self.ask_limit_order = {}
+        self.bid_limit_order = {}
+        self.order_number = 0
+
+>>>>>>> f17cd50ce8ce04c2b6620088d01e193a5571f6c3
         # Managers and logging can be defined here or in subclass
         # For simplicity, assume self.redis_client 在 subclass 中賦值
         self.redis_client = None
@@ -108,8 +125,112 @@ class Strategy:
         raise NotImplementedError("Subclass must implement process_market_data")
 
     async def process_private_data(self, channel: str, data: dict, redis_client: aioredis.Redis) -> None:
+<<<<<<< HEAD
         raise NotImplementedError("Subclass must implement process_private_data")
 
+=======
+        """Handle private data (e.g., execution reports)."""
+        self.logger.info(f"[{self.strategy_name}] Processing private data from {channel}: {data}")
+
+        if channel == "[PD]executionreport":
+            await self.handle_execution_report(data)
+        elif channel == "[PD]position":
+            self.logger.info(f"[{self.strategy_name}] Position update: {data}")
+        elif channel == "[PD]balance":
+            self.logger.info(f"[{self.strategy_name}] Balance update: {data}")
+        else:
+            self.logger.warning(f"[{self.strategy_name}] Unhandled private data channel: {channel}")
+
+    async def handle_execution_report(self, execution_report: dict) -> None:
+        """Process an execution report."""
+        try:
+            client_order_id = execution_report["clientOrderId"]
+            if (
+                client_order_id in self.order_id
+                or client_order_id in self.ask_limit_order
+                or client_order_id in self.bid_limit_order
+            ):
+                msg_type = execution_report.get("msgType")
+                if msg_type == 0:  # New order or fill
+                    await self.handle_order_status_update(client_order_id, execution_report)
+                elif msg_type == 1:  # Edit rejected
+                    print(f"[{self.strategy_name}] Edit rejected: {execution_report}")
+                    #inform order manager
+                elif msg_type == 2:  # Cancel rejected
+                    print(f"[{self.strategy_name}] Cancel rejected: {execution_report}")
+                    #inform order manager
+                elif msg_type == 3:  # Cancelled
+                    print(f"[{self.strategy_name}] Order cancelled: {execution_report}")
+                    #inform order manager
+                self.order_id.remove(client_order_id)
+        except KeyError as e:
+            self.logger.error(f"[{self.strategy_name}] Missing key in execution report: {e}")
+        except Exception as e:
+            self.logger.exception(f"[{self.strategy_name}] Error handling execution report: {e}")
+
+    async def handle_order_status_update(self, client_order_id: int, execution_report: dict) -> None:
+        """Update order status based on execution report."""
+        status = execution_report.get("status")
+        side = execution_report.get("side")
+        quantity = execution_report.get("executedQuantity", 0)
+        price = execution_report.get("price", 0)
+
+        if status == "FILLED":
+            order_book = self.ask_limit_order if side == "SELL" else self.bid_limit_order
+            if client_order_id in order_book:
+                # Log the fill order details
+                self.log_fill_order(client_order_id, side, price, quantity)
+
+                # Update the order book
+                order_book[client_order_id]["quantity"] -= quantity
+                if order_book[client_order_id]["quantity"] <= 0:
+                    del order_book[client_order_id]
+                    self.logger.info(f"[{self.strategy_name}] Order {client_order_id} fully filled and removed.")
+        elif status == "NEW":
+            new_order = {"price": price, "quantity": execution_report["quantity"], "status": "PENDING"}
+            if side == "BUY":
+                self.bid_limit_order[client_order_id] = new_order
+            elif side == "SELL":
+                self.ask_limit_order[client_order_id] = new_order
+            self.logger.info(f"[{self.strategy_name}] Added new order: {new_order}")
+        elif status == "PARTIAL_FILLED":
+            order_book = self.ask_limit_order if side == "SELL" else self.bid_limit_order
+            if client_order_id in order_book:
+                # Log the fill order details
+                self.log_fill_order(client_order_id, side, price, quantity)
+
+                # Update the order book
+                order_book[client_order_id]["quantity"] -= quantity
+                if order_book[client_order_id]["quantity"] <= 0:
+                    del order_book[client_order_id]
+                    self.logger.info(f"[{self.strategy_name}] Order {client_order_id} partially filled {quantity} remain {order_book[client_order_id][quantity]}.")
+
+    def log_fill_order(self, order_id: int, side: str, price: float, quantity: float) -> None:
+        """Log the filled order details."""
+        fill_details = {
+            "order_id": order_id,   
+            "side": side,
+            "price": price,
+            "quantity": quantity,
+            "strategy": self.strategy_name,
+        }
+        self.fill_order_logger.info(json.dumps(fill_details))
+        self.logger.info(f"[{self.strategy_name}] Filled order logged: {fill_details}")
+
+    def create_order_signal(self, price: float, quantity: float, side: str, symbol: str) -> dict:
+        """Generate an order signal."""
+        return {
+            "target": "send_order",
+            "order_price": price,
+            "order_quantity": quantity,
+            "order_type": "LIMIT",
+            "side": side,
+            "symbol": symbol,
+            "strategy_name": self.strategy_name,
+            "order_id": self.number,
+        }
+    
+>>>>>>> f17cd50ce8ce04c2b6620088d01e193a5571f6c3
     async def execute(self, channel: str, data: dict, redis_client: aioredis.Redis) -> None:
         raise NotImplementedError("Subclass must implement execute")
 

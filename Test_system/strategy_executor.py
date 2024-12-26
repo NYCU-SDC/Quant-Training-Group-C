@@ -3,10 +3,14 @@ import logging
 import asyncio
 from typing import Dict, List, Optional
 from redis import asyncio as aioredis
+<<<<<<< HEAD
 from strategy_logics.cta_strategy import CTAStrategy
 from strategy_logics.test_strategy import TestStrategy
 from strategy_logics.test_limit_strategy import TestLimitStrategy
 from strategy_logics.AvellanedaMMv2_strategy import AvellanedaMMv2
+=======
+from strategy_logics.cta_strategy import ExampleStrategy
+>>>>>>> f17cd50ce8ce04c2b6620088d01e193a5571f6c3
 from manager.config_manager import ConfigManager
 from manager.risk_manager import RiskManager
 
@@ -25,10 +29,19 @@ class StrategyExecutor:
         
         # Setup logging
         self.logger = logging.getLogger("StrategyExecutor")
+<<<<<<< HEAD
         self.logger.setLevel(logging.INFO)
         handler = logging.StreamHandler()
         handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
         self.logger.addHandler(handler)
+=======
+        handler = logging.StreamHandler()
+        handler.setFormatter(
+            logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        )
+        self.logger.addHandler(handler)
+        self.logger.setLevel(logging.INFO)
+>>>>>>> f17cd50ce8ce04c2b6620088d01e193a5571f6c3
 
         # Track connection status
         self.is_running = False
@@ -61,10 +74,13 @@ class StrategyExecutor:
                 )
                 self.strategies[strategy_name] = strategy_instance
                 self.logger.info(f"Added strategy: {strategy_name}")
+<<<<<<< HEAD
 
                 # 這裡順便寫到策略自己的 log檔案
                 strategy_instance.logger.info(f"StrategyExecutor - INFO - Added strategy: {strategy_name}")
                 self.logger.info(f"Added strategy: {strategy_name}")
+=======
+>>>>>>> f17cd50ce8ce04c2b6620088d01e193a5571f6c3
             else:
                 self.logger.warning(f"Strategy {strategy_name} already exists")
         except Exception as e:
@@ -217,6 +233,7 @@ async def main():
         executor = StrategyExecutor(redis_url=config['redis']['url'], config=config)
         
         symbol = 'PERP_BTC_USDT'
+<<<<<<< HEAD
         symbol_2 = 'PERP_ETH_USDT'
         
         # 添加策略實例
@@ -238,6 +255,12 @@ async def main():
         # 添加策略實例
         await executor.add_strategy(
             strategy_class=TestStrategy,
+=======
+        
+        # 添加策略實例
+        await executor.add_strategy(
+            strategy_class=ExampleStrategy,
+>>>>>>> f17cd50ce8ce04c2b6620088d01e193a5571f6c3
             config={
                 'max_records': 500,
                 'trading_params': {
@@ -250,6 +273,7 @@ async def main():
                 }
             }
         )
+<<<<<<< HEAD
 
         # 添加策略實例
         await executor.add_strategy(
@@ -277,6 +301,8 @@ async def main():
                 }
             }
         )
+=======
+>>>>>>> f17cd50ce8ce04c2b6620088d01e193a5571f6c3
         
         # 修改訂閱的頻道，使用完整的頻道名稱
         market_channels = [
