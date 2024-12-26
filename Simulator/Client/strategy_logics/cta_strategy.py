@@ -5,6 +5,7 @@ import numpy as np
 from collections import deque
 from redis import asyncio as aioredis
 from strategy_init import Strategy
+from config import load_config
 import datetime
 import logging
 
@@ -36,6 +37,9 @@ class ExampleStrategy(Strategy):
         self.redis_client = None
         logger.info("Strategy initialization completed")
 
+        config = load_config("config.json")
+        self.simulate_speed = config['simulator']['simulate_speed']
+
     def create_dataframe(self):
         """Convert kline data to DataFrame with Taipei timezone"""
         if not self.kline_data:
@@ -46,7 +50,9 @@ class ExampleStrategy(Strategy):
             df = pd.DataFrame(list(self.kline_data))
             
             # Convert timestamp from milliseconds to datetime and add 8 hours for Taipei time
-            df['timestamp'] = pd.to_datetime(df['startTime'], unit='ms') + pd.Timedelta(hours=8)
+            # df['timestamp'] = pd.to_datetime(df['startTime'], unit='ms') + pd.Timedelta(hours=8)
+            df['timestamp'] = pd.to_datetime(pd.to_numeric(df['startTime']), unit='ms') + pd.Timedelta(hours=8)
+
             
             # Keep and rename required columns
             keep_columns = {
@@ -296,7 +302,7 @@ async def main():
                 except json.JSONDecodeError as e:
                     logger.error(f"JSON decode error: {e}")
             
-            await asyncio.sleep(0.1)
+            await asyncio.sleep(0.1 / strategy.simulate_speed)
             
     except asyncio.CancelledError:
         logger.info("Shutting down strategy...")

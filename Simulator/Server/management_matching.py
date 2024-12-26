@@ -1,18 +1,24 @@
 import csv
-import datetime
+import time
 import os
 
 
 class MatchingManager:
-    def __init__(self, base_path=None):
+    def __init__(self, simulate_speed, start_timestamp, base_timestamp, base_path=None):
         if base_path is None or not os.path.isdir(base_path):
             base_path = os.path.join(os.getcwd(), "Preprocess")
         self.base_path = base_path
-        self.timestamp = 1733982715400
         self.count = 0
 
+        self.simulate_speed = simulate_speed
+        self.start_timestamp = start_timestamp
+        self.base_timestamp = base_timestamp
+
+    def get_timestamp(self):
+        return (time.time() - self.start_timestamp) * self.simulate_speed  + self.base_timestamp
+
     def handle_market_order(self, params):
-        timestamp = self.timestamp
+        timestamp = self.get_timestamp()
         symbol = params.get('symbol')
         csv_file = os.path.join(self.base_path, "bbo.csv")
 

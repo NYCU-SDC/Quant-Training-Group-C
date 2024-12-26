@@ -2,6 +2,7 @@
 import asyncio
 import json
 import time
+from config import load_config
 
 class WooX_REST_API_Client:
     def __init__(self, api_key, api_secret, server_port):
@@ -9,12 +10,20 @@ class WooX_REST_API_Client:
         self.api_secret = api_secret
         self.server_port = server_port
 
+        config = load_config("config.json")
+        self.simulate_speed = config['simulator']['simulate_speed']
+        self.start_timestamp = config['simulator']['start_timestamp']
+        self.base_timestamp = config['simulator']['base_timestamp']
+
+    def get_timestamp(self):
+        return (time.time() - self.start_timestamp) * self.simulate_speed  + self.base_timestamp
+
     async def send_params(self, params):
         """Send params to the simulated server using a TCP socket connection."""
         try:
             # 添加 API 金鑰和時間戳
             params["api_key"] = self.api_key
-            params["timestamp"] = int(time.time() * 1000)
+            params["timestamp"] = self.get_timestamp()
 
             print(f"Sending params: {params}")
 

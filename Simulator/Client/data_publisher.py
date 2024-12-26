@@ -2,6 +2,7 @@ import json
 import asyncio
 import time
 from redis import asyncio as aioredis
+from config import load_config
 
 # Import your existing classes
 from data_processing.Orderbook import OrderBook
@@ -28,6 +29,15 @@ class WooXStagingAPI:
         
         self.orderbooks = {}
         self.bbo_data = {}
+
+
+        config = load_config("config.json")
+        self.simulate_speed = config['simulator']['simulate_speed']
+        self.start_timestamp = config['simulator']['start_timestamp']
+        self.base_timestamp = config['simulator']['base_timestamp']
+
+    def get_timestamp(self):
+        return (time.time() - self.start_timestamp) * self.simulate_speed  + self.base_timestamp
     
     async def connect_to_redis(self):
         """Connect to Redis Server"""
@@ -108,8 +118,8 @@ class WooXStagingAPI:
                     "event": "subscribe",
                     "topic": params["topic"],
                     "symbol": symbol,
-                    # "timestamp": int(time.time() * 1000)
-                    "timestamp": 1733982717759
+                    "timestamp": self.get_timestamp()
+                    # "timestamp": 1733982717759
                 }
                 if "type" in params:
                     subscription["type"] = params["type"]
@@ -145,8 +155,8 @@ class WooXStagingAPI:
                 subscription = {
                     "event": "subscribe",
                     "topic": params["topic"],
-                    # "timestamp": int(time.time() * 1000)
-                    "timestamp": 1733983629770
+                    "timestamp": self.get_timestamp()
+                    # "timestamp": 1733983629770
                 }
                 try:
                     # 發送訂閱請求到 TCP 伺服器
@@ -269,7 +279,7 @@ class WooXStagingAPI:
                 for task in pending:
                     task.cancel()
                 
-                await asyncio.sleep(0.1)
+                await asyncio.sleep(0.1 / self.simulate_speed)
         
         except asyncio.CancelledError:
             print("\nShutting down...")
@@ -295,7 +305,7 @@ async def main():
         "bbo": True,
         "orderbook": True,
         "trade": False,
-        "kline": False
+        "kline": True
     }
     
     # Private data configuration

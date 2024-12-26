@@ -10,7 +10,8 @@ from datetime import datetime
 from utils import send_message, receive_message, log_event
 
 class AsyncConnectionHandler:
-    def __init__(self, data_manager, subscribe_manager, matching_manager):
+    def __init__(self, data_manager, subscribe_manager, matching_manager,
+                 simulate_speed, start_timestamp, base_timestamp):
         self.data_manager = data_manager
         self.subscribe_manager = subscribe_manager
         self.matching_manager = matching_manager
@@ -20,6 +21,13 @@ class AsyncConnectionHandler:
         self.orders = deque(maxlen=1000)  # 儲存訂單 (FIFO)
         self.balance = 0.0                # 初始餘額為 0
         self.realized_pnl = 0
+
+        self.simulate_speed = simulate_speed
+        self.start_timestamp = start_timestamp
+        self.base_timestamp = base_timestamp
+
+    def get_timestamp(self):
+        return (time.time() - self.start_timestamp) * self.simulate_speed  + self.base_timestamp
 
     async def handle_client_connection(self, client_socket):
         try:
@@ -117,7 +125,7 @@ class AsyncConnectionHandler:
             subscribe_bbo_response = {
                 "event": "subscribe",
                 "success": True,
-                "ts": int(time.time() * 1000),
+                "ts": self.get_timestamp(),
                 "data": request['topic']
             }
             # 加入換行符號並發送訊息
@@ -174,7 +182,7 @@ class AsyncConnectionHandler:
                     print("[Server BBO] No valid data or error occurred.")
 
                 # 等待 0.1 秒
-                await asyncio.sleep(0.1)
+                await asyncio.sleep(0.1 / self.simulate_speed)
             except Exception as e:
                 print(f"[Server BBO Error] {str(e)}")
                 break
@@ -184,7 +192,7 @@ class AsyncConnectionHandler:
             subscribe_kline_response = {
                 "event": "subscribe",
                 "success": True,
-                "ts": int(time.time() * 1000),
+                "ts": self.get_timestamp(),
                 "data": request['topic']
             }
             # 加入換行符號並發送訊息
@@ -204,6 +212,30 @@ class AsyncConnectionHandler:
             print(f"[Server Response] Sent response to client: {response_message}")
 
     async def stream_kline_data(self, client_socket, request):
+        interval = request['topic'].split('_')[-1]
+        wait_time = 60
+        if interval == "1m":
+            wait_time = 60  # 秒
+        elif interval == "5m":
+            wait_time = 300
+        elif interval == "15m":
+            wait_time = 900
+        elif interval == "30m":
+            wait_time = 1800
+        elif interval == "1h":
+            wait_time = 3600
+        elif interval == "4h":
+            wait_time = 14400
+        elif interval == "12h":
+            wait_time = 43200
+        elif interval == "1d":
+            wait_time = 86400
+        elif interval == "1w":
+            wait_time = 604800
+        elif interval == "1mon":
+            wait_time = 2592000
+        elif interval == "1y":
+            wait_time = 31536000
         while True:
             try:
                 # 檢查連線是否有效
@@ -237,7 +269,7 @@ class AsyncConnectionHandler:
                 else:
                     print("No valid data or error occurred.")
                 # 等待 0.1 秒後繼續下一次請求
-                await asyncio.sleep(0.1)
+                await asyncio.sleep(wait_time / self.simulate_speed)
                 
             except Exception as e:
                 print(f"[Server BBO Error] {str(e)}")
@@ -248,7 +280,7 @@ class AsyncConnectionHandler:
             subscribe_orderbook_response = {
                 "event": "subscribe",
                 "success": True,
-                "ts": int(time.time() * 1000),
+                "ts": self.get_timestamp(),
                 "data": request['topic']
             }
             # 加入換行符號並發送訊息
@@ -302,7 +334,7 @@ class AsyncConnectionHandler:
                     print("No valid data or error occurred.")
 
                 # 等待 0.1 秒後繼續下一次請求
-                await asyncio.sleep(0.1)
+                await asyncio.sleep(0.1 / self.simulate_speed)
             except Exception as e:
                 print(f"[Server BBO Error] {str(e)}")
                 break

@@ -11,10 +11,15 @@ async def main():
     try:
         # Load server configuration
         config = load_config("config.json")
-        data_manager = DataManager()
-        subscribe_manager = SubscribeManager()
-        matching_manager = MatchingManager()
-        connection_handler = AsyncConnectionHandler(data_manager, subscribe_manager, matching_manager)
+        simulate_speed = config['simulator']['simulate_speed']
+        start_timestamp = config['simulator']['start_timestamp']
+        base_timestamp = config['simulator']['base_timestamp']
+        
+        data_manager = DataManager(simulate_speed, start_timestamp, base_timestamp)
+        subscribe_manager = SubscribeManager(simulate_speed, start_timestamp, base_timestamp)
+        matching_manager = MatchingManager(simulate_speed, start_timestamp, base_timestamp)
+        connection_handler = AsyncConnectionHandler(data_manager, subscribe_manager, matching_manager,
+                                                    simulate_speed, start_timestamp, base_timestamp)
 
         # Set up the server socket
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

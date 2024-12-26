@@ -3,6 +3,7 @@ import json
 import datetime
 import time
 from redis import asyncio as aioredis
+from config import load_config
 
 class DataSubscriber:
     def __init__(self, redis_host="localhost", redis_port=6379):
@@ -11,6 +12,11 @@ class DataSubscriber:
         self.redis = None
         self.active_channels = {}
         self.kline_last_process_time = {}
+
+        config = load_config("config.json")
+        self.simulate_speed = config['simulator']['simulate_speed']
+        self.start_timestamp = config['simulator']['start_timestamp']
+        self.base_timestamp = config['simulator']['base_timestamp']
     
     async def connect_to_redis(self):
         """Connect to Redis Server"""
@@ -223,7 +229,7 @@ class DataSubscriber:
                     except json.JSONDecodeError:
                         print(f"Failed to decode message data: {message['data']}")
                 
-                await asyncio.sleep(0.1)
+                await asyncio.sleep(0.1 / self.simulate_speed)
                 
         except asyncio.CancelledError:
             print("\nUnsubscribing from channels...")
