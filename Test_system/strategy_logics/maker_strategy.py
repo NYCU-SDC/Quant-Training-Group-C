@@ -17,8 +17,9 @@ import logging
 from typing import Optional, List, Dict
 import pytz
 import io
+import os
 
-logger = logging.getLogger('CTA strategy')
+logger = logging.getLogger('Maker strategy')
 
 class MakerStrategy(Strategy):
     def __init__(self, signal_channel: str, config: Dict = None):
@@ -35,8 +36,9 @@ class MakerStrategy(Strategy):
         trading_params = self.config.get('trading_params', {})
         self.time_interval = trading_params.get('time_interval', 1000)
         self.tick_size = trading_params.get('tick_size', 0.0001)
-        self.position_size = trading_params.get('position_size', 0.001)
-        print(f"position size: {self.position_size}")
+        self.single_position_size = trading_params.get('single_position_size', 0.001)
+        self.limit_quantity_demical = trading_params.get('limit_quantity_demical', 4)
+        print(f"position size: {self.single_position_size}")
 
         # 其他初始化
         
@@ -50,29 +52,17 @@ class MakerStrategy(Strategy):
 
         # 設定台灣時區
         self.tz = pytz.timezone('Asia/Taipei')
-        
+
+        # Set up logger
+        self.logger = self.setup_logger(name='MakerStrategy', log_file='maker_strategy.log')
         self.logger.info("maker Strategy initialization completed")
-    
-    def setup_logger(self, name: str, log_file: Optional[str] = None,
-                     level: int = logging.INFO) -> logging.Logger:
-        logger = logging.getLogger(name)
-        logger.setLevel(level)
-
-        # 避免重複添加Handler
-        if not logger.handlers:
-            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-            console_handler = logging.StreamHandler()
-            console_handler.setFormatter(formatter)
-            logger.addHandler(console_handler)
-
-            if log_file:
-                file_handler = logging.FileHandler(log_file)
-                file_handler.setFormatter(formatter)
-                logger.addHandler(file_handler)
-        return logger
     
     async def process_market_data(self, channel: str, data: dict, redis_client: aioredis.Redis) -> None:
         if channel == f"[MD]{self.trading_symbol}-orderbook" and data['ts'] >= self.time + self.time_interval:
+            # cancel all orders
+            cancel_all_signal = SignalData(target='cancel_all_orders', timestamp=int(time.time() * 1000))
+            print("cancel all orders: ", cancel_all_signal)
+            await self.publish_signal(cancel_all_signal)
             self.time = data['ts']
             self.order_book = data['data']
             self.mid_price = (self.order_book.get('asks')[0][0] + self.order_book.get('bids')[0][0]) / 2
@@ -81,34 +71,42 @@ class MakerStrategy(Strategy):
             best_ask = self.order_book.get('asks')[0][0]
             best_bid = self.order_book.get('bids')[0][0]
             
-            for i in range(1):
+            for i in range(2):
                 ask_price = best_ask - i * self.tick_size
                 bid_price = best_bid + i * self.tick_size
                 if ask_price > self.mid_price:
+                    print("position size: ", self.single_position_size)
+                    quantity = round((self.single_position_size / ask_price), self.limit_quantity_demical)
+                    print(f"quantity: {quantity}")
                     open_short_signal = SignalData(
                         timestamp=int(time.time() * 1000),
+                        target='send_order',
                         action=OrderAction.OPEN,
                         position_side=PositionSide.SHORT,
                         order_type=OrderType.LIMIT,
                         symbol=self.trading_symbol,
                         price=round(ask_price, 4),
-                        quantity=int((self.position_size / round(bid_price, 4))),
+                        quantity=quantity,
                         order_number=self.order_number,
-                        reduce_only="true",
+                        reduce_only=False,
                     )
                     self.order_number += 1
                     await self.publish_signal(open_short_signal)
                 if bid_price < self.mid_price:
+                    print("position size: ", self.single_position_size)
+                    quantity = round((self.single_position_size / bid_price), self.limit_quantity_demical)
+                    print(f"quantity: {quantity}")
                     open_long_signal = SignalData(
                         timestamp=int(time.time() * 1000),
+                        target="send_order",
                         action=OrderAction.OPEN,
                         position_side=PositionSide.LONG,
                         order_type=OrderType.LIMIT,
                         symbol=self.trading_symbol,
                         price=round(bid_price, 4),
-                        quantity=int((self.position_size / round(bid_price, 4))),
+                        quantity=quantity,
                         order_number=self.order_number,
-                        reduce_only="true",
+                        reduce_only=False,
                     )
                     self.order_number += 1
                     await self.publish_signal(open_long_signal)

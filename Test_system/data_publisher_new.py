@@ -66,7 +66,7 @@ class WooXStagingAPI:
                 # 如果數據是dict，序列化
                 await self.redis_client.publish(prefixed_channel, json.dumps(data))
             
-            print(f"[Data Publisher] Published to Redis channel: {prefixed_channel}")
+            # print(f"[Data Publisher] Published to Redis channel: {prefixed_channel}")
 
     
     async def market_connect(self):
@@ -178,21 +178,13 @@ class WooXStagingAPI:
                 "ts": int(time.time() * 1000)
             }
             await connection.send(json.dumps(pong_message))
-<<<<<<< HEAD
             # print(f"[{publisher_type} Data Publisher] Sent PONG response")
-=======
-            print(f"[{publisher_type} Data Publisher] Sent PONG response")
->>>>>>> f17cd50ce8ce04c2b6620088d01e193a5571f6c3
     
     async def handle_ping_pong(self, message, connection, publisher_type="Market"):
         """Handle ping-pong mechanism"""
         data = json.loads(message)
         if data.get("event") == "ping":
-<<<<<<< HEAD
             # print(f"[{publisher_type} Data Publisher] Received PING from server")
-=======
-            print(f"[{publisher_type} Data Publisher] Received PING from server")
->>>>>>> f17cd50ce8ce04c2b6620088d01e193a5571f6c3
             await self.respond_pong(connection, publisher_type)
     
     async def subscribe_market(self, symbol, config, interval: str):
@@ -219,11 +211,7 @@ class WooXStagingAPI:
                     subscription["type"] = params["type"]
                 
                 await self.market_connection.send(json.dumps(subscription))
-<<<<<<< HEAD
                 # print(f"[Market Data Publisher] Subscribed to {sub_type} for {symbol}")
-=======
-                print(f"[Market Data Publisher] Subscribed to {sub_type} for {symbol}")
->>>>>>> f17cd50ce8ce04c2b6620088d01e193a5571f6c3
     
     async def subscribe_private(self, config):
         """Subscribe to private data streams"""
@@ -244,11 +232,7 @@ class WooXStagingAPI:
                     "topic": params["topic"]
                 }
                 await self.private_connection.send(json.dumps(subscription))
-<<<<<<< HEAD
                 # print(f"[Private Data Publisher] Subscribed to {sub_type}")
-=======
-                print(f"[Private Data Publisher] Subscribed to {sub_type}")
->>>>>>> f17cd50ce8ce04c2b6620088d01e193a5571f6c3
     
     async def process_kline_data(self, symbol: str, interval: str, message: dict) -> None:
         """Process kline data and publish both raw and processed data"""
@@ -324,7 +308,7 @@ class WooXStagingAPI:
                         # 處理其他類型的市場數據...
                         channel = f"{symbol}-{data_type}"
                         await self.publish_to_redis(channel, data)
-                        print(f"[Data Publisher] Published to Redis channel: {channel}")
+                        # print(f"[Data Publisher] Published to Redis channel: {channel}")
 
         except Exception as e:
             print(f"[Market Data Publisher] Error: {e}")
@@ -360,11 +344,7 @@ class WooXStagingAPI:
         except Exception as e:
             print(f"[Private Data Publisher] Error: {e}")
     
-<<<<<<< HEAD
-    async def start(self, symbol: str, market_config: dict, private_config: dict, interval: str = '5m'):
-=======
     async def start(self, symbol: str, market_config: dict, private_config: dict, interval: str = '1m'):
->>>>>>> f17cd50ce8ce04c2b6620088d01e193a5571f6c3
         """Start both market and private data streams with proper cleanup"""
         try:
             # Connect to Redis
@@ -432,21 +412,12 @@ async def main():
     
     # Market data configuration
     symbol = "PERP_BTC_USDT"
-<<<<<<< HEAD
-    interval = "5m"
-    market_config = {
-        "orderbook": False,
-        "bbo": True,
-        "trade": False,
-        "kline": False
-=======
     interval = "1m"
     market_config = {
-        "orderbook": False,
+        "orderbook": True,
         "bbo": False,
         "trade": False,
         "kline": True
->>>>>>> f17cd50ce8ce04c2b6620088d01e193a5571f6c3
     }
     
     # Private data configuration
@@ -463,11 +434,6 @@ async def main():
     except Exception as e:
         print(f"Program error: {str(e)}")
 
-<<<<<<< HEAD
-# 只執行run.py，將data_publisher_new.py 的main關掉。
-
-=======
->>>>>>> f17cd50ce8ce04c2b6620088d01e193a5571f6c3
 # if __name__ == "__main__":
 #     try:
 #         asyncio.run(main())

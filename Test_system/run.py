@@ -4,22 +4,11 @@ from pathlib import Path
 from manager.config_manager import ConfigManager
 from strategy_executor import StrategyExecutor
 from test_order_executor import OrderExecutor
-<<<<<<< HEAD
+from strategy_logics.maker_strategy import MakerStrategy
 from strategy_logics.cta_strategy import CTAStrategy
 from strategy_logics.test_strategy import TestStrategy
 from strategy_logics.test_limit_strategy import TestLimitStrategy
 from strategy_logics.AvellanedaMMv2_strategy import AvellanedaMMv2
-from data_publisher_new import WooXStagingAPI
-
-async def main():
-    # logging.basicConfig(
-    #     level=logging.INFO,
-    #     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    # )
-    logger = logging.getLogger("TradingSystem")
-    logger.setLevel(logging.INFO)
-=======
-from strategy_logics.cta_strategy import ExampleStrategy
 from data_publisher_new import WooXStagingAPI
 
 async def main():
@@ -28,7 +17,6 @@ async def main():
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
     logger = logging.getLogger("TradingSystem")
->>>>>>> f17cd50ce8ce04c2b6620088d01e193a5571f6c3
 
     try:
         # 初始化配置管理器
@@ -50,10 +38,6 @@ async def main():
         # 初始化組件
         components = {}
         try:
-<<<<<<< HEAD
-            # data publisher
-=======
->>>>>>> f17cd50ce8ce04c2b6620088d01e193a5571f6c3
             components['data_publisher'] = WooXStagingAPI(
                 app_id=exchange_config['app_id'],
                 api_key=exchange_config['api_key'],
@@ -61,26 +45,17 @@ async def main():
                 redis_host=redis_config.get('host', 'localhost'),
                 redis_port=redis_config.get('port', 6379)
             )
-<<<<<<< HEAD
             # strategy executor
             components['strategy_executor'] = StrategyExecutor(
                 redis_url=f"redis://{redis_config.get('host', 'localhost')}:{redis_config.get('port', 6379)}"
             )
             # order executor
-=======
-            
-            components['strategy_executor'] = StrategyExecutor(
-                redis_url=f"redis://{redis_config.get('host', 'localhost')}:{redis_config.get('port', 6379)}"
-            )
-            
->>>>>>> f17cd50ce8ce04c2b6620088d01e193a5571f6c3
             components['order_executor'] = OrderExecutor(
                 api_key=exchange_config['api_key'],
                 api_secret=exchange_config['api_secret'],
                 redis_url=f"redis://{redis_config.get('host', 'localhost')}:{redis_config.get('port', 6379)}"
             )
             
-<<<<<<< HEAD
             # 載入 cta_strategy
             # strategy_config = config_manager.get_strategy_config('cta_strategy')
             # if not strategy_config:
@@ -108,48 +83,36 @@ async def main():
             # )
 
             # 載入 AvMM 
-            strategy_config_3 = config_manager.get_strategy_config('AvellanedaMMv2_strategy')
-            if not strategy_config_3:
-=======
+            # strategy_config_3 = config_manager.get_strategy_config('AvellanedaMMv2_strategy')
+            # if not strategy_config_3:
+
             # 添加策略
-            strategy_config = config_manager.get_strategy_config('cta_strategy')
+            strategy_config = config_manager.get_strategy_config('maker_strategy_2')
             if not strategy_config:
->>>>>>> f17cd50ce8ce04c2b6620088d01e193a5571f6c3
                 raise ValueError("Failed to load strategy configuration")
             
             # 可將策略加在這
             await components['strategy_executor'].add_strategy(
-<<<<<<< HEAD
-                strategy_class=AvellanedaMMv2,
-                config=strategy_config_3
-            )
-
-=======
-                strategy_class=ExampleStrategy,
+                strategy_class=MakerStrategy,
                 config=strategy_config
             )
->>>>>>> f17cd50ce8ce04c2b6620088d01e193a5571f6c3
+            
+            # 訂閱的市場和私有頻道
+
+            subscsribe_config = strategy_config.get('subscription_params', {})
+            market_channels, private_channels = generate_channels(subscsribe_config)
             
             # 創建並運行所有任務
             logger.info("Starting all system components...")
             tasks = [
                 asyncio.create_task(components['data_publisher'].start(
-<<<<<<< HEAD
-                    symbol="PERP_ETH_USDT",
-                    market_config={"orderbook": False, "bbo": True, "kline": True},
-                    private_config={"executionreport": True, "position": True, "balance": True}
+                    symbol=subscsribe_config['symbol'],
+                    market_config=subscsribe_config['market_config'],
+                    private_config=subscsribe_config['private_config']
                 )),
                 asyncio.create_task(components['strategy_executor'].start(
-                    market_channels=['PERP_ETH_USDT-kline_1m', 'PERP_BTC_USDT-processed-kline_1m'],
-=======
-                    symbol="PERP_BTC_USDT",
-                    market_config={"orderbook": False, "kline": True},
-                    private_config={"executionreport": True, "position": True, "balance": True}
-                )),
-                asyncio.create_task(components['strategy_executor'].start(
-                    market_channels=['PERP_BTC_USDT-kline_1m', 'PERP_BTC_USDT-processed-kline_1m'],
->>>>>>> f17cd50ce8ce04c2b6620088d01e193a5571f6c3
-                    private_channels=['executionreport', 'position', 'balance']
+                    market_channels=market_channels,
+                    private_channels=private_channels
                 )),
                 asyncio.create_task(components['order_executor'].start(
                     signal_channel="trading_signals",
@@ -186,6 +149,27 @@ async def main():
                 await asyncio.gather(*cleanup_tasks)
         logger.info("System shutdown complete")
 
+def generate_channels(config):
+    # Initialize the lists for market_channels and private_channels
+    market_channels = []
+    private_channels = []
+    
+    # Extract symbol and market_config from the config
+    symbol = config['symbol']
+    market_config = config['market_config']
+    private_config = config['private_config']
+    
+    # For market_config, add entries to market_channels based on enabled data types
+    for data_type, enabled in market_config.items():
+        if enabled:  # If the data type is enabled (True)
+            market_channels.append(f"{symbol}-{data_type}")
+    
+    # For private_config, add entries to private_channels based on enabled data types
+    for data_type, enabled in private_config.items():
+        if enabled:  # If the data type is enabled (True)
+            private_channels.append(f"{data_type}")
+    
+    return market_channels, private_channels
 if __name__ == "__main__":
     try:
         asyncio.run(main())

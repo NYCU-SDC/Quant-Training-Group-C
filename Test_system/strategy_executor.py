@@ -3,17 +3,13 @@ import logging
 import asyncio
 from typing import Dict, List, Optional
 from redis import asyncio as aioredis
-<<<<<<< HEAD
 from strategy_logics.cta_strategy import CTAStrategy
 from strategy_logics.test_strategy import TestStrategy
 from strategy_logics.test_limit_strategy import TestLimitStrategy
 from strategy_logics.AvellanedaMMv2_strategy import AvellanedaMMv2
-=======
-from strategy_logics.cta_strategy import ExampleStrategy
->>>>>>> f17cd50ce8ce04c2b6620088d01e193a5571f6c3
 from manager.config_manager import ConfigManager
 from manager.risk_manager import RiskManager
-
+import os
 class StrategyExecutor:
     """Strategy execution manager that handles multiple trading strategies"""
     
@@ -28,24 +24,58 @@ class StrategyExecutor:
         self.risk_manager = RiskManager(self.config.get('risk_management', {}))
         
         # Setup logging
-        self.logger = logging.getLogger("StrategyExecutor")
-<<<<<<< HEAD
-        self.logger.setLevel(logging.INFO)
-        handler = logging.StreamHandler()
-        handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-        self.logger.addHandler(handler)
-=======
-        handler = logging.StreamHandler()
-        handler.setFormatter(
-            logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        )
-        self.logger.addHandler(handler)
-        self.logger.setLevel(logging.INFO)
->>>>>>> f17cd50ce8ce04c2b6620088d01e193a5571f6c3
+        self.logger = self.setup_logger(name='StrategyExecutor', log_file='strategy_executor.log')
 
         # Track connection status
         self.is_running = False
 
+    def setup_logger(self, name: str, log_file: Optional[str] = 'strategy_executor.log', level: int = logging.INFO) -> logging.Logger:
+        """
+        Sets up a logger that logs both to the console and a log file.
+
+        Args:
+            name: Name of the logger.
+            log_file: Path to the log file where logs should be stored (default is 'order_executor.log').
+            level: Logging level (default is logging.INFO).
+
+        Returns:
+            Logger instance.
+        """
+        logger = logging.getLogger(name)
+        logger.setLevel(level)
+
+        # Avoid adding duplicate handlers
+        if not logger.handlers:
+            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            
+            # Console handler for logging to console
+            console_handler = logging.StreamHandler()
+            console_handler.setFormatter(formatter)
+            logger.addHandler(console_handler)
+
+            # File handler for logging to a file
+            if log_file:
+                print("!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                # If log_file is just a filename, join it with 'logs/'
+                if not os.path.dirname(log_file):  # If no directory specified
+                    log_file = os.path.join('logs', log_file)  # Join with 'logs/' folder
+
+                print("Log file path:", log_file)
+
+                # Ensure the directory exists before creating the log file
+                log_dir = os.path.dirname(log_file)
+                if not os.path.exists(log_dir):
+                    print("Creating directory:", log_dir)
+                    os.makedirs(log_dir)  # Create the directory if it doesn't exist
+
+
+                # Create or append the log file
+                file_handler = logging.FileHandler(log_file)
+                file_handler.setFormatter(formatter)
+                logger.addHandler(file_handler)
+
+        return logger
+    
     async def connect_redis(self) -> None:
         """Connect to Redis server"""
         try:
@@ -74,13 +104,9 @@ class StrategyExecutor:
                 )
                 self.strategies[strategy_name] = strategy_instance
                 self.logger.info(f"Added strategy: {strategy_name}")
-<<<<<<< HEAD
-
                 # 這裡順便寫到策略自己的 log檔案
                 strategy_instance.logger.info(f"StrategyExecutor - INFO - Added strategy: {strategy_name}")
                 self.logger.info(f"Added strategy: {strategy_name}")
-=======
->>>>>>> f17cd50ce8ce04c2b6620088d01e193a5571f6c3
             else:
                 self.logger.warning(f"Strategy {strategy_name} already exists")
         except Exception as e:
@@ -233,7 +259,6 @@ async def main():
         executor = StrategyExecutor(redis_url=config['redis']['url'], config=config)
         
         symbol = 'PERP_BTC_USDT'
-<<<<<<< HEAD
         symbol_2 = 'PERP_ETH_USDT'
         
         # 添加策略實例
@@ -255,12 +280,11 @@ async def main():
         # 添加策略實例
         await executor.add_strategy(
             strategy_class=TestStrategy,
-=======
-        
+        )
         # 添加策略實例
         await executor.add_strategy(
             strategy_class=ExampleStrategy,
->>>>>>> f17cd50ce8ce04c2b6620088d01e193a5571f6c3
+
             config={
                 'max_records': 500,
                 'trading_params': {
@@ -273,7 +297,7 @@ async def main():
                 }
             }
         )
-<<<<<<< HEAD
+
 
         # 添加策略實例
         await executor.add_strategy(
@@ -301,8 +325,7 @@ async def main():
                 }
             }
         )
-=======
->>>>>>> f17cd50ce8ce04c2b6620088d01e193a5571f6c3
+
         
         # 修改訂閱的頻道，使用完整的頻道名稱
         market_channels = [

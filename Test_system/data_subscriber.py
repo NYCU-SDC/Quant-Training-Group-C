@@ -131,7 +131,10 @@ class DataSubscriber:
         print(f"\nChannel: {self.current_channel}")
         print(f"Timestamp Message Time: {self.format_timestamp(ts)}")
         print(f"Timestamp Current Time: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')}")
-        
+        mid_price = (data.get('asks', [])[0][0] + data.get('bids', [])[0][0]) / 2
+        print(f"Mid Price: {mid_price}")
+        spread = (data.get('asks', [])[0][0] - data.get('bids', [])[0][0]) / 0.0001
+        print(f"Spread: {spread}")
         print("\nOrderbook Data:")
         print(f"Asks (first 5): {data.get('asks', [])[:5]}")
         print(f"Bids (first 5): {data.get('bids', [])[:5]}")
@@ -367,25 +370,15 @@ class DataSubscriber:
 async def main():
     subscriber = DataSubscriber()
     
-    symbol = "PERP_BTC_USDT"
-<<<<<<< HEAD
+    symbol = "PERP_WOO_USDT"
     interval = "5m"
-=======
-    interval = "1m"
->>>>>>> f17cd50ce8ce04c2b6620088d01e193a5571f6c3
     
     # Market data configuration
     market_config = {
-        "orderbook": False,
-<<<<<<< HEAD
+        "orderbook": True,
         "bbo": True,
         "trade": False,
-        "kline": False
-=======
-        "bbo": False,
-        "trade": False,
         "kline": True
->>>>>>> f17cd50ce8ce04c2b6620088d01e193a5571f6c3
     }
     
     # Private data configuration

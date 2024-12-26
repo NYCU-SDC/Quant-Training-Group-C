@@ -1,12 +1,12 @@
 trading_params:
-  symbol: "PERP_WOO_USDT"
+  symbol: "PERP_BTC_USDT"
   time_interval: 5000
-  tick_size: 0.0001
-  limit_quantity_decimals: 0
+  tick_size: 1
+  limit_quantity_decimals: 4
   single_position_size: 30
 
 subscription_params:
-  symbol: "PERP_WOO_USDT"
+  symbol: "PERP_BTC_USDT"
   market_config:
     orderbook: True
     bbo: False

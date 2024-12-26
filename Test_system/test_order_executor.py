@@ -6,7 +6,7 @@ import aiohttp
 from typing import Dict, Optional
 from redis import asyncio as aioredis
 from datetime import datetime
-
+import os
 from manager.order_manager import OrderManager, OrderInfo, OrderStatus
 from manager.risk_manager import RiskManager
 from WooX_REST_API_Client import WooX_REST_API_Client
@@ -20,14 +20,16 @@ class OrderExecutor:
         
         # Initialize API client
         self.api = WooX_REST_API_Client(api_key, api_secret)
+        self.last_request_time = 0
+        self.request_interval = 0.1
+        self.semaphore = asyncio.Semaphore(1)
         
         # Initialize managers
         self.order_manager = OrderManager()
         self.risk_manager = RiskManager({})  # Add risk params as needed
         
         # Setup logging
-        self.logger = logging.getLogger("OrderExecutor")
-        self.logger.setLevel(logging.INFO)
+        self.logger = self.setup_logger(name='OrderExecutor', log_file='order_executor.log')
         
         # Track active orders and tasks
         self.active_orders: Dict[str, Dict] = {}
@@ -36,6 +38,53 @@ class OrderExecutor:
         # Status flags
         self.is_running = False
 
+    def setup_logger(self, name: str, log_file: Optional[str] = 'order_executor.log', level: int = logging.INFO) -> logging.Logger:
+        """
+        Sets up a logger that logs both to the console and a log file.
+
+        Args:
+            name: Name of the logger.
+            log_file: Path to the log file where logs should be stored (default is 'order_executor.log').
+            level: Logging level (default is logging.INFO).
+
+        Returns:
+            Logger instance.
+        """
+        logger = logging.getLogger(name)
+        logger.setLevel(level)
+
+        # Avoid adding duplicate handlers
+        if not logger.handlers:
+            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            
+            # Console handler for logging to console
+            console_handler = logging.StreamHandler()
+            console_handler.setFormatter(formatter)
+            logger.addHandler(console_handler)
+
+            # File handler for logging to a file
+            if log_file:
+                print("!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                # If log_file is just a filename, join it with 'logs/'
+                if not os.path.dirname(log_file):  # If no directory specified
+                    log_file = os.path.join('logs', log_file)  # Join with 'logs/' folder
+
+                print("Log file path:", log_file)
+
+                # Ensure the directory exists before creating the log file
+                log_dir = os.path.dirname(log_file)
+                if not os.path.exists(log_dir):
+                    print("Creating directory:", log_dir)
+                    os.makedirs(log_dir)  # Create the directory if it doesn't exist
+
+
+                # Create or append the log file
+                file_handler = logging.FileHandler(log_file)
+                file_handler.setFormatter(formatter)
+                logger.addHandler(file_handler)
+
+        return logger
+    
     async def connect_redis(self) -> None:
         """Connect to Redis server"""
         try:
@@ -63,91 +112,95 @@ class OrderExecutor:
             raise
 
     async def execute_order(self, signal: dict, session: aiohttp.ClientSession) -> dict:
-        """Execute order based on signal"""
+        """Execute order based on signal with rate limiting."""
         try:
-            # Check risk limits
-            # 關掉風控
-            # can_trade, reason = self.risk_manager.can_place_order(
-            #     symbol=signal['symbol'],
-            #     order_size=signal['quantity'],
-            #     order_price=signal.get('price', 0)
-            # )
-            
-            # if not can_trade:
-            #     return {'success': False, 'error': reason}
+            # Acquire the semaphore to ensure that only one request is processed at a time
+            async with self.semaphore:
+                # Rate limiting: wait if the last request was too recent
+                current_time = time.time()
+                time_since_last_request = current_time - self.last_request_time
+                
+                # If the time since the last request is less than the required interval, sleep
+                if time_since_last_request < self.request_interval:
+                    sleep_time = self.request_interval - time_since_last_request
+                    print(f"Sleeping for {sleep_time} seconds")
+                    await asyncio.sleep(sleep_time)
+                
+                # Update last request time
+                self.last_request_time = time.time()
 
-<<<<<<< HEAD
-            action = signal.get('action')               # 'OPEN' or 'CLOSE'
-            pos_side = signal.get('position_side')      # 'LONG' or 'SHORT'
+                if signal['target'] == 'send_order':
+                    # Prepare order parameters
+                    if signal['position_side'] == 'LONG':
+                        side = 'BUY'
+                    elif signal['position_side'] == 'SHORT':
+                        side = 'SELL'
+                    else:
+                        return {'success': False, 'error': f"Unknown position_side: {signal['position_side']}"}
+                    
+                    order_params = {
+                        'client_order_id': signal['order_id'],
+                        'symbol': signal['symbol'],
+                        'side': side, 
+                        'position_side': signal['position_side'],
+                        'order_type': signal['order_type'],
+                        'order_quantity': signal['quantity'],
+                        'reduce_only': signal.get('reduce_only', False)
+                    }
+                    if 'margin_mode' in signal:
+                        order_params['margin_mode'] = signal['margin_mode']
 
-            # 根據開/平 多/空，判斷side=BUY or SELL
-            action_side_map = {
-                ('OPEN',  'LONG'):  'BUY',
-                ('CLOSE', 'LONG'):  'SELL',
-                ('OPEN',  'SHORT'): 'SELL',
-                ('CLOSE', 'SHORT'): 'BUY'
-            }
-            side = action_side_map.get((action, pos_side))
-            if not side:
-                return {'success': False, 'error': f"Invalid action/position_side: {action}/{pos_side}"}
-            
+                    if signal['order_type'] == 'LIMIT':
+                        order_params['order_price'] = signal['price']
+                    
+                    # Create order tracking
+                    order_info = OrderInfo(
+                        order_id=str(order_params['client_order_id']),
+                        client_order_id=signal['order_id'],
+                        symbol=signal['symbol'],
+                        side=side,
+                        order_type=signal['order_type'],
+                        price=signal.get('price', 0),
+                        quantity=signal['quantity'],
+                        status=OrderStatus.PENDING,
+                        create_time=datetime.now()
+                    )
+                    self.order_manager.add_order(order_info)
 
-=======
-            # 將position_side SHOW出來，Hedge需要
-            if signal['position_side'] == 'LONG':
-                side = 'BUY'
-            elif signal['position_side'] == 'SHORT':
-                side = 'SELL'
-            else:
-                return {'success': False, 'error': f"Unknown position_side: {signal['position_side']}"}
-            
->>>>>>> f17cd50ce8ce04c2b6620088d01e193a5571f6c3
-            # Prepare order parameters
-            order_params = {
-                'client_order_id': int(time.time() * 1000),
-                'symbol': signal['symbol'],
-                'side': side, # Doc裡面的BUY/SELL
-                'position_side': signal['position_side'],
-                'order_type': signal['order_type'],
-                'order_quantity': signal['quantity'],
-                'reduce_only': signal.get('reduce_only', False)
-            }
-            # 若需要margin_mode，則加上：
-            if 'margin_mode' in signal:
-                order_params['margin_mode'] = signal['margin_mode']  # 加入margin_mode
-<<<<<<< HEAD
-            # 若是 LIMIT，需加上 'order_price'
-=======
+                    # Send order to exchange
+                    self.logger.info(f"Sending order: {order_params}")
+                    result = await self.api.send_order(session, order_params)
+                    
+                    if result.get('success'):
+                        self.logger.info(f"Order successfully placed: {result}")
+                    else:
+                        self.logger.error(f"Order placement failed: {result}")
+                    
+                    return result
+                elif signal['target'] == 'cancel_order':
+                    # Cancel order
+                    order_id = signal['order_id']
+                    self.logger.info(f"Cancelling order: {order_id}")
+                    result = await self.api.cancel_order(session, order_id)
 
->>>>>>> f17cd50ce8ce04c2b6620088d01e193a5571f6c3
-            if signal['order_type'] == 'LIMIT':
-                order_params['order_price'] = signal['price']
-            
-            # Create order tracking
-            order_info = OrderInfo(
-                order_id=str(order_params['client_order_id']),
-                client_order_id=str(order_params['client_order_id']),
-                symbol=signal['symbol'],
-                side=side,
-                order_type=signal['order_type'],
-                price=signal.get('price', 0),
-                quantity=signal['quantity'],
-                status=OrderStatus.PENDING,
-                create_time=datetime.now()
-            )
-            self.order_manager.add_order(order_info)
-            
-            # Send order to exchange
-            self.logger.info(f"Sending order: {order_params}")
-            result = await self.api.send_order(session, order_params)
-            
-            if result.get('success'):
-                self.logger.info(f"Order successfully placed: {result}")
-            else:
-                self.logger.error(f"Order placement failed: {result}")
-            
-            return result
-            
+                    if result.get('success'):
+                        self.logger.info(f"Order successfully cancelled: {result}")
+                    else:
+                        self.logger.error(f"Order cancellation failed: {result}")
+                    
+                    return result
+                elif signal['target'] == 'cancel_all_orders':
+                    # Cancel all orders
+                    self.logger.info("Cancelling all orders")
+                    result = await self.api.cancel_all_pending_orders(session)
+
+                    if result.get('success'):
+                        self.logger.info(f"All orders successfully cancelled: {result}")
+                    else:
+                        self.logger.error(f"Order cancellation failed: {result}")
+                    
+                    return result
+
         except Exception as e:
             self.logger.error(f"Error executing order: {e}")
             return {'success': False, 'error': str(e)}
@@ -190,7 +243,7 @@ class OrderExecutor:
                         self.logger.info(f"Received signal: {signal}")
                         
                         result = await self.execute_order(signal, session)
-                        self.logger.info(f"Order execution result: {result}")
+                        # self.logger.info(f"Order execution result: {result}")
                         
         except asyncio.CancelledError:
             self.logger.info("Signal listener cancelled")
