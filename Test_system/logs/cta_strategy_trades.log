@@ -2659,3 +2659,9 @@
 2024-12-26 06:38:10,153 - CTAStrategy - INFO - StrategyExecutor - INFO - Added strategy: CTAStrategy
 2024-12-26 06:38:10,170 - CTAStrategy - INFO - Strategy started: CTAStrategy
 2024-12-26 06:40:00,134 - CTAStrategy - INFO - execute => channel=[MD]PERP_BTC_USDT-processed-kline_5m
+2024-12-26 06:45:00,214 - CTAStrategy - INFO - execute => channel=[MD]PERP_BTC_USDT-processed-kline_5m
+2024-12-26 06:50:00,113 - CTAStrategy - INFO - execute => channel=[MD]PERP_BTC_USDT-processed-kline_5m
+2024-12-26 06:55:00,114 - CTAStrategy - INFO - execute => channel=[MD]PERP_BTC_USDT-processed-kline_5m
+2024-12-26 07:00:00,113 - CTAStrategy - INFO - execute => channel=[MD]PERP_BTC_USDT-processed-kline_5m
+2024-12-26 07:02:58,093 - CTAStrategy - INFO - Strategy stopped: CTAStrategy
+2024-12-26 07:02:58,095 - CTAStrategy - INFO - Strategy stopped: CTAStrategy

@@ -368,14 +368,14 @@ async def main():
     subscriber = DataSubscriber()
     
     symbol = "PERP_BTC_USDT"
-    interval = "1m"
+    interval = "5m"
     
     # Market data configuration
     market_config = {
         "orderbook": False,
-        "bbo": False,
+        "bbo": True,
         "trade": False,
-        "kline": True
+        "kline": False
     }
     
     # Private data configuration

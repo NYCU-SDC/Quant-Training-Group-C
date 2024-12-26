@@ -3,7 +3,10 @@ import logging
 import asyncio
 from typing import Dict, List, Optional
 from redis import asyncio as aioredis
-from strategy_logics.cta_strategy import ExampleStrategy
+from strategy_logics.cta_strategy import CTAStrategy
+from strategy_logics.test_strategy import TestStrategy
+from strategy_logics.test_limit_strategy import TestLimitStrategy
+from strategy_logics.AvellanedaMMv2_strategy import AvellanedaMMv2
 from manager.config_manager import ConfigManager
 from manager.risk_manager import RiskManager
 
@@ -22,12 +25,10 @@ class StrategyExecutor:
         
         # Setup logging
         self.logger = logging.getLogger("StrategyExecutor")
-        # 避免重複新增 handler
-        if not self.logger.handlers:
-            handler = logging.StreamHandler()
-            handler.setFormatter(...)
-            self.logger.addHandler(handler)
         self.logger.setLevel(logging.INFO)
+        handler = logging.StreamHandler()
+        handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+        self.logger.addHandler(handler)
 
         # Track connection status
         self.is_running = False
@@ -59,6 +60,10 @@ class StrategyExecutor:
                     config=strategy_config
                 )
                 self.strategies[strategy_name] = strategy_instance
+                self.logger.info(f"Added strategy: {strategy_name}")
+
+                # 這裡順便寫到策略自己的 log檔案
+                strategy_instance.logger.info(f"StrategyExecutor - INFO - Added strategy: {strategy_name}")
                 self.logger.info(f"Added strategy: {strategy_name}")
             else:
                 self.logger.warning(f"Strategy {strategy_name} already exists")
@@ -212,10 +217,27 @@ async def main():
         executor = StrategyExecutor(redis_url=config['redis']['url'], config=config)
         
         symbol = 'PERP_BTC_USDT'
+        symbol_2 = 'PERP_ETH_USDT'
         
         # 添加策略實例
         await executor.add_strategy(
-            strategy_class=ExampleStrategy,
+            strategy_class=CTAStrategy,
+            config={
+                'max_records': 500,
+                'trading_params': {
+                    'symbol': symbol,
+                    'timeframe': '5m'
+                },
+                'risk_params': {
+                    'max_position_size': 1.0,
+                    'stop_loss_pct': 0.25
+                }
+            }
+        )
+
+        # 添加策略實例
+        await executor.add_strategy(
+            strategy_class=TestStrategy,
             config={
                 'max_records': 500,
                 'trading_params': {
@@ -225,6 +247,33 @@ async def main():
                 'risk_params': {
                     'max_position_size': 1.0,
                     'stop_loss_pct': 0.25
+                }
+            }
+        )
+
+        # 添加策略實例
+        await executor.add_strategy(
+            strategy_class=TestLimitStrategy,
+            config={
+                'trading_params': {
+                    'symbol': symbol,
+                    'timeframe': '1m'
+                },
+            }
+        )
+
+        # 添加策略實例
+        await executor.add_strategy(
+            strategy_class=AvellanedaMMv2,
+            config={
+                'trading_params': {
+                    'symbol': 'PERP_ETH_USDT',
+                    'max_position_size': 0.15,
+                    'order_size':  0.015,
+                    'gamma': 0.3,
+                    'sigma': 0.02,
+                    'kappa': 1.5,
+                    'T': 86400
                 }
             }
         )

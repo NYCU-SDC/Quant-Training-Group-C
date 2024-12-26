@@ -4,15 +4,19 @@ from pathlib import Path
 from manager.config_manager import ConfigManager
 from strategy_executor import StrategyExecutor
 from test_order_executor import OrderExecutor
-from strategy_logics.cta_strategy import ExampleStrategy
+from strategy_logics.cta_strategy import CTAStrategy
+from strategy_logics.test_strategy import TestStrategy
+from strategy_logics.test_limit_strategy import TestLimitStrategy
+from strategy_logics.AvellanedaMMv2_strategy import AvellanedaMMv2
 from data_publisher_new import WooXStagingAPI
 
 async def main():
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
+    # logging.basicConfig(
+    #     level=logging.INFO,
+    #     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    # )
     logger = logging.getLogger("TradingSystem")
+    logger.setLevel(logging.INFO)
 
     try:
         # 初始化配置管理器
@@ -34,6 +38,7 @@ async def main():
         # 初始化組件
         components = {}
         try:
+            # data publisher
             components['data_publisher'] = WooXStagingAPI(
                 app_id=exchange_config['app_id'],
                 api_key=exchange_config['api_key'],
@@ -41,38 +46,65 @@ async def main():
                 redis_host=redis_config.get('host', 'localhost'),
                 redis_port=redis_config.get('port', 6379)
             )
-            
+            # strategy executor
             components['strategy_executor'] = StrategyExecutor(
                 redis_url=f"redis://{redis_config.get('host', 'localhost')}:{redis_config.get('port', 6379)}"
             )
-            
+            # order executor
             components['order_executor'] = OrderExecutor(
                 api_key=exchange_config['api_key'],
                 api_secret=exchange_config['api_secret'],
                 redis_url=f"redis://{redis_config.get('host', 'localhost')}:{redis_config.get('port', 6379)}"
             )
             
-            # 添加策略
-            strategy_config = config_manager.get_strategy_config('cta_strategy')
-            if not strategy_config:
+            # 載入 cta_strategy
+            # strategy_config = config_manager.get_strategy_config('cta_strategy')
+            # if not strategy_config:
+            #     raise ValueError("Failed to load strategy configuration")
+            
+            # # 可將策略加在這
+            # await components['strategy_executor'].add_strategy(
+            #     strategy_class=CTAStrategy,
+            #     config=strategy_config
+            # )
+
+            # 策略2
+            # await components['strategy_executor'].add_strategy(
+            #     strategy_class=TestStrategy,
+            #     config=strategy_config
+            # )
+            
+            # 測試策略
+            # strategy_config_2 = config_manager.get_strategy_config('test_limit_strategy')
+            # if not strategy_config_2:
+            #     raise ValueError("Failed to load strategy configuration")
+            # await components['strategy_executor'].add_strategy(
+            #     strategy_class=TestLimitStrategy,
+            #     config=strategy_config_2
+            # )
+
+            # 載入 AvMM 
+            strategy_config_3 = config_manager.get_strategy_config('AvellanedaMMv2_strategy')
+            if not strategy_config_3:
                 raise ValueError("Failed to load strategy configuration")
             
             # 可將策略加在這
             await components['strategy_executor'].add_strategy(
-                strategy_class=ExampleStrategy,
-                config=strategy_config
+                strategy_class=AvellanedaMMv2,
+                config=strategy_config_3
             )
+
             
             # 創建並運行所有任務
             logger.info("Starting all system components...")
             tasks = [
                 asyncio.create_task(components['data_publisher'].start(
-                    symbol="PERP_BTC_USDT",
-                    market_config={"orderbook": False, "kline": True},
+                    symbol="PERP_ETH_USDT",
+                    market_config={"orderbook": False, "bbo": True, "kline": True},
                     private_config={"executionreport": True, "position": True, "balance": True}
                 )),
                 asyncio.create_task(components['strategy_executor'].start(
-                    market_channels=['PERP_BTC_USDT-kline_1m', 'PERP_BTC_USDT-processed-kline_1m'],
+                    market_channels=['PERP_ETH_USDT-kline_1m', 'PERP_BTC_USDT-processed-kline_1m'],
                     private_channels=['executionreport', 'position', 'balance']
                 )),
                 asyncio.create_task(components['order_executor'].start(

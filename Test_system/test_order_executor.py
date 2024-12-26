@@ -104,7 +104,6 @@ class OrderExecutor:
             # 若需要margin_mode，則加上：
             if 'margin_mode' in signal:
                 order_params['margin_mode'] = signal['margin_mode']  # 加入margin_mode
-                
             # 若是 LIMIT，需加上 'order_price'
             if signal['order_type'] == 'LIMIT':
                 order_params['order_price'] = signal['price']

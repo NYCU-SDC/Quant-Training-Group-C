@@ -1,0 +1,41 @@
+2024-12-26 04:57:24,204 - TestLimitStrategy - INFO - TestLimitStrategy initialization completed
+2024-12-26 04:57:24,204 - TestLimitStrategy - INFO - StrategyExecutor - INFO - Added strategy: TestLimitStrategy
+2024-12-26 04:57:24,219 - TestLimitStrategy - INFO - TestLimitStrategy started.
+2024-12-26 04:58:04,288 - TestLimitStrategy - INFO - TestLimitStrategy stopped.
+2024-12-26 04:58:04,290 - TestLimitStrategy - INFO - TestLimitStrategy stopped.
+2024-12-26 04:59:41,292 - TestLimitStrategy - INFO - TestLimitStrategy initialization completed
+2024-12-26 04:59:41,292 - TestLimitStrategy - INFO - StrategyExecutor - INFO - Added strategy: TestLimitStrategy
+2024-12-26 04:59:41,306 - TestLimitStrategy - INFO - TestLimitStrategy started.
+2024-12-26 04:59:44,700 - TestLimitStrategy - INFO - TestLimitStrategy stopped.
+2024-12-26 04:59:44,701 - TestLimitStrategy - INFO - TestLimitStrategy stopped.
+2024-12-26 05:01:00,805 - TestLimitStrategy - INFO - TestLimitStrategy initialization completed
+2024-12-26 05:01:00,805 - TestLimitStrategy - INFO - StrategyExecutor - INFO - Added strategy: TestLimitStrategy
+2024-12-26 05:01:00,816 - TestLimitStrategy - INFO - TestLimitStrategy started.
+2024-12-26 05:01:10,822 - TestLimitStrategy - INFO - TestLimitStrategy stopped.
+2024-12-26 05:01:10,823 - TestLimitStrategy - INFO - TestLimitStrategy stopped.
+2024-12-26 05:02:15,250 - TestLimitStrategy - INFO - TestLimitStrategy initialization completed
+2024-12-26 05:02:15,250 - TestLimitStrategy - INFO - StrategyExecutor - INFO - Added strategy: TestLimitStrategy
+2024-12-26 05:02:15,261 - TestLimitStrategy - INFO - TestLimitStrategy started.
+2024-12-26 05:05:00,107 - TestLimitStrategy - INFO - Published signal to trading_signals: {'timestamp': 1735160700103, 'action': 'OPEN', 'position_side': 'LONG', 'order_type': 'LIMIT', 'symbol': 'PERP_BTC_USDT', 'quantity': 0.001, 'price': 99073.5, 'reduce_only': False, 'margin_mode': 'CROSS'}
+2024-12-26 05:05:00,107 - TestLimitStrategy - INFO - [TestLimitStrategy] Sent LIMIT order => symbol=PERP_BTC_USDT, qty=0.001, price=99073.5
+2024-12-26 05:10:00,101 - TestLimitStrategy - INFO - Published signal to trading_signals: {'timestamp': 1735161000101, 'action': 'OPEN', 'position_side': 'LONG', 'order_type': 'LIMIT', 'symbol': 'PERP_BTC_USDT', 'quantity': 0.001, 'price': 99105.5, 'reduce_only': False, 'margin_mode': 'CROSS'}
+2024-12-26 05:10:00,102 - TestLimitStrategy - INFO - [TestLimitStrategy] Sent LIMIT order => symbol=PERP_BTC_USDT, qty=0.001, price=99105.5
+2024-12-26 05:12:41,273 - TestLimitStrategy - INFO - TestLimitStrategy stopped.
+2024-12-26 05:12:41,276 - TestLimitStrategy - INFO - TestLimitStrategy stopped.
+2024-12-26 05:12:50,413 - TestLimitStrategy - INFO - TestLimitStrategy initialization completed
+2024-12-26 05:12:50,413 - TestLimitStrategy - INFO - StrategyExecutor - INFO - Added strategy: TestLimitStrategy
+2024-12-26 05:12:50,427 - TestLimitStrategy - INFO - TestLimitStrategy started.
+2024-12-26 05:15:00,101 - TestLimitStrategy - INFO - Published signal to trading_signals: {'timestamp': 1735161300097, 'action': 'OPEN', 'position_side': 'LONG', 'order_type': 'LIMIT', 'symbol': 'PERP_BTC_USDT', 'quantity': 0.001, 'price': 96870.06, 'reduce_only': False, 'margin_mode': 'CROSS'}
+2024-12-26 05:15:00,101 - TestLimitStrategy - INFO - [TestLimitStrategy] Sent LIMIT order => symbol=PERP_BTC_USDT, qty=0.001, price=96870.06
+2024-12-26 05:20:00,098 - TestLimitStrategy - INFO - Published signal to trading_signals: {'timestamp': 1735161600096, 'action': 'OPEN', 'position_side': 'LONG', 'order_type': 'LIMIT', 'symbol': 'PERP_BTC_USDT', 'quantity': 0.001, 'price': 96630.94, 'reduce_only': False, 'margin_mode': 'CROSS'}
+2024-12-26 05:20:00,098 - TestLimitStrategy - INFO - [TestLimitStrategy] Sent LIMIT order => symbol=PERP_BTC_USDT, qty=0.001, price=96630.94
+2024-12-26 05:25:00,095 - TestLimitStrategy - INFO - Published signal to trading_signals: {'timestamp': 1735161900094, 'action': 'OPEN', 'position_side': 'LONG', 'order_type': 'LIMIT', 'symbol': 'PERP_BTC_USDT', 'quantity': 0.001, 'price': 96568.22, 'reduce_only': False, 'margin_mode': 'CROSS'}
+2024-12-26 05:25:00,095 - TestLimitStrategy - INFO - [TestLimitStrategy] Sent LIMIT order => symbol=PERP_BTC_USDT, qty=0.001, price=96568.22
+2024-12-26 05:30:00,093 - TestLimitStrategy - INFO - Published signal to trading_signals: {'timestamp': 1735162200092, 'action': 'OPEN', 'position_side': 'LONG', 'order_type': 'LIMIT', 'symbol': 'PERP_BTC_USDT', 'quantity': 0.001, 'price': 96620.16, 'reduce_only': False, 'margin_mode': 'CROSS'}
+2024-12-26 05:30:00,093 - TestLimitStrategy - INFO - [TestLimitStrategy] Sent LIMIT order => symbol=PERP_BTC_USDT, qty=0.001, price=96620.16
+2024-12-26 05:35:00,093 - TestLimitStrategy - INFO - Published signal to trading_signals: {'timestamp': 1735162500093, 'action': 'OPEN', 'position_side': 'LONG', 'order_type': 'LIMIT', 'symbol': 'PERP_BTC_USDT', 'quantity': 0.001, 'price': 96455.52, 'reduce_only': False, 'margin_mode': 'CROSS'}
+2024-12-26 05:35:00,094 - TestLimitStrategy - INFO - [TestLimitStrategy] Sent LIMIT order => symbol=PERP_BTC_USDT, qty=0.001, price=96455.52
+2024-12-26 05:40:00,126 - TestLimitStrategy - INFO - Published signal to trading_signals: {'timestamp': 1735162800126, 'action': 'OPEN', 'position_side': 'LONG', 'order_type': 'LIMIT', 'symbol': 'PERP_BTC_USDT', 'quantity': 0.001, 'price': 96509.42, 'reduce_only': False, 'margin_mode': 'CROSS'}
+2024-12-26 05:40:00,126 - TestLimitStrategy - INFO - [TestLimitStrategy] Sent LIMIT order => symbol=PERP_BTC_USDT, qty=0.001, price=96509.42
+2024-12-26 05:44:19,633 - TestLimitStrategy - INFO - TestLimitStrategy stopped.
+2024-12-26 05:44:19,635 - TestLimitStrategy - INFO - TestLimitStrategy stopped.
