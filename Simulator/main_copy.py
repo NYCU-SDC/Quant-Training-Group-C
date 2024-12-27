@@ -3,7 +3,6 @@ import pandas as pd
 import logging
 import time
 from tqdm import tqdm  # 引入進度條模組
-from collections import deque
 
 # Set up logging
 logging.basicConfig(
@@ -21,18 +20,18 @@ class OrderExecutorBacktest:
         # 讀取資料並提前過濾交易資料
         self.df = pd.read_csv(strategy_file)
         self.df['timestamp'] = pd.to_datetime(self.df['timestamp']).astype('int64') // 10**6  # 轉為毫秒數
-        trades_df = pd.read_csv(trades_file)
-        trades_df['time'] = pd.to_datetime(trades_df['time'], unit='ms').astype('int64') // 10**6
+        self.trades_df = pd.read_csv(trades_file)
+        self.trades_df['time'] = pd.to_datetime(self.trades_df['time'], unit='ms').astype('int64') // 10**6
 
         # 過濾交易資料，僅保留可能需要處理的時間範圍
         min_time = self.df['timestamp'].min()
-        filtered_trades = trades_df[(trades_df['time'] >= min_time) &
-                                    (trades_df['isBestMatch'] == True) &
-                                    (trades_df['symbol'] == 'SPOT_BTC_USDT')]
+        self.trades_df = self.trades_df[(self.trades_df['time'] >= min_time) &
+                                        (self.trades_df['isBestMatch'] == True) &
+                                        (self.trades_df['symbol'] == 'SPOT_BTC_USDT')]
 
-        # 排序並轉換為 deque 加速操作
-        filtered_trades.sort_values('time', inplace=True)
-        self.trades_deque = deque(filtered_trades.to_dict('records'))
+        # 建立索引加速查詢
+        self.trades_df.sort_values('time', inplace=True)
+        self.trades_df.reset_index(drop=True, inplace=True)
 
         # 其他變數初始化
         self.current_position = None
@@ -43,18 +42,17 @@ class OrderExecutorBacktest:
         logger.info("OrderExecutorBacktest initialized")
 
     def get_trade_price(self, timestamp, is_buy):
-        """線性搜尋取得最接近的交易價格，並刪除無效資料"""
-        trade_price = None
-        while len(self.trades_deque) > 0:
-            trade = self.trades_deque[0]
-            if trade['time'] < timestamp:
-                self.trades_deque.popleft()  # 移除舊資料
-            elif trade['isBuyerMaker'] == is_buy:
-                trade_price = trade['price']
-                break
-            else:
-                break
-        return trade_price
+        """快速取得最接近的交易價格"""
+        # 使用二分搜尋法查找符合條件的交易資料
+        idx = self.trades_df['time'].searchsorted(timestamp)
+        filtered = self.trades_df.iloc[idx:]
+
+        # 過濾其他條件
+        trades = filtered[filtered['isBuyerMaker'] == is_buy]
+
+        if trades.empty:
+            return None
+        return trades.iloc[0]['price']
 
     def check_exit_conditions(self, current_price, current_atr):
         """檢查是否符合平倉條件"""
@@ -120,11 +118,9 @@ class OrderExecutorBacktest:
                 if self.current_position == 'LONG':
                     gross_pnl = (price - self.entry_price) * self.position_size
                     profit_or_loss = gross_pnl - fee
-                    long_gross_pnl = gross_pnl
                 elif self.current_position == 'SHORT':
                     gross_pnl = (self.entry_price - price) * self.position_size
                     profit_or_loss = gross_pnl - fee
-                    short_gross_pnl = gross_pnl
 
                 self.orders.append([timestamp, 'SELL' if self.current_position == 'LONG' else 'BUY',
                                     self.position_size, price, self.current_position, exit_reason,

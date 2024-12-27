@@ -8,11 +8,11 @@ kline_columns = [
     "Taker buy base asset volume", "Taker buy quote asset volume", "Ignore", "symbol"
 ]
 
-# trades_file_path = 'trades.csv'
-# trades_columns = [
-#     "trade Id", "price", "qty", "quoteQty", "time",
-#     "isBuyerMaker", "isBestMatch", "symbol"
-# ]
+trades_file_path = 'trades.csv'
+trades_columns = [
+    "trade Id", "price", "qty", "quoteQty", "time",
+    "isBuyerMaker", "isBestMatch", "symbol"
+]
 
 # Define symbol value
 symbol_value = 'SPOT_BTC_USDT'
@@ -24,9 +24,9 @@ if data_kline.iloc[0].tolist()[:12] == kline_columns[:-1]:
 data_kline['symbol'] = symbol_value
 data_kline.to_csv(kline_file_path, index=False, header=kline_columns)
 
-# # Remove duplicate headers in trades.csv and add symbol column
-# data_trades = pd.read_csv(trades_file_path, dtype=str, low_memory=False)
-# if data_trades.iloc[0].tolist()[:7] == trades_columns[:-1]:
-#     data_trades = data_trades[1:]
-# data_trades['symbol'] = symbol_value
-# data_trades.to_csv(trades_file_path, index=False, header=trades_columns)
+# Remove duplicate headers in trades.csv and add symbol column
+data_trades = pd.read_csv(trades_file_path, dtype=str, low_memory=False)
+if data_trades.iloc[0].tolist()[:7] == trades_columns[:-1]:
+    data_trades = data_trades[1:]
+data_trades['symbol'] = symbol_value
+data_trades.to_csv(trades_file_path, index=False, header=trades_columns)
