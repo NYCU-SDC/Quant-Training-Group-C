@@ -34,7 +34,7 @@ plt.xticks([orders_df['timestamp'].iloc[0], orders_df['timestamp'].iloc[-1]],
 plt.legend(fontsize=10)
 plt.grid(color='gray', linestyle='--', linewidth=0.5, alpha=0.6)
 plt.tight_layout()
-plt.savefig('cumulative_profit_trend_fixed.png', dpi=300)
+plt.savefig('cumulative_pnl.png', dpi=300)
 plt.show()
 
 # 繪製每筆盈虧變動圖 (柱狀圖)
@@ -46,6 +46,7 @@ plt.bar(orders_df['timestamp'], orders_df['profit_or_loss'], color=colors, alpha
 plt.xlabel('Timestamp', fontsize=12)
 plt.ylabel('Profit or Loss', fontsize=12)
 plt.title('Profit or Loss Over Time', fontsize=14)
+plt.xlim([orders_df['timestamp'].min(), orders_df['timestamp'].max()])
 
 # 只顯示 timestamp 頭尾標籤
 plt.xticks([orders_df['timestamp'].iloc[0], orders_df['timestamp'].iloc[-1]],
@@ -56,5 +57,5 @@ plt.xticks([orders_df['timestamp'].iloc[0], orders_df['timestamp'].iloc[-1]],
 plt.legend(fontsize=10)
 plt.grid(color='gray', linestyle='--', linewidth=0.5, alpha=0.6)
 plt.tight_layout()
-plt.savefig('profit_or_loss_over_time_fixed.png', dpi=300)
+plt.savefig('pnl.png', dpi=300)
 plt.show()

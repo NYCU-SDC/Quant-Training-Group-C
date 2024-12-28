@@ -94,6 +94,7 @@ class OrderExecutorBacktest:
         # 判斷是買或賣單
         is_buy = signal == 1
         trade_price = self.get_trade_price(timestamp, is_buy)
+        taipei_time = pd.to_datetime(timestamp, unit='ms') + pd.Timedelta(hours=8)
         if trade_price is not None:
             price = trade_price
 
@@ -105,14 +106,14 @@ class OrderExecutorBacktest:
                 self.entry_price = price
                 long_position_usd = turnover
                 long_turnover = turnover
-                self.orders.append([timestamp, 'BUY', quantity, price, 'LONG', 'ENTER', profit_or_loss, atr, gross_pnl, fee, turnover, long_gross_pnl, long_position_usd, long_turnover, short_gross_pnl, short_position_usd, short_turnover])
+                self.orders.append([taipei_time, 'BUY', quantity, price, 'LONG', 'ENTER', profit_or_loss, atr, gross_pnl, fee, turnover, long_gross_pnl, long_position_usd, long_turnover, short_gross_pnl, short_position_usd, short_turnover])
             elif signal == -1:  # Sell signal
                 self.current_position = 'SHORT'
                 self.position_size = quantity
                 self.entry_price = price
                 short_position_usd = -turnover
                 short_turnover = turnover
-                self.orders.append([timestamp, 'SELL', quantity, price, 'SHORT', 'ENTER', profit_or_loss, atr, gross_pnl, fee, turnover, long_gross_pnl, long_position_usd, long_turnover, short_gross_pnl, short_position_usd, short_turnover])
+                self.orders.append([taipei_time, 'SELL', quantity, price, 'SHORT', 'ENTER', profit_or_loss, atr, gross_pnl, fee, turnover, long_gross_pnl, long_position_usd, long_turnover, short_gross_pnl, short_position_usd, short_turnover])
         else:
             # 平倉條件
             exit_reason = self.check_exit_conditions(price, atr)
@@ -126,7 +127,7 @@ class OrderExecutorBacktest:
                     profit_or_loss = gross_pnl - fee
                     short_gross_pnl = gross_pnl
 
-                self.orders.append([timestamp, 'SELL' if self.current_position == 'LONG' else 'BUY',
+                self.orders.append([taipei_time, 'SELL' if self.current_position == 'LONG' else 'BUY',
                                     self.position_size, price, self.current_position, exit_reason,
                                     profit_or_loss, atr, gross_pnl, fee, turnover, long_gross_pnl, long_position_usd, long_turnover, short_gross_pnl, short_position_usd, short_turnover])
 
