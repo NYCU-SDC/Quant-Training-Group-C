@@ -19,14 +19,20 @@ class ExchangeSimulatorAPIClient:
     async def send_algo_order(self, params):
         return await self.make_request("send_algo_order", params)
 
-    async def edit_order(self, params):
-        return await self.make_request("edit_order", params)
+    async def edit_order_by_client_order_id(self, params):
+        return await self.make_request("edit_order_by_client_order_id", params)
 
+    async def cancel_order_by_client_order_id(self, params):
+        return await self.make_request("cancel_order_by_client_order_id", params)
+    
     async def cancel_order(self, params):
         return await self.make_request("cancel_order", params)
+    
+    async def cancel_orders(self, params):
+        return await self.make_request("cancel_orders", params)
 
-    async def cancel_all_orders(self, params=None):
-        return await self.make_request("cancel_all_orders", params)
+    async def cancel_all_pending_orders(self, params=None):
+        return await self.make_request("cancel_all_pending_orders", params)
 
     async def get_open_orders(self, params=None):
         return await self.make_request("get_open_orders", params)

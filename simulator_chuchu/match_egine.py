@@ -562,8 +562,10 @@ class MatchingEngine:
         except Exception as e:
             print(f"Error handling market data: {e}")
 
-    async def handle_cancel_order(self, order_id, symbol):
+    async def handle_cancel_order(self, params):
         try:
+            order_id = params.get('order_id')
+            symbol = params.get('symbol')
             self.logger.info(f"Cancelling order with id: {order_id}, symbol: {symbol}")
             for client_id, client_order in self.client_orders.items():
                 if client_order["order_id"] == order_id and client_order["symbol"] == symbol:
@@ -577,8 +579,10 @@ class MatchingEngine:
             self.logger.exception(f"Error cancelling order: {e}")
             return {"success": False, "error": str(e)}
 
-    async def handle_cancel_order_by_client_order_id(self, client_order_id, symbol):
+    async def handle_cancel_order_by_client_order_id(self, params):
         try:
+            client_order_id = params.get('client_order_id')
+            symbol = params.get('symbol')
             self.logger.info(f"Cancelling order with client order id: {client_order_id}, symbol: {symbol}")
             if client_order_id in self.client_orders:
                 client_order = self.client_orders[client_order_id]
@@ -593,8 +597,9 @@ class MatchingEngine:
             self.logger.exception(f"Error cancelling order by client order id: {e}")
             return {"success": False, "error": str(e)}
 
-    async def handle_cancel_orders(self, symbol):
+    async def handle_cancel_orders(self, params):
         try:
+            symbol = params.get("symbol")
             self.logger.info(f"Cancelling all orders for symbol: {symbol}")
             client_ids_to_remove = []
             for client_id, client_order in self.client_orders.items():
@@ -610,7 +615,7 @@ class MatchingEngine:
             self.logger.exception(f"Error cancelling orders: {e}")
             return {"success": False, "error": str(e)}
 
-    async def handle_cancel_all_orders(self):
+    async def handle_cancel_all_pending_orders(self):
         try:
             self.logger.info("Cancelling all pending orders")
             for client_id, client_order in self.client_orders.items():
@@ -622,18 +627,18 @@ class MatchingEngine:
             self.logger.exception(f"Error cancelling all orders: {e}")
             return {"success": False, "error": str(e)}
 
-    async def handle_edit_order_by_client_order_id(self, client_order_id, symbol, new_price=None, new_quantity=None):
+    async def handle_edit_order_by_client_order_id(self, params):
         try:
-            self.logger.info(f"Editing order with client_order_id: {client_order_id}, symbol: {symbol}")
+            client_order_id = params.get('client_order_id')
+            new_price = params.get('price')
+            new_quantity = params.get('quantity')
+            self.logger.info(f"Editing order with client_order_id: {client_order_id}")
 
             if client_order_id not in self.client_orders:
                 self.logger.warning(f"Order not found: {client_order_id}")
                 return {"success": False, "error": "Order not found"}
 
             order = self.client_orders[client_order_id]
-            if order["symbol"] != symbol:
-                self.logger.warning(f"Order symbol mismatch for client_order_id: {client_order_id}")
-                return {"success": False, "error": "Order symbol mismatch"}
 
             # Update price if provided
             if new_price is not None:

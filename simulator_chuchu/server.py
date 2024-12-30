@@ -203,12 +203,16 @@ class ExchangeSimulatorServer:
                 response = await self.send_order(params)
             elif method == "send_algo_order":
                 response = await self.send_algo_order(params)
-            elif method == "edit_order":
-                response = await self.edit_order(params)
+            elif method == "edit_order_by_client_order_id":
+                response = await self.edit_order_by_client_order_id(params)
             elif method == "cancel_order":
                 response = await self.cancel_order(params)
-            elif method == "cancel_all_orders":
-                response = await self.cancel_all_orders(params)
+            elif method == "cancel_order_by_client_order_id":
+                response = await self.cancel_order_by_client_order_id(params)
+            elif method == "cancel_orders":
+                response = await self.cancel_orders(params)
+            elif method == "cancel_all_pending_orders":
+                response = await self.cancel_all_pending_orders(params)
             elif method == "get_open_orders":
                 response = await self.get_open_orders(params)
             elif method == "get_order_info":
@@ -230,26 +234,31 @@ class ExchangeSimulatorServer:
 
 
     async def send_order(self, params):
-        # 實現發送訂單的邏輯
-        # 將訂單傳遞給撮合引擎處理
         response = await self.matching_engine.handle_order(params)
         return response
 
     async def send_algo_order(self, params):
-        # 實現發送演算法訂單的邏輯
-        # 返回模擬的回應
         return {"result": "success", "order_id": "simulated_algo_order_id"}
 
-    async def edit_order(self, params):
-        # 實現編輯訂單的邏輯
-        # 返回模擬的回應
-        return {"result": "success", "order_id": "edited_order_id"}
+    async def edit_order_by_client_order_id(self, params):
+        response = await self.matching_engine.handle_edit_order_by_client_order_id(params)
+        return response
+    
+    async def cancel_order_by_client_order_id(self, params):
+        response = await self.matching_engine.handle_cancel_order_by_client_order_id(params)
+        return response
 
     async def cancel_order(self, params):
-        # 實現取消訂單的邏輯
-        # 將取消請求傳遞給撮合引擎處理
-        await self.matching_engine.handle_cancel_order(params)
-        return {"result": "success", "order_id": "cancelled_order_id"}
+        response = await self.matching_engine.handle_cancel_order(params)
+        return response
+    
+    async def cancel_orders(self, params):
+        response = await self.matching_engine.handle_cancel_orders(params)
+        return response
+    
+    async def cancel_all_pending_orders(self, params):
+        response = await self.matching_engine.handle_cancel_all_pending_orders(params)
+        return response
 
     async def cancel_all_orders(self, params):
         # 實現取消所有訂單的邏輯
@@ -292,8 +301,6 @@ class ExchangeSimulatorServer:
 
     async def generate_private_data(self):
         while True:
-            # 這部分由自己的匹配引擎來生成和處理私有資料
-            # 生成的資料可以按照以下格式發送給訂閱了相應主題的客戶端
             for client_id, topics in self.private_subscriptions.items():
                 if "executionreport" in topics:
                     trade_reports = self.matching_engine.get_trade_reports()
