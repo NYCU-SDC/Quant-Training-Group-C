@@ -11,6 +11,7 @@ import os
 class OrderType(Enum):
     MARKET = "MARKET"
     LIMIT = "LIMIT"
+    POST_ONLY = "POST_ONLY"
 
 # order 的 side
 class PositionSide(Enum):
@@ -67,7 +68,11 @@ class Strategy:
         # Basic strategy states
         self.current_position: Optional[PositionSide] = None
         self.position_size: float = 0.0
+        self.net_postiion_value: float = 0.0
         self.entry_price: Optional[float] = None
+        self.init_capital = 0.0
+        self.capital = self.init_capital
+        self.cash = self.capital
         
         # Order tracking
         self.order_id = []
@@ -222,9 +227,7 @@ class Strategy:
         if status == "FILLED":
             order_book = self.ask_limit_order if side == "SELL" else self.bid_limit_order
             if client_order_id in order_book:
-                # Log the fill order details
-                self.log_fill_order(client_order_id, side, price, quantity)
-
+                # self.logger.info(f"[{self.strategy_name}] Filled order: {execution_report}")
                 # Update the order book
                 order_book[client_order_id]["quantity"] -= quantity
                 if order_book[client_order_id]["quantity"] <= 0:
@@ -234,8 +237,10 @@ class Strategy:
                 # Update position size  
                 if side == "BUY":
                     self.position_size += quantity
+                    self.cash = self.capital - abs(self.position_size) * price
                 elif side == "SELL":
                     self.position_size -= quantity
+                    self.cash = self.capital - abs(self.position_size) * price
         elif status == "NEW":
             new_order = {"price": price, "quantity": execution_report["quantity"], "status": "PENDING"}
             if side == "BUY":
@@ -246,9 +251,7 @@ class Strategy:
         elif status == "PARTIAL_FILLED":
             order_book = self.ask_limit_order if side == "SELL" else self.bid_limit_order
             if client_order_id in order_book:
-                # Log the fill order details
-                self.log_fill_order(client_order_id, side, price, quantity)
-
+                # self.logger.info(f"[{self.strategy_name}] Partially filled order: {execution_report}")
                 # Update the order book
                 order_book[client_order_id]["quantity"] -= quantity
                 if order_book[client_order_id]["quantity"] <= 0:
@@ -257,8 +260,10 @@ class Strategy:
                 # Update position size
                 if side == "BUY":
                     self.position_size += quantity
+                    self.cash = self.capital - abs(self.position_size) * price
                 elif side == "SELL":
                     self.position_size -= quantity
+                    self.cash = self.capital - abs(self.position_size) * price
         elif status == "CANCELLED":
             order_book = self.ask_limit_order if side == "SELL" else self.bid_limit_order
             if client_order_id in order_book:
@@ -267,6 +272,9 @@ class Strategy:
         print(f"ask_limit_order: {self.ask_limit_order}")
         print(f"bid_limit_order: {self.bid_limit_order}")
         print(f"position_size: {self.position_size}")
+        print(f"position_value: {self.net_postiion_value}")
+        print(f"cash: {self.cash}")
+        print(f"capital: {self.capital}")
 
     def log_fill_order(self, order_id: int, side: str, price: float, quantity: float) -> None:
         """Log the filled order details."""
