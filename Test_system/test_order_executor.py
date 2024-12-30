@@ -142,7 +142,6 @@ class OrderExecutor:
                         'client_order_id': signal['order_id'],
                         'symbol': signal['symbol'],
                         'side': side, 
-                        'position_side': signal['position_side'],
                         'order_type': signal['order_type'],
                         'order_quantity': signal['quantity'],
                         'reduce_only': signal.get('reduce_only', False)
@@ -150,7 +149,7 @@ class OrderExecutor:
                     if 'margin_mode' in signal:
                         order_params['margin_mode'] = signal['margin_mode']
 
-                    if signal['order_type'] == 'LIMIT':
+                    if signal['order_type'] == 'LIMIT' or signal['order_type'] == 'POST_ONLY':
                         order_params['order_price'] = signal['price']
                     
                     # Create order tracking

@@ -133,8 +133,9 @@ class DataSubscriber:
         print(f"Timestamp Current Time: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')}")
         mid_price = (data.get('asks', [])[0][0] + data.get('bids', [])[0][0]) / 2
         print(f"Mid Price: {mid_price}")
-        spread = (data.get('asks', [])[0][0] - data.get('bids', [])[0][0]) / 0.0001
+        spread = (data.get('asks', [])[0][0] - data.get('bids', [])[0][0]) / 0.1
         print(f"Spread: {spread}")
+        print(f"spread(pb): {spread / mid_price * 10000}")
         print("\nOrderbook Data:")
         print(f"Asks (first 5): {data.get('asks', [])[:5]}")
         print(f"Bids (first 5): {data.get('bids', [])[:5]}")
@@ -370,7 +371,7 @@ class DataSubscriber:
 async def main():
     subscriber = DataSubscriber()
     
-    symbol = "PERP_WOO_USDT"
+    symbol = "PERP_ETH_USDT"
     interval = "5m"
     
     # Market data configuration
@@ -383,9 +384,9 @@ async def main():
     
     # Private data configuration
     private_config = {
-        "executionreport": True,
-        "position": True,
-        "balance": True
+        "executionreport": False,
+        "position": False,
+        "balance": False
     }
     
     try:

@@ -9,6 +9,7 @@ from strategy_logics.test_limit_strategy import TestLimitStrategy
 from strategy_logics.AvellanedaMMv2_strategy import AvellanedaMMv2
 from manager.config_manager import ConfigManager
 from manager.risk_manager import RiskManager
+from strategy_logics.maker_strategy_2 import MakerStrategy2 
 import os
 class StrategyExecutor:
     """Strategy execution manager that handles multiple trading strategies"""

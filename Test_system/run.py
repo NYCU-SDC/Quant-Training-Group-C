@@ -5,6 +5,7 @@ from manager.config_manager import ConfigManager
 from strategy_executor import StrategyExecutor
 from test_order_executor import OrderExecutor
 from strategy_logics.maker_strategy import MakerStrategy
+from strategy_logics.maker_strategy_2 import MakerStrategy2
 from strategy_logics.cta_strategy import CTAStrategy
 from strategy_logics.test_strategy import TestStrategy
 from strategy_logics.test_limit_strategy import TestLimitStrategy

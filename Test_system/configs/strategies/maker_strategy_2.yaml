@@ -1,12 +1,14 @@
 trading_params:
-  symbol: "PERP_BTC_USDT"
+  symbol: "PERP_ETH_USDT"
   time_interval: 5000
-  tick_size: 1
+  tick_size: 0.1
   limit_quantity_decimals: 4
-  single_position_size: 30
+  single_position_size: 100
+  init_capital: 5000
+  grid_depth: 1
 
 subscription_params:
-  symbol: "PERP_BTC_USDT"
+  symbol: "PERP_ETH_USDT"
   market_config:
     orderbook: True
     bbo: False

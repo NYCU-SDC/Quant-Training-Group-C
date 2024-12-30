@@ -4,6 +4,7 @@ trading_params:
   tick_size: 0.0001
   limit_quantity_decimals: 0
   single_position_size: 30
+  init_capital: 500
 
 subscription_params:
   symbol: "PERP_WOO_USDT"
