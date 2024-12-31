@@ -2,8 +2,6 @@ from time import time
 import asyncio
 import logging
 import aiofiles
-import json
-import csv
 from concurrent.futures import ThreadPoolExecutor
 from collections import deque
 
@@ -12,6 +10,7 @@ class MatchingEngine:
         self.server = server
         self.order_book = {}
         self.trade = {}
+        self.markprice = {}
         self.position = {"LONG": {}, "SHORT": {}} # hedge mode
         self.order_id_counter = 0
         self.trade_reports = deque()
@@ -23,6 +22,11 @@ class MatchingEngine:
         self.lock = asyncio.Lock()
         self.executor = ThreadPoolExecutor()
         self.logger = logging.getLogger(__name__)
+
+        # save file path
+        self.trade_data_file_path = "trade_data.csv"
+        self.position_data_file_path = "position_data.csv"
+        self.running = True 
 
     def generate_order_id(self):
         self.order_id_counter += 1
@@ -159,9 +163,9 @@ class MatchingEngine:
                 self.position[symbol] = 0
             
             if side == "BUY":
-                trades = sorted(self.trade[symbol], key=lambda x: x["price"], reverse=True)
+                trades = sorted(self.trade[symbol]["data"], key=lambda x: x["price"], reverse=True)
             else:
-                trades = sorted(self.trade[symbol], key=lambda x: x["price"])
+                trades = sorted(self.trade[symbol]["data"], key=lambda x: x["price"])
             
             remaining_quantity = quantity
             filled_quantity = 0
@@ -275,7 +279,7 @@ class MatchingEngine:
                     # update trade report
                     self.trade_reports.append(trade_report)
                     # save data
-                    self.save_data(trade_report, self.position[position_side][symbol], symbol, trade_report['timestamp'], position_side)
+                    self.save_trade_data_to_csv(trade_report, self.trade_data_file_path)
 
                     filled_quantity = 0
                     filled_amount = 0
@@ -318,7 +322,7 @@ class MatchingEngine:
                     self.logger.info(f"Order {client_order_id} canceled or edited, stopping match.")
                     break
                 # Wait for the orderbook to be updated
-                while self.order_book[symbol].get("timestamp", 0) == last_orderbook_timestamp:
+                while self.order_book[symbol].get("ts", 0) == last_orderbook_timestamp:
                     await asyncio.sleep(0.1)  # Adjust the sleep time as needed
 
                 # Get the updated order (if edited)
@@ -327,11 +331,11 @@ class MatchingEngine:
                 price = order["price"]
 
                 # Update the last_orderbook_timestamp
-                last_orderbook_timestamp = self.order_book[symbol].get("timestamp", 0)
+                last_orderbook_timestamp = self.order_book[symbol].get("ts", 0)
 
                 if side == "BUY":
-                    ask_prices = [ask[0] for ask in self.order_book[symbol]["asks"]]
-                    ask_quantities = [ask[1] for ask in self.order_book[symbol]["asks"]]
+                    ask_prices = [ask[0] for ask in self.order_book[symbol]["data"]["asks"]]
+                    ask_quantities = [ask[1] for ask in self.order_book[symbol]["data"]["asks"]]
 
                     if len(ask_prices) == 0 or price < ask_prices[0]:
                         is_maker = True
@@ -349,8 +353,8 @@ class MatchingEngine:
                             break
 
                 elif side == "SELL":
-                    bid_prices = [bid[0] for bid in self.order_book[symbol]["bids"]][::-1]
-                    bid_quantities = [bid[1] for bid in self.order_book[symbol]["bids"]][::-1]
+                    bid_prices = [bid[0] for bid in self.order_book[symbol]["data"]["bids"]][::-1]
+                    bid_quantities = [bid[1] for bid in self.order_book[symbol]["data"]["bids"]][::-1]
 
                     if len(bid_prices) == 0 or price > bid_prices[0]:
                         is_maker = True
@@ -444,7 +448,7 @@ class MatchingEngine:
                     # update trade report
                     self.trade_reports.append(trade_report)
                     # save data
-                    self.save_data(trade_report, self.position[position_side][symbol], symbol, trade_report['timestamp'], position_side)
+                    self.save_trade_data_to_csv(trade_report, self.trade_data_file_path)
     
                     filled_quantity = 0
                     filled_amount = 0
@@ -478,8 +482,8 @@ class MatchingEngine:
             trading_fees = 0
 
             if side == "BUY":
-                ask_prices = [ask[0] for ask in self.order_book[symbol]["asks"]]
-                ask_quantities = [ask[1] for ask in self.order_book[symbol]["asks"]]
+                ask_prices = [ask[0] for ask in self.order_book[symbol]["data"]["asks"]]
+                ask_quantities = [ask[1] for ask in self.order_book[symbol]["data"]["asks"]]
 
                 for ask_price, ask_quantity in zip(ask_prices, ask_quantities):
                     if price >= ask_price:
@@ -492,8 +496,8 @@ class MatchingEngine:
                         remaining_quantity -= trade_size
 
             elif side == "SELL":
-                bid_prices = [bid[0] for bid in self.order_book[symbol]["bids"]][::-1]
-                bid_quantities = [bid[1] for bid in self.order_book[symbol]["bids"]][::-1]
+                bid_prices = [bid[0] for bid in self.order_book[symbol]["data"]["bids"]][::-1]
+                bid_quantities = [bid[1] for bid in self.order_book[symbol]["data"]["bids"]][::-1]
 
                 for bid_price, bid_quantity in zip(bid_prices, bid_quantities):
                     if price <= bid_price:
@@ -583,7 +587,7 @@ class MatchingEngine:
                 # update trade report
                 self.trade_reports.append(trade_report)
                 # save data
-                self.save_data(trade_report, self.position[position_side][symbol], symbol, trade_report['timestamp'], position_side)
+                self.save_trade_data_to_csv(trade_report, self.trade_data_file_path)
 
             # remove orders
             del self.client_orders[order["client_order_id"]]
@@ -617,6 +621,10 @@ class MatchingEngine:
                         sub_type = "trade"
                         # save raw data
                         self.trade[symbol] = data
+                    elif "markprice" in topic:
+                        sub_type = "markprice"
+                        # save raw data
+                        self.markprice[symbol] = data["data"]
 
         except Exception as e:
             print(f"Error handling market data: {e}")
@@ -724,12 +732,6 @@ class MatchingEngine:
             self.logger.exception(f"Error editing order by client order id: {e}")
             return {"success": False, "error": str(e)}
         
-    async def save_data(self, trade_report, position, symbol, timestamp, position_side):
-        trade_file_path = 'trade_data.csv'
-        position_file_path = 'position_data.csv'
-        await self.save_trade_data_to_csv(trade_report, trade_file_path)
-        await self.save_position_data_to_csv(position, symbol, timestamp, position_side, position_file_path)
-
     async def save_trade_data_to_csv(self, trade_report, file_path):
         try:
             header = ["symbol", "executedPrice", "executedQuantity", "fee", "side", "timestamp"]
@@ -744,17 +746,30 @@ class MatchingEngine:
         except Exception as e:
             print(f"Error saving trade data to CSV: {e}")
 
-    async def save_position_data_to_csv(self, position, symbol, timestamp, position_side, file_path):
+    async def continuously_save_position_and_markprice(self):
         try:
-            header = ["symbol", "holding", "timestamp","position_side"]
-            async with aiofiles.open(file_path, mode='a+') as file:
+            header = ["symbol", "holding", "position_side", "mark_price", "timestamp"]
+            async with aiofiles.open(self.position_data_file_path, mode='a+') as file:
                 await file.seek(0)
                 content = await file.read()
                 if not content.strip():  
                     await file.write(','.join(header) + '\n')
-                row = f"{symbol},{position['holding']},{timestamp},{position_side}\n"
-                await file.write(row)
+
+            while self.running:
+                async with aiofiles.open(self.position_data_file_path, mode='a') as file:
+                    current_timestamp = int(time.time() * 1000)
+                    
+                    # 遍歷 position 和 mark price 數據
+                    for position_side, positions in self.position.items():
+                        for symbol, holding in positions.items():
+                            mark_price = self.markprice.get(symbol, {}).get("price", None)
+                            row = f"{symbol},{holding},{position_side},{mark_price},{current_timestamp}\n"
+                            await file.write(row)
+
+                await asyncio.sleep(1)  
 
         except Exception as e:
-            print(f"Error saving position data to CSV: {e}")
-     
+            print(f"Error continuously saving position and mark price to CSV: {e}")
+        
+    async def stop_continuous_saving(self):
+        self.running = False

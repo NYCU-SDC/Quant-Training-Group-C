@@ -145,7 +145,8 @@ async def main():
         "orderbook": True,
         "bbo": False,
         "trade": True,
-        "kline": False
+        "kline": False,
+        "markprice":True
     }
 
     private_data_id = 0

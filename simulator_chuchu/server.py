@@ -28,6 +28,7 @@ class ExchangeSimulatorServer:
         # 分開存儲市場和私有連接
         self.market_connections = set()
         self.private_connections = {}
+        self.tasks = []
 
     async def market_connect(self):
         self.market_connection = await websockets.connect(self.market_data_url)
@@ -63,7 +64,34 @@ class ExchangeSimulatorServer:
         # 使用 route_handler 來處理不同的 URL
         server = await websockets.serve(self.route_handler, self.host, self.port)
         print(f"Exchange Simulator Server started on {self.host}:{self.port}")
+
+        # 啟動其他協程
+        self.tasks.append(asyncio.create_task(self.matching_engine.continuously_save_position_and_markprice()))
+        self.tasks.append(asyncio.create_task(self.generate_private_data()))
+        self.tasks.append(asyncio.create_task(self.relay_market_data()))
+
         await server.wait_closed()
+
+    async def stop(self):
+        print("Stopping Exchange Simulator Server...")
+        # 停止 MatchingEngine 的持續保存
+        await self.matching_engine.stop_continuous_saving()
+
+        # 取消所有啟動的協程
+        for task in self.tasks:
+            task.cancel()
+            try:
+                await task
+            except asyncio.CancelledError:
+                pass
+        
+        # 關閉所有 WebSocket 連接
+        for connection in self.market_connections:
+            await connection.close()
+        for connection in self.private_connections.values():
+            await connection.close()
+
+        print("Exchange Simulator Server stopped.")
 
     async def route_handler(self, websocket, path):
         """根據 URL 路徑路由到不同的處理函數"""
@@ -352,6 +380,8 @@ class ExchangeSimulatorServer:
                         sub_type = "trade"
                     elif "kline" in topic:
                         sub_type = "kline"
+                    elif "markprice" in topic:
+                        sub_type = "markprice"
 
                     await self.message_cache.put(
                         {
@@ -399,11 +429,12 @@ async def main():
 
     server = ExchangeSimulatorServer("localhost", 8765, app_id, api_key, api_secret, redis_host="localhost")
 
-    await asyncio.gather(
-        server.start(),
-        server.generate_private_data(),
-        server.relay_market_data()
-    )
+    try:
+        # 啟動伺服器和其他任務
+        await server.start()
+    except KeyboardInterrupt:
+        print("KeyboardInterrupt detected. Stopping server...")
+        await server.stop()
 
 if __name__ == "__main__":
     asyncio.run(main())

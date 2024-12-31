@@ -7,15 +7,12 @@ class PerformanceAnalyzer:
         self.position_data = pd.read_csv(position_file_path)
 
     def calculate_metrics(self):
-        # 转换时间戳为 datetime
         self.trade_data['timestamp'] = pd.to_datetime(self.trade_data['timestamp'], unit='ms')
         self.position_data['timestamp'] = pd.to_datetime(self.position_data['timestamp'], unit='ms')
 
-        # 按时间对齐数据
         self.trade_data.set_index('timestamp', inplace=True)
         self.position_data.set_index('timestamp', inplace=True)
 
-        # 计算逐步持仓
         pnl, leverage_adjusted_pnl = self._calculate_pnl()
         total_return = self._calculate_total_return(pnl)
         sharpe_ratio = self._calculate_sharpe_ratio(leverage_adjusted_pnl)
@@ -34,9 +31,6 @@ class PerformanceAnalyzer:
         }
 
     def _calculate_pnl(self):
-        """
-        计算每笔交易的 PnL（包括杠杆影响）
-        """
         pnl = pd.DataFrame(index=self.trade_data.index, columns=self.trade_data['symbol'].unique())
         leverage_adjusted_pnl = pd.DataFrame(index=self.trade_data.index, columns=self.trade_data['symbol'].unique())
 
@@ -44,18 +38,21 @@ class PerformanceAnalyzer:
             symbol_trades = self.trade_data[self.trade_data['symbol'] == symbol]
             symbol_position = self.position_data[self.position_data['symbol'] == symbol]
 
-            # 确保 position 数据按时间对齐
             symbol_trades = symbol_trades.join(symbol_position[['holding']], how='left').fillna(method='ffill')
 
-            # 计算 PnL
-            symbol_trades['pnl'] = (
+            # single trade pnl
+            symbol_trades['single_trade_pnl'] = (
                 symbol_trades['executedPrice'] * symbol_trades['executedQuantity'] *
                 np.where(symbol_trades['side'] == 'BUY', 1, -1)
             ) - symbol_trades['fee']
 
-            # 计算杠杆调整后的 PnL
-            symbol_trades['leverage_adjusted_pnl'] = symbol_trades['pnl'] * symbol_trades['leverage']
+            # leverage adjust
+            symbol_trades['single_trade_pnl'] = symbol_trades['single_trade_pnl'] * symbol_trades['leverage']
 
+            # realized pnl
+            realized_pnl = symbol_trades['pnl'].cumsum()
+
+            
             # 累积 PnL
             pnl[symbol] = symbol_trades['pnl'].cumsum()
             leverage_adjusted_pnl[symbol] = symbol_trades['leverage_adjusted_pnl'].cumsum()
