@@ -40,8 +40,10 @@ class MakerStrategy(Strategy):
         self.limit_quantity_demical = trading_params.get('limit_quantity_demical', 4)
         self.init_capital = trading_params.get('init_capital', 1000)
         self.grid_depth = trading_params.get('grid_depth', 1)
+        self.spread_percentage = trading_params.get('spread_percentage', 0.1)
         self.capital = self.init_capital
         self.cash = self.capital
+        self.position_size = 0.1786
         self.position_ratio = 0.0
         print(f"position size: {self.single_position_size}")
 
@@ -82,8 +84,10 @@ class MakerStrategy(Strategy):
             # asyncio.create_task(self.delist_orders())
 
             self.mid_price = (self.order_book.get('asks')[0][0] + self.order_book.get('bids')[0][0]) / 2
-            best_ask = self.order_book.get('asks')[0][0]
-            best_bid = self.order_book.get('bids')[0][0]
+            self.best_ask = self.order_book.get('asks')[0][0]
+            self.best_bid = self.order_book.get('bids')[0][0]
+            print(f"best ask: {self.best_ask}, best bid: {self.best_bid}")
+            self.adjust_tick_size()
             self.net_postiion_value = self.position_size * self.mid_price
             self.capital = abs(self.net_postiion_value) + self.cash
             print(f"mid price: {self.mid_price}, ts: {self.time}")
@@ -91,11 +95,12 @@ class MakerStrategy(Strategy):
             
             
             for i in range(self.grid_depth):
-                ask_price = best_ask - i * self.tick_size
-                bid_price = best_bid + i * self.tick_size
-                if ask_price > self.mid_price:
+                self.ask_price = self.mid_price + (i+1) * self.tick_size 
+                self.bid_price = self.mid_price - (i+1) * self.tick_size 
+                self.adjust_prices()
+                if self.ask_price > self.mid_price:
                     print("position size: ", self.single_position_size)
-                    quantity = round((self.single_position_size / ask_price), self.limit_quantity_demical)
+                    quantity = round((self.single_position_size / self.ask_price), self.limit_quantity_demical)
                     print(f"quantity: {quantity}")
                     open_short_signal = SignalData(
                         timestamp=int(time.time() * 1000),
@@ -104,7 +109,7 @@ class MakerStrategy(Strategy):
                         position_side=PositionSide.SHORT,
                         order_type=OrderType.POST_ONLY,
                         symbol=self.trading_symbol,
-                        price=round(ask_price, 4),
+                        price=round(self.ask_price, 4),
                         quantity=quantity,
                         order_number=self.order_number,
                         reduce_only=False,
@@ -112,9 +117,9 @@ class MakerStrategy(Strategy):
                     self.order_number += 1
                     await self.publish_signal(open_short_signal)
                     # asyncio.sleep(0.5)
-                if bid_price < self.mid_price:
+                if self.bid_price < self.mid_price:
                     print("position size: ", self.single_position_size)
-                    quantity = round((self.single_position_size / bid_price), self.limit_quantity_demical)
+                    quantity = round((self.single_position_size / self.bid_price), self.limit_quantity_demical)
                     print(f"quantity: {quantity}")
                     open_long_signal = SignalData(
                         timestamp=int(time.time() * 1000),
@@ -123,7 +128,7 @@ class MakerStrategy(Strategy):
                         position_side=PositionSide.LONG,
                         order_type=OrderType.POST_ONLY,
                         symbol=self.trading_symbol,
-                        price=round(bid_price, 4),
+                        price=round(self.bid_price, 4),
                         quantity=quantity,
                         order_number=self.order_number,
                         reduce_only=False,
@@ -177,6 +182,51 @@ class MakerStrategy(Strategy):
 
         print(f"Delisted {order_type} orders: {list(delist_requests.keys())}")
 
+    def adjust_tick_size(self):
+        """
+        Adjust tick size as a percentage of the current bid-ask spread, respecting a minimum tick size.
+        """
+        self.spread = self.best_ask - self.best_bid
+
+        # Ensure spread is non-zero to avoid division errors
+        if self.spread <= 0:
+            self.tick_size = 0.1  # Fallback to the minimum tick size
+        else:
+            # Use a percentage of the spread for the tick size
+            calculated_tick_size = self.spread * self.spread_percentage
+
+            # Enforce the minimum tick size
+            self.tick_size = max(0.1, round(calculated_tick_size, 1))
+
+        print(f"Adjusted tick size (percentage of spread, min 0.1): {self.tick_size}")
+
+    def adjust_prices(self) -> None:
+        """
+        Adjust bid and ask prices based on tick size and position ratio.
+        """
+        if not self.mid_price or not self.tick_size:
+            return None, None
+
+        # Adjustment factor for position ratio
+        ask_spread = self.best_ask - self.ask_price
+        bid_spread = self.bid_price - self.best_bid
+        # Adjust prices
+        if self.position_ratio < 0:
+            # Adjust ask price
+            self.ask_price = self.ask_price + ask_spread * self.position_ratio
+            self.bid_price = self.bid_price + self.tick_size * self.position_ratio
+        elif self.position_ratio > 0:
+            # Adjust bid price
+            self.bid_price = self.bid_price - bid_spread * self.position_ratio
+            self.ask_price = self.ask_price - self.tick_size * self.position_ratio
+
+        # Ensure bid is below mid_price and ask is above mid_price
+        self.bid_price = round(self.bid_price, 1)
+        self.ask_price = round(self.ask_price, 1)
+
+        self.bid_price = min(self.bid_price, self.mid_price)
+        self.ask_price = max(self.ask_price, self.mid_price)
+        print(f"Adjusted Bid Price: {self.bid_price}, Adjusted Ask Price: {self.ask_price}")
 
     async def delist_orders(self):
         print("Delisting orders...")
