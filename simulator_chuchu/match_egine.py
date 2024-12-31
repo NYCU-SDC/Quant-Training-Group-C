@@ -1,16 +1,20 @@
 from time import time
 import asyncio
-from concurrent.futures import ThreadPoolExecutor
 import logging
+import aiofiles
+import json
+import csv
+from concurrent.futures import ThreadPoolExecutor
+from collections import deque
 
 class MatchingEngine:
     def __init__(self, server):
         self.server = server
         self.order_book = {}
         self.trade = {}
-        self.position = {}
+        self.position = {"LONG": {}, "SHORT": {}} # hedge mode
         self.order_id_counter = 0
-        self.trade_reports = []
+        self.trade_reports = deque()
         self.client_orders = {}
         self.spot_taker_fee = 0.001
         self.spot_maker_fee = 0.0008
@@ -145,10 +149,11 @@ class MatchingEngine:
     async def match_market_order(self, order):
         try:
             client_order_id = order["client_order_id"]
-            self.logger.info(f"Start matching limit order: {client_order_id}")
+            self.logger.info(f"Start matching market order: {client_order_id}")
             symbol = order["symbol"]
             side = order["side"]
             quantity = order["quantity"]
+            position_side = order["position_side"]
             
             if symbol not in self.position:
                 self.position[symbol] = 0
@@ -207,9 +212,23 @@ class MatchingEngine:
                     
                     # update position
                     if side == "BUY":
-                        self.position[symbol] += filled_quantity
-                    else:
-                        self.position[symbol] -= filled_quantity
+                        if position_side == "LONG":
+                            if symbol not in self.position["LONG"]:
+                                self.position["LONG"][symbol] = 0
+                            self.position["LONG"][symbol] += filled_quantity
+                        elif position_side == "SHORT":
+                            if symbol not in self.position["SHORT"]:
+                                self.position["SHORT"][symbol] = 0
+                            self.position["SHORT"][symbol] -= filled_quantity
+                    else:  # side == "SELL"
+                        if position_side == "LONG":
+                            if symbol not in self.position["LONG"]:
+                                self.position["LONG"][symbol] = 0
+                            self.position["LONG"][symbol] -= filled_quantity
+                        elif position_side == "SHORT":
+                            if symbol not in self.position["SHORT"]:
+                                self.position["SHORT"][symbol] = 0
+                            self.position["SHORT"][symbol] += filled_quantity
 
                     # calculate fee
                     if "SPOT" in symbol:
@@ -255,6 +274,8 @@ class MatchingEngine:
 
                     # update trade report
                     self.trade_reports.append(trade_report)
+                    # save data
+                    self.save_data(trade_report, self.position[position_side][symbol], symbol, trade_report['timestamp'], position_side)
 
                     filled_quantity = 0
                     filled_amount = 0
@@ -266,7 +287,7 @@ class MatchingEngine:
             # remove orders
             del self.client_orders[order["client_order_id"]]
 
-            self.logger.info(f"Finish matching limit order: {client_order_id}")
+            self.logger.info(f"Finish matching market order: {client_order_id}")
 
         except Exception as e:
             self.logger.exception(f"Error matching market order: {e}")
@@ -279,6 +300,7 @@ class MatchingEngine:
             side = order["side"]
             price = order["price"]
             quantity = order["quantity"]
+            position_side = order['position_side']
 
             if symbol not in self.position:
                 self.position[symbol] = 0
@@ -357,10 +379,25 @@ class MatchingEngine:
                     else:
                         order["status"] = "partially_FILLED"
 
+                    # update position
                     if side == "BUY":
-                        self.position[symbol] += filled_quantity
-                    else:
-                        self.position[symbol] -= filled_quantity
+                        if position_side == "LONG":
+                            if symbol not in self.position["LONG"]:
+                                self.position["LONG"][symbol] = 0
+                            self.position["LONG"][symbol] += filled_quantity
+                        elif position_side == "SHORT":
+                            if symbol not in self.position["SHORT"]:
+                                self.position["SHORT"][symbol] = 0
+                            self.position["SHORT"][symbol] -= filled_quantity
+                    else:  # side == "SELL"
+                        if position_side == "LONG":
+                            if symbol not in self.position["LONG"]:
+                                self.position["LONG"][symbol] = 0
+                            self.position["LONG"][symbol] -= filled_quantity
+                        elif position_side == "SHORT":
+                            if symbol not in self.position["SHORT"]:
+                                self.position["SHORT"][symbol] = 0
+                            self.position["SHORT"][symbol] += filled_quantity
 
                     # calculate fee
                     if "SPOT" in symbol:
@@ -406,6 +443,8 @@ class MatchingEngine:
 
                     # update trade report
                     self.trade_reports.append(trade_report)
+                    # save data
+                    self.save_data(trade_report, self.position[position_side][symbol], symbol, trade_report['timestamp'], position_side)
     
                     filled_quantity = 0
                     filled_amount = 0
@@ -428,6 +467,7 @@ class MatchingEngine:
             price = order["price"]
             quantity = order["quantity"]
             order_type = order["order_type"]
+            position_side = order["position_side"]
 
             if symbol not in self.position:
                 self.position[symbol] = 0
@@ -482,10 +522,25 @@ class MatchingEngine:
                     non_trade_report = True
 
                 if not non_trade_report:
+                    # update position
                     if side == "BUY":
-                        self.position[symbol] += filled_quantity
-                    else:
-                        self.position[symbol] -= filled_quantity
+                        if position_side == "LONG":
+                            if symbol not in self.position["LONG"]:
+                                self.position["LONG"][symbol] = 0
+                            self.position["LONG"][symbol] += filled_quantity
+                        elif position_side == "SHORT":
+                            if symbol not in self.position["SHORT"]:
+                                self.position["SHORT"][symbol] = 0
+                            self.position["SHORT"][symbol] -= filled_quantity
+                    else:  # side == "SELL"
+                        if position_side == "LONG":
+                            if symbol not in self.position["LONG"]:
+                                self.position["LONG"][symbol] = 0
+                            self.position["LONG"][symbol] -= filled_quantity
+                        elif position_side == "SHORT":
+                            if symbol not in self.position["SHORT"]:
+                                self.position["SHORT"][symbol] = 0
+                            self.position["SHORT"][symbol] += filled_quantity
 
                 # calculate fee
                 if "SPOT" in symbol:
@@ -527,6 +582,8 @@ class MatchingEngine:
 
                 # update trade report
                 self.trade_reports.append(trade_report)
+                # save data
+                self.save_data(trade_report, self.position[position_side][symbol], symbol, trade_report['timestamp'], position_side)
 
             # remove orders
             del self.client_orders[order["client_order_id"]]
@@ -534,11 +591,13 @@ class MatchingEngine:
             self.logger.info(f"Finish matching IOC/FOK order: {client_order_id}")
 
         except Exception as e:
-            self.logger.exception(f"Error matching ioc and fok order: {e}")
+            self.logger.exception(f"Error matching IOC/FOK order: {e}")
 
 
     def get_trade_reports(self):
-        return self.trade_reports
+        trade_reports = list(self.trade_reports)
+        self.trade_reports.clear()
+        return trade_reports
 
     # update real time orderbook and trade data
     async def handle_market_data(self, data):    
@@ -664,3 +723,38 @@ class MatchingEngine:
         except Exception as e:
             self.logger.exception(f"Error editing order by client order id: {e}")
             return {"success": False, "error": str(e)}
+        
+    async def save_data(self, trade_report, position, symbol, timestamp, position_side):
+        trade_file_path = 'trade_data.csv'
+        position_file_path = 'position_data.csv'
+        await self.save_trade_data_to_csv(trade_report, trade_file_path)
+        await self.save_position_data_to_csv(position, symbol, timestamp, position_side, position_file_path)
+
+    async def save_trade_data_to_csv(self, trade_report, file_path):
+        try:
+            header = ["symbol", "executedPrice", "executedQuantity", "fee", "side", "timestamp"]
+            async with aiofiles.open(file_path, mode='a+') as file:
+                await file.seek(0)
+                content = await file.read()
+                if not content.strip():  
+                    await file.write(','.join(header) + '\n')
+                row = f"{trade_report['symbol']},{trade_report['executedPrice']},{trade_report['executedQuantity']},{trade_report['fee']},{trade_report['side']},{trade_report['timestamp'],{trade_report['leverage']}}\n"
+                await file.write(row)
+
+        except Exception as e:
+            print(f"Error saving trade data to CSV: {e}")
+
+    async def save_position_data_to_csv(self, position, symbol, timestamp, position_side, file_path):
+        try:
+            header = ["symbol", "holding", "timestamp","position_side"]
+            async with aiofiles.open(file_path, mode='a+') as file:
+                await file.seek(0)
+                content = await file.read()
+                if not content.strip():  
+                    await file.write(','.join(header) + '\n')
+                row = f"{symbol},{position['holding']},{timestamp},{position_side}\n"
+                await file.write(row)
+
+        except Exception as e:
+            print(f"Error saving position data to CSV: {e}")
+     

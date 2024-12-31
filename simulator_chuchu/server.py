@@ -307,7 +307,7 @@ class ExchangeSimulatorServer:
                     for trade_report in trade_reports:
                         data = {
                             "topic": "executionreport",
-                            "ts":int(time.time() * 1000),
+                            "ts": int(time.time() * 1000),
                             "data": trade_report
                         }
                         await self.send_private_data(client_id, data)
