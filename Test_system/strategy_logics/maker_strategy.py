@@ -43,7 +43,8 @@ class MakerStrategy(Strategy):
         self.spread_percentage = trading_params.get('spread_percentage', 0.1)
         self.capital = self.init_capital
         self.cash = self.capital
-        self.position_size = 0.1786
+        self.position_size = 2.8418
+        self.net_position_value = 0.0
         self.position_ratio = 0.0
         print(f"position size: {self.single_position_size}")
 
@@ -88,8 +89,8 @@ class MakerStrategy(Strategy):
             self.best_bid = self.order_book.get('bids')[0][0]
             print(f"best ask: {self.best_ask}, best bid: {self.best_bid}")
             self.adjust_tick_size()
-            self.net_postiion_value = self.position_size * self.mid_price
-            self.capital = abs(self.net_postiion_value) + self.cash
+            self.net_position_value = self.position_size * self.mid_price
+            self.capital = abs(self.net_position_value) + self.cash
             print(f"mid price: {self.mid_price}, ts: {self.time}")
             print(f"spread: {self.order_book.get('asks')[0][0] - self.order_book.get('bids')[0][0]}")
             
