@@ -1,0 +1,8 @@
+trading_params:
+  symbol: "PERP_ETH_USDT"
+  max_position_size: 0.15
+  order_size: 0.015
+  gamma: 0.3
+  sigma: 0.02
+  kappa: 1.5
+  T: 86400
