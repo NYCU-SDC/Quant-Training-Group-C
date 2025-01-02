@@ -55,18 +55,21 @@ class TradingSystem:
         for symbol in symbols:
             for market_channel, is_enabled in config["market"].items():
                 if is_enabled:
-                    channels.append(f"{symbol}-{market_channel}")
+                    channels.append(f"[MD]{symbol}-{market_channel}")
             for private_channel, is_enabled in config["private"].items():
                 if is_enabled:
-                    channels.append(f"{symbol}-{private_channel}")
+                    channels.append(f"[PD]{symbol}-{private_channel}")
         
-        pubsub = await self.strategy_executor.subscribe_to_channels(channels)
-        return asyncio.create_task(self.strategy_executor.listen_to_market_data(pubsub))
+        market_data_pubsub = await self.strategy_executor.subscribe_to_channels(channels)
+        private_data_pubsub = await self.strategy_executor.subscribe_to_channels(["[PD]executionreport", "[PD]position", "[PD]balance"])
+        market_data_task = asyncio.create_task(self.strategy_executor.listen_to_market_data(market_data_pubsub))
+        private_data_task = asyncio.create_task(self.strategy_executor.listen_to_private_data(private_data_pubsub))
+        return market_data_task, private_data_task
 
     async def start_order_executor(self, config):
         await self.order_executor.connect_redis()
         signal_pubsub = await self.order_executor.subscribe_to_signals("order-executor")
-        execution_report_pubsub = await self.order_executor.subscribe_to_private_data("execution-reports")
+        execution_report_pubsub = await self.order_executor.subscribe_to_private_data("[PD]executionreport")
         
         signal_task = asyncio.create_task(self.order_executor.listen_for_signals(signal_pubsub))
         report_task = asyncio.create_task(self.order_executor.listen_for_execution_report(execution_report_pubsub))
@@ -87,7 +90,7 @@ class TradingSystem:
         private_task = await self.start_private_publisher(config["private"])
 
         # Start strategy executor
-        strategy_task = await self.start_strategy_executor(symbols, config)
+        strategy_task1, strategy_task2 = await self.start_strategy_executor(symbols, config)
 
         # Start order executor
         order_signals_task, execution_report_task= await self.start_order_executor(config)
@@ -96,7 +99,8 @@ class TradingSystem:
         await asyncio.gather(
             market_task,
             private_task,
-            strategy_task,
+            strategy_task1,
+            strategy_task2,
             order_signals_task,
             execution_report_task,
         )
@@ -115,8 +119,8 @@ if __name__ == "__main__":
         },
         "private": {
             "executionreport": True,
-            "position": True,
-            "balance": True
+            "position": False,
+            "balance": False
         }
     }
 

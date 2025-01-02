@@ -1,0 +1,10 @@
+2024-12-26 18:04:29,837 - AvellanedaMMv2 - INFO - [AvellanedaMMv2] Initialized. symbol=PERP_ETH_USDT, max_pos=0.15, size=0.015, gamma=0.3, sigma=0.02, kappa=1.5, T=86400
+2024-12-26 18:04:29,837 - AvellanedaMMv2 - INFO - StrategyExecutor - INFO - Added strategy: AvellanedaMMv2
+2024-12-26 18:04:29,849 - AvellanedaMMv2 - INFO - Strategy AvellanedaMMv2 started
+2024-12-26 18:05:50,883 - AvellanedaMMv2 - INFO - Strategy AvellanedaMMv2 stopped
+2024-12-26 18:05:50,884 - AvellanedaMMv2 - INFO - Strategy AvellanedaMMv2 stopped
+2024-12-26 18:30:23,511 - AvellanedaMMv2 - INFO - [AvellanedaMMv2] Initialized. symbol=PERP_ETH_USDT, max_pos=0.15, size=0.015, gamma=0.3, sigma=0.02, kappa=1.5, T=86400
+2024-12-26 18:30:23,511 - AvellanedaMMv2 - INFO - StrategyExecutor - INFO - Added strategy: AvellanedaMMv2
+2024-12-26 18:30:23,520 - AvellanedaMMv2 - INFO - Strategy AvellanedaMMv2 started
+2024-12-26 18:30:49,822 - AvellanedaMMv2 - INFO - Strategy AvellanedaMMv2 stopped
+2024-12-26 18:30:49,824 - AvellanedaMMv2 - INFO - Strategy AvellanedaMMv2 stopped

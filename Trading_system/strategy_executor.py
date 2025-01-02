@@ -38,7 +38,16 @@ class StrategyExecutor:
             if message["type"] == "message":
                 channel = message["channel"].decode("utf-8")
                 data = json.loads(message["data"])
-                print(f"[Strategy Executor] Received data from channel {channel}: {data}")
+                print(f"[Strategy Executor] Received data from channel {channel}")
+                await self.dispatch_to_strategies(channel, data)
+    
+    async def listen_to_private_data(self, pubsub):
+        """Listen for private data and dispatch it to strategies."""
+        print("[Strategy Executor] Listening for private data...")
+        async for message in pubsub.listen():
+            if message["type"] == "message":
+                channel = message["channel"].decode("utf-8")
+                data = json.loads(message["data"])
                 await self.dispatch_to_strategies(channel, data)
 
     async def dispatch_to_strategies(self, channel, data):
@@ -58,7 +67,7 @@ async def main():
     print("[Strategy Executor] Connecting to Redis...")
     await strategy_executor.connect_redis()
     strategy_executor.add_strategy(ExampleStrategy(signal_channel="order-executor"))
-    pubsub = await strategy_executor.subscribe_to_channels(["SPOT_ETH_USDT-orderbook", "SPOT_ETH_USDT-bbo"])
+    pubsub = await strategy_executor.subscribe_to_channels(["[MD]SPOT_ETH_USDT-orderbook", "[MD]SPOT_ETH_USDT-bbo"])
 
     # # Order Executor
     # order_executor = OrderExecutor(redis_url)
@@ -68,6 +77,7 @@ async def main():
     # Run both concurrently
     await asyncio.gather(
         strategy_executor.listen_to_market_data(pubsub),
+        strategy_executor.listen_to_private_data(pubsub),
         # order_executor.listen_for_signals(signal_pubsub),
     )
 

@@ -1,0 +1,26 @@
+trading_params:
+  symbol: "PERP_ETH_USDT"
+  time_interval: 10000
+  tick_size: 0.1
+  limit_quantity_decimals: 4
+  single_position_size: 500
+  init_capital: 24500
+  grid_depth: 1
+  spread_percentage: 0.1
+
+subscription_params:
+  symbol: "PERP_ETH_USDT"
+  market_config:
+    orderbook: True
+    bbo: False
+    trade: False
+    kline: False
+  private_config:
+    executionreport: True
+    position: False
+    balance: False
+  
+risk_params:
+  max_position_size: 0.1
+  stop_loss_pct: 0.05
+  take_profit_pct: 0.30

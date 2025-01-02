@@ -1,0 +1,8 @@
+timeframe: "5m"
+
+trading_params:
+  symbol: "PERP_WOO_USDT"
+  max_records: 100
+  position_size: 1000
+
+# 其他配置

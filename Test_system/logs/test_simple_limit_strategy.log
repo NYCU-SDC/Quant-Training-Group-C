@@ -1,0 +1,27 @@
+2024-12-26 06:02:15,953 - SimpleLimitTestStrategy - INFO - SimpleLimitTestStrategy initialized.
+2024-12-26 06:02:15,953 - SimpleLimitTestStrategy - INFO - StrategyExecutor - INFO - Added strategy: TestLimitStrategy
+2024-12-26 06:02:15,970 - SimpleLimitTestStrategy - INFO - SimpleLimitTestStrategy started.
+2024-12-26 06:02:18,061 - SimpleLimitTestStrategy - INFO - Published signal to trading_signals: {'timestamp': 1735164138056, 'action': 'OPEN', 'position_side': 'LONG', 'order_type': 'LIMIT', 'symbol': 'PERP_BTC_USDT', 'quantity': 0.00012, 'price': 98200.0, 'reduce_only': False, 'margin_mode': 'CROSS'}
+2024-12-26 06:02:18,061 - SimpleLimitTestStrategy - INFO - [SimpleLimitTestStrategy] Sent LIMIT order => side=BUY, position_side=LONG, margin_mode=CROSS, price=98200.0, qty=0.00012
+2024-12-26 06:02:23,065 - SimpleLimitTestStrategy - INFO - Published signal to trading_signals: {'timestamp': 1735164143065, 'action': 'OPEN', 'position_side': 'LONG', 'order_type': 'LIMIT', 'symbol': 'PERP_BTC_USDT', 'quantity': 0.00012, 'price': 98200.0, 'reduce_only': False, 'margin_mode': 'CROSS'}
+2024-12-26 06:02:23,066 - SimpleLimitTestStrategy - INFO - [SimpleLimitTestStrategy] Sent LIMIT order => side=BUY, position_side=LONG, margin_mode=CROSS, price=98200.0, qty=0.00012
+2024-12-26 06:02:24,688 - SimpleLimitTestStrategy - INFO - SimpleLimitTestStrategy stopped.
+2024-12-26 06:02:24,690 - SimpleLimitTestStrategy - INFO - SimpleLimitTestStrategy stopped.
+2024-12-26 06:05:49,602 - SimpleLimitTestStrategy - INFO - SimpleLimitTestStrategy initialized.
+2024-12-26 06:05:49,602 - SimpleLimitTestStrategy - INFO - StrategyExecutor - INFO - Added strategy: TestLimitStrategy
+2024-12-26 06:05:49,617 - SimpleLimitTestStrategy - INFO - SimpleLimitTestStrategy started.
+2024-12-26 06:05:50,249 - SimpleLimitTestStrategy - INFO - Published signal to trading_signals: {'timestamp': 1735164350247, 'action': 'OPEN', 'position_side': 'LONG', 'order_type': 'LIMIT', 'symbol': 'PERP_BTC_USDT', 'quantity': 0.00012, 'price': 98200.0, 'reduce_only': False, 'margin_mode': 'CROSS'}
+2024-12-26 06:05:50,249 - SimpleLimitTestStrategy - INFO - [SimpleLimitTestStrategy] Sent LIMIT order => side=BUY, position_side=LONG, margin_mode=CROSS, price=98200.0, qty=0.00012
+2024-12-26 06:05:56,042 - SimpleLimitTestStrategy - INFO - Published signal to trading_signals: {'timestamp': 1735164356041, 'action': 'OPEN', 'position_side': 'LONG', 'order_type': 'LIMIT', 'symbol': 'PERP_BTC_USDT', 'quantity': 0.00012, 'price': 98200.0, 'reduce_only': False, 'margin_mode': 'CROSS'}
+2024-12-26 06:05:56,042 - SimpleLimitTestStrategy - INFO - [SimpleLimitTestStrategy] Sent LIMIT order => side=BUY, position_side=LONG, margin_mode=CROSS, price=98200.0, qty=0.00012
+2024-12-26 06:05:59,827 - SimpleLimitTestStrategy - INFO - SimpleLimitTestStrategy stopped.
+2024-12-26 06:05:59,828 - SimpleLimitTestStrategy - INFO - SimpleLimitTestStrategy stopped.
+2024-12-26 06:14:54,365 - TestLimitStrategy - INFO - TestLimitStrategy initialized.
+2024-12-26 06:14:54,366 - TestLimitStrategy - INFO - StrategyExecutor - INFO - Added strategy: TestLimitStrategy
+2024-12-26 06:14:54,382 - TestLimitStrategy - INFO - TestLimitStrategy started.
+2024-12-26 06:14:55,065 - TestLimitStrategy - INFO - Published signal to trading_signals: {'timestamp': 1735164895064, 'action': 'OPEN', 'position_side': 'LONG', 'order_type': 'LIMIT', 'symbol': 'PERP_WOO_USDT', 'quantity': 190, 'price': 0.22, 'reduce_only': False, 'margin_mode': 'CROSS'}
+2024-12-26 06:14:55,065 - TestLimitStrategy - INFO - [TestLimitStrategy] Sent LIMIT order => side=BUY, position_side=LONG, margin_mode=CROSS, price=0.22, qty=190
+2024-12-26 06:15:00,127 - TestLimitStrategy - INFO - Published signal to trading_signals: {'timestamp': 1735164900126, 'action': 'OPEN', 'position_side': 'LONG', 'order_type': 'LIMIT', 'symbol': 'PERP_WOO_USDT', 'quantity': 190, 'price': 0.22, 'reduce_only': False, 'margin_mode': 'CROSS'}
+2024-12-26 06:15:00,127 - TestLimitStrategy - INFO - [TestLimitStrategy] Sent LIMIT order => side=BUY, position_side=LONG, margin_mode=CROSS, price=0.22, qty=190
+2024-12-26 06:15:00,841 - TestLimitStrategy - INFO - TestLimitStrategy stopped.
+2024-12-26 06:15:00,842 - TestLimitStrategy - INFO - TestLimitStrategy stopped.
