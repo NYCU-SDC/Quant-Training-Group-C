@@ -1,0 +1,3 @@
+symbol,executedPrice,executedQuantity,fee,side,position_side,timestamp,leverage
+PERP_BTC_USDT,50000,0.1,5,BUY,LONG,1.67E+12,1
+PERP_ETH_USDT,3000,1,3,SELL,SHORT,1.67E+12,1

@@ -104,6 +104,7 @@ class MatchingEngine:
                     "orderId": order_id,
                     "type": order_type,
                     "side": side,
+                    "position_side":position_side,
                     "quantity": quantity,
                     "price": price,
                     "tradeId": order_id,  # assume tradeId  == orderId 
@@ -252,6 +253,7 @@ class MatchingEngine:
                         "orderId": order["order_id"],
                         "type": order["order_type"],
                         "side": side,
+                        "position_side":position_side,
                         "quantity": order["quantity"],
                         "price": order["price"],
                         "tradeId": order["order_id"],  # assume tradeId  == orderId 
@@ -421,6 +423,7 @@ class MatchingEngine:
                         "orderId": order["order_id"],
                         "type": order["order_type"],
                         "side": side,
+                        "position_side":position_side,
                         "quantity": order["quantity"],
                         "price": order["price"],
                         "tradeId": order["order_id"],
@@ -561,6 +564,7 @@ class MatchingEngine:
                     "orderId": order["order_id"],
                     "type": order["order_type"],
                     "side": side,
+                    "position_side":position_side,
                     "quantity": order["quantity"],
                     "price": order["price"],
                     "tradeId": order["order_id"],
@@ -734,13 +738,13 @@ class MatchingEngine:
         
     async def save_trade_data_to_csv(self, trade_report, file_path):
         try:
-            header = ["symbol", "executedPrice", "executedQuantity", "fee", "side", "timestamp"]
+            header = ["symbol", "executedPrice", "executedQuantity", "fee", "side","position_side", "timestamp","leverage"]
             async with aiofiles.open(file_path, mode='a+') as file:
                 await file.seek(0)
                 content = await file.read()
                 if not content.strip():  
                     await file.write(','.join(header) + '\n')
-                row = f"{trade_report['symbol']},{trade_report['executedPrice']},{trade_report['executedQuantity']},{trade_report['fee']},{trade_report['side']},{trade_report['timestamp'],{trade_report['leverage']}}\n"
+                row = f"{trade_report['symbol']},{trade_report['executedPrice']},{trade_report['executedQuantity']},{trade_report['fee']},{trade_report['side']},{trade_report['position_side']},{trade_report['timestamp'],{trade_report['leverage']}}\n"
                 await file.write(row)
 
         except Exception as e:

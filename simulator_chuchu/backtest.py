@@ -65,7 +65,7 @@ class PerformanceAnalyzer:
             # Realized PnL
             symbol_trades['single_trade_pnl'] = (
                 symbol_trades['executedPrice'] * symbol_trades['executedQuantity'] *
-                np.where(symbol_trades['side'] == 'BUY', 1, -1) -
+                np.where(symbol_trades['side'] == 'SELL', 1, -1) -
                 symbol_trades['fee']
             ) * leverage
 
@@ -77,13 +77,13 @@ class PerformanceAnalyzer:
                 avg_short_price = symbol_trades[(symbol_trades['side'] == 'SELL') & (symbol_trades['position_side'] == 'SHORT')]['executedPrice'].mean()
 
                 unrealized_long_pnl = (
-                    (symbol_positions[symbol_positions['position_side'] == 'LONG'].iloc[-1]['mark_price'] - avg_long_price) *
+                    (symbol_positions[symbol_positions['position_side'] == 'LONG'].iloc[-1]['mark_price']) *
                     symbol_positions[symbol_positions['position_side'] == 'LONG'].iloc[-1]['holding'] *
                     leverage
                 ) if not symbol_positions[symbol_positions['position_side'] == 'LONG'].empty else 0
 
                 unrealized_short_pnl = (
-                    (avg_short_price - symbol_positions[symbol_positions['position_side'] == 'SHORT'].iloc[-1]['mark_price']) *
+                    (- symbol_positions[symbol_positions['position_side'] == 'SHORT'].iloc[-1]['mark_price']) *
                     symbol_positions[symbol_positions['position_side'] == 'SHORT'].iloc[-1]['holding'] *
                     leverage
                 ) if not symbol_positions[symbol_positions['position_side'] == 'SHORT'].empty else 0
@@ -107,8 +107,8 @@ class PerformanceAnalyzer:
         returns = total_value.pct_change().dropna()
         
         # Calculate annualized return and volatility
-        annual_return = returns.mean() * (252 * (60 / self.interval_minutes) * 24)
-        annual_volatility = returns.std() * np.sqrt(252 * (60 / self.interval_minutes) * 24)
+        annual_return = returns.mean() * (252 * (60 / self.pnl_interval) * 24)
+        annual_volatility = returns.std() * np.sqrt(252 * (60 / self.pnl_interval) * 24)
         
         # Calculate Sharpe ratio
         if annual_volatility > 0:
@@ -121,8 +121,8 @@ class PerformanceAnalyzer:
     def calculate_calmar_ratio(self, pnl):
         total_value = pnl + self.init_cash_holding 
         returns = total_value.pct_change().dropna()
-        annual_return = returns.mean() * (252 * (60 / self.interval_minutes) * 24)
-        max_drawdown = self._calculate_drawdown(pnl)[0]
+        annual_return = returns.mean() * (252 * (60 / self.pnl_interval) * 24)
+        max_drawdown = self.calculate_drawdown(pnl)[0]
         calmar_ratio = annual_return / abs(max_drawdown) if max_drawdown < 0 else 0
         return calmar_ratio
 
@@ -155,6 +155,7 @@ class PerformanceAnalyzer:
         layout.split_column(
             Layout(name="header"),
             Layout(name="main"),
+            Layout(name="pnl")
         )
 
         # Header
@@ -204,20 +205,22 @@ class PerformanceAnalyzer:
         plt.xlabel('Time')
         plt.ylabel('PnL')
         plt.grid(True)
-        plt.savefig(f'data/pnl_{current_date}.png')
+        plt.savefig(f'result/pnl_{current_date}.png')
         plt.close()
 
     async def run_monitor(self):
         try:
             pnl_task = asyncio.create_task(self.calculate_pnl_loop())
             metrics_task = asyncio.create_task(self.calculate_metrics_loop())
-            
+
             with Live(self.generate_display(), refresh_per_second=1) as live:
                 while True:
                     live.update(self.generate_display())
                     await asyncio.sleep(1)
+            
         except asyncio.CancelledError:
             print("Monitor stopped.")
+
         finally:
             pnl_task.cancel()
             metrics_task.cancel()
@@ -226,11 +229,11 @@ class PerformanceAnalyzer:
 
 async def main():
     analyzer = PerformanceAnalyzer(
-        'path/to/trade_data.csv',
-        'path/to/position_data.csv',
+        'test_trade_data.csv',
+        'test_position_data.csv',
         100000,
         pnl_interval_minutes=1,
-        metrics_interval_minutes=5
+        metrics_interval_minutes=1
     )
     try:
         await analyzer.run_monitor()
