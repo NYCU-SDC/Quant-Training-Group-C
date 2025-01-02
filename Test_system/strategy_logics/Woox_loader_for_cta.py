@@ -38,7 +38,7 @@ class WooXPublicAPI:
             return df
         return None
 
-def fetch_recent_kline_woo(api: WooXPublicAPI, symbol: str, interval: str = "5m", warmup_bars: int = 14):
+def fetch_recent_kline_woo(api: WooXPublicAPI, symbol: str, interval: str = "1m", warmup_bars: int = 14):
     """
     從 "現在(本地 UTC+8)時間" 往前 warmup_bars (多+3根緩衝) 
     取得 "已完成" 的 K 線(避免拿到尚未收盤的bar)。
@@ -50,12 +50,12 @@ def fetch_recent_kline_woo(api: WooXPublicAPI, symbol: str, interval: str = "5m"
     end_utc = now_local.astimezone(pytz.UTC)  # 轉成UTC
 
     # 計算 interval => 幾分鐘
-    minutes_per_bar = 5
+    minutes_per_bar = 1
     if interval.endswith('m'):
         try:
             minutes_per_bar = int(interval[:-1])
         except:
-            minutes_per_bar = 5
+            minutes_per_bar = 1
     elif interval.endswith('h'):
         hours = int(interval[:-1])
         minutes_per_bar = hours * 60
