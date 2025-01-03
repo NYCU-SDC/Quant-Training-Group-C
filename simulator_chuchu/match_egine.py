@@ -31,7 +31,9 @@ class MatchingEngine:
         # save file path
         self.trade_data_file_path = "trade_data.csv"
         self.position_data_file_path = "position_data.csv"
-        self.running = True 
+        self.running = True
+        # initialuze trade_data.csv
+        self.save_trade_data_to_csv_initialization = False 
 
     def generate_order_id(self):
         self.order_id_counter += 1
@@ -750,10 +752,11 @@ class MatchingEngine:
     async def save_trade_data_to_csv(self, trade_report, file_path):
         try:
             header = ["symbol", "executedPrice", "executedQuantity", "fee", "side", "position_side", "timestamp", "leverage"]
-            
+             
             # 初始化文件
-            if not os.path.exists(file_path):
+            if not self.save_trade_data_to_csv_initialization:
                 await self.initialize_file(file_path, header)
+                self.save_trade_data_to_csv_initialization = True
             
             async with aiofiles.open(file_path, mode='a') as file:
                 row = f"{trade_report['symbol']},{trade_report['executedPrice']},{trade_report['executedQuantity']},{trade_report['fee']},{trade_report['side']},{trade_report['position_side']},{trade_report['timestamp']},{trade_report['leverage']}\n"
