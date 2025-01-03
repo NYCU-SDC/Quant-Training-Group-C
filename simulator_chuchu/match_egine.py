@@ -1,9 +1,10 @@
-from time import time
+import time
 import asyncio
 import logging
 import aiofiles
 from concurrent.futures import ThreadPoolExecutor
 from collections import deque
+import os
 
 class MatchingEngine:
     def __init__(self, server):
@@ -21,7 +22,11 @@ class MatchingEngine:
         self.future_maker_fee = 0.0002
         self.lock = asyncio.Lock()
         self.executor = ThreadPoolExecutor()
-        self.logger = logging.getLogger(__name__)
+        logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
+        self.logger = logging.getLogger("MatchingEngine")
 
         # save file path
         self.trade_data_file_path = "trade_data.csv"
@@ -41,7 +46,7 @@ class MatchingEngine:
             order_type = order_data.get("order_type")
             price = order_data.get("order_price",0)
             quantity = order_data.get("order_quantity")
-            amount = order_data.get("order_amount")
+            amount = order_data.get("order_amount",0)
             reduce_only = order_data.get("reduce_only", False)
             visible_quantity = order_data.get("visible_quantity", quantity)
             side = order_data.get("side")
@@ -141,13 +146,14 @@ class MatchingEngine:
         try:
             order_type = order["order_type"]
             client_order_id = order["client_order_id"]
-            self.logger.info(f"Start processing order: {client_order_id}, type: {order_type}") 
+            self.logger.info(f"Start processing order: {client_order_id}, type: {order_type}")
+            
             if order_type in ["MARKET", "ASK", "BID"]:
-                await self.executor.submit(self.match_market_order, order)
+                await self.match_market_order(order)  
             elif order_type in ["LIMIT", "POST_ONLY"]:
-                await self.executor.submit(self.match_limit_order, order)
+                await self.match_limit_order(order)   
             elif order_type in ["IOC", "FOK"]:
-                await self.executor.submit(self.match_ioc_fok_order, order)
+                await self.match_ioc_fok_order(order) 
         except Exception as e:
             self.logger.exception(f"Error processing order: {e}")
 
@@ -159,9 +165,6 @@ class MatchingEngine:
             side = order["side"]
             quantity = order["quantity"]
             position_side = order["position_side"]
-            
-            if symbol not in self.position:
-                self.position[symbol] = 0
             
             if side == "BUY":
                 trades = sorted(self.trade[symbol]["data"], key=lambda x: x["price"], reverse=True)
@@ -243,7 +246,9 @@ class MatchingEngine:
                     total_fees += trading_fees
 
                     # update orders
-                    self.client_orders[order["client_order_id"]] = order
+                    order = self.client_orders.get(client_order_id)
+                    if order is not None:
+                        self.client_orders[order["client_order_id"]] = order
 
                     # trade report
                     trade_report = {
@@ -281,7 +286,7 @@ class MatchingEngine:
                     # update trade report
                     self.trade_reports.append(trade_report)
                     # save data
-                    self.save_trade_data_to_csv(trade_report, self.trade_data_file_path)
+                    await self.save_trade_data_to_csv(trade_report, self.trade_data_file_path)
 
                     filled_quantity = 0
                     filled_amount = 0
@@ -291,9 +296,10 @@ class MatchingEngine:
                 await asyncio.sleep(0)
 
             # remove orders
-            del self.client_orders[order["client_order_id"]]
-
-            self.logger.info(f"Finish matching market order: {client_order_id}")
+            order = self.client_orders.get(client_order_id)
+            if order is not None:
+                del self.client_orders[order["client_order_id"]]
+                self.logger.info(f"Finish matching limit order: {client_order_id}")
 
         except Exception as e:
             self.logger.exception(f"Error matching market order: {e}")
@@ -308,9 +314,6 @@ class MatchingEngine:
             quantity = order["quantity"]
             position_side = order['position_side']
 
-            if symbol not in self.position:
-                self.position[symbol] = 0
-
             remaining_quantity = quantity
             filled_quantity = 0
             filled_amount = 0
@@ -320,7 +323,7 @@ class MatchingEngine:
             is_maker = False
 
             while remaining_quantity > 0:
-                if order["client_order_id"] not in self.client_orders and order not in self.client_orders[order["client_order_id"]]:
+                if order["client_order_id"] not in self.client_orders:
                     self.logger.info(f"Order {client_order_id} canceled or edited, stopping match.")
                     break
                 # Wait for the orderbook to be updated
@@ -328,7 +331,11 @@ class MatchingEngine:
                     await asyncio.sleep(0.1)  # Adjust the sleep time as needed
 
                 # Get the updated order (if edited)
-                order = self.client_orders[client_order_id]
+                order = self.client_orders.get(client_order_id)
+                if order is None:
+                    self.logger.warning(f"Order with client_order_id {client_order_id} not found.")
+                    break
+
                 remaining_quantity = order["quantity"] - order["filled_quantity"]
                 price = order["price"]
 
@@ -413,7 +420,9 @@ class MatchingEngine:
                     total_fees += trading_fees
 
                     # update orders
-                    self.client_orders[order["client_order_id"]] = order
+                    order = self.client_orders.get(client_order_id)
+                    if order is not None:
+                        self.client_orders[order["client_order_id"]] = order
 
                     # trade report
                     trade_report = {
@@ -451,16 +460,17 @@ class MatchingEngine:
                     # update trade report
                     self.trade_reports.append(trade_report)
                     # save data
-                    self.save_trade_data_to_csv(trade_report, self.trade_data_file_path)
+                    await self.save_trade_data_to_csv(trade_report, self.trade_data_file_path)
     
                     filled_quantity = 0
                     filled_amount = 0
                     trading_fees = 0
 
             # remove orders
-            del self.client_orders[order["client_order_id"]]
-
-            self.logger.info(f"Finish matching limit order: {client_order_id}")
+            order = self.client_orders.get(client_order_id)
+            if order is not None:
+                del self.client_orders[order["client_order_id"]]
+                self.logger.info(f"Finish matching limit order: {client_order_id}")
 
         except Exception as e:
             self.logger.exception(f"Error matching limit order: {e}")
@@ -475,9 +485,6 @@ class MatchingEngine:
             quantity = order["quantity"]
             order_type = order["order_type"]
             position_side = order["position_side"]
-
-            if symbol not in self.position:
-                self.position[symbol] = 0
 
             remaining_quantity = quantity
             filled_quantity = 0
@@ -591,12 +598,13 @@ class MatchingEngine:
                 # update trade report
                 self.trade_reports.append(trade_report)
                 # save data
-                self.save_trade_data_to_csv(trade_report, self.trade_data_file_path)
+                await self.save_trade_data_to_csv(trade_report, self.trade_data_file_path)
 
             # remove orders
-            del self.client_orders[order["client_order_id"]]
-
-            self.logger.info(f"Finish matching IOC/FOK order: {client_order_id}")
+            order = self.client_orders.get(client_order_id)
+            if order is not None:
+                del self.client_orders[order["client_order_id"]]
+                self.logger.info(f"Finish matching limit order: {client_order_id}")
 
         except Exception as e:
             self.logger.exception(f"Error matching IOC/FOK order: {e}")
@@ -621,8 +629,8 @@ class MatchingEngine:
                         sub_type = "orderbook"
                         # save raw data
                         self.order_book[symbol] = data
-                    elif "trade" in topic:
-                        sub_type = "trade"
+                    elif "trades" in topic:
+                        sub_type = "trades"
                         # save raw data
                         self.trade[symbol] = data
                     elif "markprice" in topic:
@@ -638,7 +646,7 @@ class MatchingEngine:
             order_id = params.get('order_id')
             symbol = params.get('symbol')
             self.logger.info(f"Cancelling order with id: {order_id}, symbol: {symbol}")
-            for client_id, client_order in self.client_orders.items():
+            for client_id, client_order in list(self.client_orders.items()):
                 if client_order["order_id"] == order_id and client_order["symbol"] == symbol:
                     del self.client_orders[client_id]
                     self.logger.info(f"Order cancelled: {order_id}")
@@ -673,7 +681,7 @@ class MatchingEngine:
             symbol = params.get("symbol")
             self.logger.info(f"Cancelling all orders for symbol: {symbol}")
             client_ids_to_remove = []
-            for client_id, client_order in self.client_orders.items():
+            for client_id, client_order in list(self.client_orders.items()):
                 if client_order["symbol"] == symbol and client_order["status"] == "open":
                     client_ids_to_remove.append(client_id)
             
@@ -689,15 +697,13 @@ class MatchingEngine:
     async def handle_cancel_all_pending_orders(self):
         try:
             self.logger.info("Cancelling all pending orders")
-            for client_id, client_order in self.client_orders.items():
-                del self.client_orders[client_id]
-            
+            self.client_orders.clear()  
             self.logger.info("All pending orders cancelled")
             return {"success": True, "status": "CANCEL_ALL_SENT"}
         except Exception as e:
             self.logger.exception(f"Error cancelling all orders: {e}")
             return {"success": False, "error": str(e)}
-
+        
     async def handle_edit_order_by_client_order_id(self, params):
         try:
             client_order_id = params.get('client_order_id')
@@ -736,15 +742,21 @@ class MatchingEngine:
             self.logger.exception(f"Error editing order by client order id: {e}")
             return {"success": False, "error": str(e)}
         
+    async def initialize_file(self, file_path, header):
+        """清空文件並寫入表頭"""
+        async with aiofiles.open(file_path, mode='w') as file:
+            await file.write(','.join(header) + '\n')
+
     async def save_trade_data_to_csv(self, trade_report, file_path):
         try:
-            header = ["symbol", "executedPrice", "executedQuantity", "fee", "side","position_side", "timestamp","leverage"]
-            async with aiofiles.open(file_path, mode='a+') as file:
-                await file.seek(0)
-                content = await file.read()
-                if not content.strip():  
-                    await file.write(','.join(header) + '\n')
-                row = f"{trade_report['symbol']},{trade_report['executedPrice']},{trade_report['executedQuantity']},{trade_report['fee']},{trade_report['side']},{trade_report['position_side']},{trade_report['timestamp'],{trade_report['leverage']}}\n"
+            header = ["symbol", "executedPrice", "executedQuantity", "fee", "side", "position_side", "timestamp", "leverage"]
+            
+            # 初始化文件
+            if not os.path.exists(file_path):
+                await self.initialize_file(file_path, header)
+            
+            async with aiofiles.open(file_path, mode='a') as file:
+                row = f"{trade_report['symbol']},{trade_report['executedPrice']},{trade_report['executedQuantity']},{trade_report['fee']},{trade_report['side']},{trade_report['position_side']},{trade_report['timestamp']},{trade_report['leverage']}\n"
                 await file.write(row)
 
         except Exception as e:
@@ -753,11 +765,9 @@ class MatchingEngine:
     async def continuously_save_position_and_markprice(self):
         try:
             header = ["symbol", "holding", "position_side", "mark_price", "timestamp"]
-            async with aiofiles.open(self.position_data_file_path, mode='a+') as file:
-                await file.seek(0)
-                content = await file.read()
-                if not content.strip():  
-                    await file.write(','.join(header) + '\n')
+            
+            # 初始化文件
+            await self.initialize_file(self.position_data_file_path, header)
 
             while self.running:
                 async with aiofiles.open(self.position_data_file_path, mode='a') as file:
@@ -774,6 +784,6 @@ class MatchingEngine:
 
         except Exception as e:
             print(f"Error continuously saving position and mark price to CSV: {e}")
-        
+
     async def stop_continuous_saving(self):
         self.running = False

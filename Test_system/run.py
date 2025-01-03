@@ -44,7 +44,8 @@ async def main():
                 api_key=exchange_config['api_key'],
                 api_secret=exchange_config['api_secret'],
                 redis_host=redis_config.get('host', 'localhost'),
-                redis_port=redis_config.get('port', 6379)
+                redis_port=redis_config.get('port', 6379),
+                simulator_mode=True
             )
             # strategy executor
             components['strategy_executor'] = StrategyExecutor(
@@ -54,7 +55,8 @@ async def main():
             components['order_executor'] = OrderExecutor(
                 api_key=exchange_config['api_key'],
                 api_secret=exchange_config['api_secret'],
-                redis_url=f"redis://{redis_config.get('host', 'localhost')}:{redis_config.get('port', 6379)}"
+                redis_url=f"redis://{redis_config.get('host', 'localhost')}:{redis_config.get('port', 6379)}",
+                simulator_mode=True
             )
             
             # 載入 cta_strategy

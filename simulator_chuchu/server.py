@@ -8,6 +8,7 @@ from match_egine import MatchingEngine
 import numpy as np
 from asyncio import Queue
 import time
+import logging
 
 class ExchangeSimulatorServer:
     def __init__(self, host, port, app_id, api_key, api_secret, redis_host, redis_port=6379):
@@ -22,6 +23,11 @@ class ExchangeSimulatorServer:
         self.market_subscriptions = {}
         self.matching_engine = MatchingEngine(self)
         self.message_cache = Queue() 
+        logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
+        self.logger = logging.getLogger("ExchangeSimulatorServer")
         
         self.market_data_url = f"wss://wss.staging.woox.io/ws/stream/{self.app_id}"
         self.market_connection = None
@@ -32,24 +38,24 @@ class ExchangeSimulatorServer:
 
     async def market_connect(self):
         self.market_connection = await websockets.connect(self.market_data_url)
-        print(f"Connected to WooX market data at {self.market_data_url}")
+        self.logger.info(f"Connected to WooX market data at {self.market_data_url}")
     
     def generate_signature(self, data):
         key_bytes = bytes(self.api_secret, 'utf-8')
         data_bytes = bytes(data, 'utf-8')
         return hmac.new(key_bytes, data_bytes, hashlib.sha256).hexdigest()
     
-    async def subscribe_market(self, symbol, sub_type, params):
+    async def subscribe_market(self, symbol, params):
         request = {
             "event": "subscribe",
             "topic": params['topic'],
             "symbol": symbol
         }
-
+        sub_type = params['topic'].split("@")[1]
         if "type" in params:
              request["type"] = params["type"]
         await self.market_connection.send(json.dumps(request))
-        print(f"Subscribed to {sub_type} for {symbol}")
+        self.logger.info(f"Subscribed to {sub_type} for {symbol}")
     
     async def unsubscribe_market(self, symbol, sub_type):
         topic = self.market_subscriptions[symbol]["topic"]
@@ -58,12 +64,12 @@ class ExchangeSimulatorServer:
             "topic": topic,
         }
         await self.market_connection.send(json.dumps(request))
-        print(f"Unsubscribed from {sub_type} for {symbol}")
+        self.logger.info(f"Unsubscribed from {sub_type} for {symbol}")
     
     async def start(self):
         # 使用 route_handler 來處理不同的 URL
         server = await websockets.serve(self.route_handler, self.host, self.port)
-        print(f"Exchange Simulator Server started on {self.host}:{self.port}")
+        self.logger.info(f"Exchange Simulator Server started on {self.host}:{self.port}")
 
         # 啟動其他協程
         self.tasks.append(asyncio.create_task(self.matching_engine.continuously_save_position_and_markprice()))
@@ -73,7 +79,7 @@ class ExchangeSimulatorServer:
         await server.wait_closed()
 
     async def stop(self):
-        print("Stopping Exchange Simulator Server...")
+        self.logger.info("Stopping Exchange Simulator Server...")
         # 停止 MatchingEngine 的持續保存
         await self.matching_engine.stop_continuous_saving()
 
@@ -91,7 +97,7 @@ class ExchangeSimulatorServer:
         for connection in self.private_connections.values():
             await connection.close()
 
-        print("Exchange Simulator Server stopped.")
+        self.logger.info("Exchange Simulator Server stopped.")
 
     async def route_handler(self, websocket, path):
         """根據 URL 路徑路由到不同的處理函數"""
@@ -99,28 +105,25 @@ class ExchangeSimulatorServer:
             # 解析路徑
             path_parts = path.strip('/').split('/')
             
-            if len(path_parts) >= 3:
-                if path_parts[0] == "ws" and path_parts[1] == "stream":
-                    #  /ws/stream/{app_id}
-                    await self.handle_market_connection(websocket, path_parts[2])
-                elif path_parts[0] == "v2" and path_parts[1] == "ws" and \
-                     path_parts[2] == "private" and path_parts[3] == "stream":
-                    #  /v2/ws/private/stream/{app_id}
-                    await self.handle_private_connection(websocket, path_parts[4])
-                elif path_parts[0] == "api":
-                     # /api
-                    await self.handle_api_request(websocket)
-                else:
-                    await websocket.send(json.dumps({"error": "Invalid path"}))
+            if path_parts[0] == "ws" and path_parts[1] == "stream":
+                #  /ws/stream/{app_id}
+                await self.handle_market_connection(websocket, path_parts[2])
+            elif path_parts[0] == "v2" and path_parts[1] == "ws" and \
+                    path_parts[2] == "private" and path_parts[3] == "stream":
+                #  /v2/ws/private/stream/{app_id}
+                await self.handle_private_connection(websocket, path_parts[4])
+            elif path_parts[0] == "api":
+                    # /api
+                await self.handle_api_request(websocket)
             else:
-                await websocket.send(json.dumps({"error": "Invalid URL format"}))
-                
+                await websocket.send(json.dumps({"error": "Invalid path"}))
+
         except Exception as e:
             await websocket.send(json.dumps({"error": str(e)}))
     
     async def handle_market_connection(self, websocket, app_id):
         """處理市場數據連接"""
-        print(f"Market data client connected: {websocket.remote_address}")
+        self.logger.info(f"Market data client connected: {websocket.remote_address}")
         self.market_connections.add(websocket)
         try:
             async for message in websocket:
@@ -133,11 +136,11 @@ class ExchangeSimulatorServer:
             pass
         finally:
             self.market_connections.remove(websocket)
-            print(f"Market data client disconnected: {websocket.remote_address}")
+            self.logger.info(f"Market data client disconnected: {websocket.remote_address}")
     
     async def handle_private_connection(self, websocket, app_id):
         """處理私有數據連接"""
-        print(f"Private data client connected: {websocket.remote_address}")
+        self.logger.info(f"Private data client connected: {websocket.remote_address}")
         try:
             async for message in websocket:
                 data = json.loads(message)
@@ -157,7 +160,7 @@ class ExchangeSimulatorServer:
             pass
         finally:
             del self.private_connections[client_id]
-            print(f"Private data client disconnected: {websocket.remote_address}")
+            self.logger.info(f"Private data client disconnected: {websocket.remote_address}")
     
     async def handle_subscription(self, websocket, data):
         topic = data.get("topic")
@@ -176,7 +179,7 @@ class ExchangeSimulatorServer:
                     params["type"] = "bbo"
             
             self.market_subscriptions[symbol] = params
-            await self.subscribe_market(symbol, sub_type, params)
+            await self.subscribe_market(symbol, params)
             
             response = {
                 "event": "subscribe",
@@ -285,7 +288,7 @@ class ExchangeSimulatorServer:
         return response
     
     async def cancel_all_pending_orders(self, params):
-        response = await self.matching_engine.handle_cancel_all_pending_orders(params)
+        response = await self.matching_engine.handle_cancel_all_pending_orders()
         return response
 
     async def cancel_all_orders(self, params):
@@ -357,58 +360,120 @@ class ExchangeSimulatorServer:
                     await self.send_private_data(client_id, data)
             
             await asyncio.sleep(1)
+
+    async def respond_pong(self, connection):
+        """Responds to server PINGs with a PONG."""
+        if connection and not connection.closed:
+            pong_message = {
+                "event": "pong",
+                "ts": int(time.time() * 1000)
+            }
+            await connection.send(json.dumps(pong_message))
+            # print(f"[{publisher_type} Data Publisher] Sent PONG response")
+    
+    async def handle_ping_pong(self, message, connection, publisher_type="Market"):
+        """Handle ping-pong mechanism"""
+        data = json.loads(message)
+        if data.get("event") == "ping":
+            # print(f"[{publisher_type} Data Publisher] Received PING from server")
+            await self.respond_pong(connection)
     
     async def relay_market_data(self):
-        await self.market_connect()
-
+        max_retries = 5
+        retry_count = 0
+        
         while True:
             try:
-                message = await self.market_connection.recv()
-                data = json.loads(message)
-                topic = data.get("topic")
-                timestamp = data.get("ts")  
-                await self.matching_engine.handle_market_data(data)
+                if self.market_connection and not self.market_connection.closed:
+                    await self.market_connection.close()
+                    
+                await self.market_connect()
+                self.logger.info("Connected to market data stream")
+                retry_count = 0
+                
+                while True:
+                    try:
+                        # Add timeout to detect stale connections
+                        message = await asyncio.wait_for(
+                            self.market_connection.recv(),
+                            timeout=30
+                        )
+                        
+                        data = json.loads(message)
 
-                if topic:
-                    symbol = topic.split("@")[0]
-                    sub_type = None
-                    if "orderbook" in topic:
-                        sub_type = "orderbook"
-                    elif "bbo" in topic:
-                        sub_type = "bbo"
-                    elif "trade" in topic:
-                        sub_type = "trade"
-                    elif "kline" in topic:
-                        sub_type = "kline"
-                    elif "markprice" in topic:
-                        sub_type = "markprice"
-
-                    await self.message_cache.put(
-                        {
-                            "timestamp": timestamp,
-                            "message": message,
-                            "symbol": symbol,
-                            "sub_type": sub_type
-                        }
-                    )
-   
-                    if sub_type == "orderbook":
-                        orderbook_timestamp = timestamp
-                        delay_time = max(0, np.random.normal(loc=35, scale=5)) # 到 echange 的延遲
-                        publish_time = orderbook_timestamp - delay_time     
-                        print(f'orderbook stamp : {orderbook_timestamp}') 
-                        print(f'teoretical : {publish_time}')      
-
-                        await self.process_and_publish(publish_time)
+                        # Handle ping-pong
+                        if data.get("event") == "ping":
+                            await self.handle_ping_pong(message, self.market_connection)
+                        
+                        # # Handle subscription confirmation
+                        # if data.get("event") == "subscribe":
+                        #     self.logger.info(f"Subscription {data.get('success', False) and 'successful' or 'failed'} for {data.get('topic', '')}")
+                        #     return
+                            
+                        topic = data.get("topic")
+                        timestamp = data.get("ts")
+                        
+                        await self.matching_engine.handle_market_data(data)
+                        
+                        if topic:
+                            symbol = topic.split("@")[0]
+                            sub_type = None
+                            
+                            # Determine subscription type
+                            if "orderbook" in topic:
+                                sub_type = "orderbook"
+                            elif "bbo" in topic:
+                                sub_type = "bbo" 
+                            elif "trades" in topic:
+                                sub_type = "trades"
+                            elif "kline" in topic:
+                                sub_type = "kline"
+                            elif "markprice" in topic:
+                                sub_type = "markprice"
+                                
+                            # Cache message
+                            await self.message_cache.put({
+                                "timestamp": timestamp,
+                                "message": message,
+                                "symbol": symbol,
+                                "sub_type": sub_type
+                            })
+                            
+                            # Process orderbook with delay
+                            if sub_type == "orderbook":
+                                delay_time = max(0, np.random.normal(loc=35, scale=5))
+                                publish_time = timestamp - delay_time
+                                await self.process_and_publish(publish_time)
+                                
+                    except asyncio.TimeoutError:
+                        self.logger.warning("No data received for 30s, checking connection...")
+                        if not self.market_connection or self.market_connection.closed:
+                            raise websockets.exceptions.ConnectionClosedError()
+                        continue
+                        
+                    except websockets.exceptions.ConnectionClosedError as e:
+                        retry_count += 1
+                        self.logger.warning(f"Connection closed (retry {retry_count}/{max_retries}): {e}")
+                        if retry_count >= max_retries:
+                            self.logger.error("Max retries reached")
+                            return
+                        break
+                        
+                    except Exception as e:
+                        self.logger.exception(f"Error processing market data: {e}")
+                        continue
+                        
             except Exception as e:
-                print(f"Error relaying market data: {e}")
+                self.logger.error(f"Connection error: {e}")
+                
+            await asyncio.sleep(min(retry_count * 2, 30))  # Exponential backoff
 
     async def process_and_publish(self, publish_time):
         while not self.message_cache.empty():
             cached_message = await self.message_cache.get()
 
             if cached_message["timestamp"] <= publish_time:
-                print(f'cache message timestamp : {cached_message["timestamp"]}')
+                # print(f'cache message timestamp : {cached_message["timestamp"]}')
                 symbol = cached_message["symbol"]
                 sub_type = cached_message["sub_type"]
 

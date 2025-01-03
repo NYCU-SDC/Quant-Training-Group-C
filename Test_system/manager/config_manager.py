@@ -16,7 +16,7 @@ class ConfigManager:
             # Load main config
             main_config_path = self.config_path / "main.yaml"
             if main_config_path.exists():
-                with open(main_config_path, 'r') as f:
+                with open(main_config_path, 'r', encoding='utf-8') as f:
                     self.configs['main'] = yaml.safe_load(f)
                 self.logger.info("Main configuration loaded successfully")
             else:
@@ -47,7 +47,7 @@ class ConfigManager:
             
             if strategy_config_path.exists():
                 for config_file in strategy_config_path.glob("*.yaml"):
-                    with open(config_file, 'r') as f:
+                    with open(config_file, 'r', encoding='utf-8') as f:
                         strategy_name = config_file.stem
                         self.configs['strategies'][strategy_name] = yaml.safe_load(f)
                         self.logger.info(f"Strategy configuration loaded: {strategy_name}")
@@ -94,13 +94,13 @@ class ConfigManager:
 
             # Save main config
             main_config_path = self.config_path / "main.yaml"
-            with open(main_config_path, 'w') as f:
+            with open(main_config_path, 'w', encoding='utf-8') as f:
                 yaml.dump(self.configs['main'], f)
 
             # Save strategy configs
             for strategy_name, config in self.configs['strategies'].items():
                 config_path = self.config_path / "strategies" / f"{strategy_name}.yaml"
-                with open(config_path, 'w') as f:
+                with open(config_path, 'w', encoding='utf-8') as f:
                     yaml.dump(config, f)
 
             self.logger.info("Configurations saved successfully")

@@ -11,15 +11,22 @@ from manager.order_manager import OrderManager, OrderInfo, OrderStatus
 from manager.risk_manager import RiskManager
 from WooX_REST_API_Client import WooX_REST_API_Client
 
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../simulator_chuchu")))
+from api_client import ExchangeSimulatorAPIClient
+
 class OrderExecutor:
     """Order execution manager that handles trading signals and executes orders"""
     
-    def __init__(self, api_key: str, api_secret: str, redis_url: str = "redis://localhost:6379"):
+    def __init__(self, api_key: str, api_secret: str, redis_url: str = "redis://localhost:6379", simulator_mode = False):
         self.redis_url = redis_url
         self.redis_client = None
         
         # Initialize API client
-        self.api = WooX_REST_API_Client(api_key, api_secret)
+        if simulator_mode:
+            self.api = ExchangeSimulatorAPIClient()
+        else:
+            self.api = WooX_REST_API_Client(api_key, api_secret)
         self.last_request_time = 0
         self.request_interval = 0.1
         self.semaphore = asyncio.Semaphore(1)
@@ -144,7 +151,8 @@ class OrderExecutor:
                         'side': side, 
                         'order_type': signal['order_type'],
                         'order_quantity': signal['quantity'],
-                        'reduce_only': signal.get('reduce_only', False)
+                        'reduce_only': signal.get('reduce_only', False),
+                        'position_side':"LONG"
                     }
                     if 'margin_mode' in signal:
                         order_params['margin_mode'] = signal['margin_mode']

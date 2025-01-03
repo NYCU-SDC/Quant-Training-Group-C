@@ -11,8 +11,9 @@ subscription_params:
   market_config:
     orderbook: True
     bbo: False
-    trade: False
+    trade: True
     kline: False
+    markprice: True
   private_config:
     executionreport: True
     position: False

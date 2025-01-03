@@ -14,14 +14,18 @@ from data_processing.BBO import BBO
 # from data_processing.Trade import TradeData
 
 class WooXStagingAPI:
-    def __init__(self, app_id: str, api_key: str, api_secret: str, redis_host: str, redis_port: int = 6379):
+    def __init__(self, app_id: str, api_key: str, api_secret: str, redis_host: str, redis_port: int = 6379, simulator_mode = False):
         self.app_id = app_id
         self.api_key = api_key
         self.api_secret = api_secret
         
-        self.market_data_url = f"wss://wss.staging.woox.io/ws/stream/{self.app_id}"
-        self.private_data_url = f"wss://wss.staging.woox.io/v2/ws/private/stream/{self.app_id}"
-        
+        if simulator_mode:
+            self.market_data_url = f"ws://localhost:8765/ws/stream/{self.app_id}"
+            self.private_data_url = f"ws://localhost:8765/v2/ws/private/stream/{self.app_id}"
+        else:
+            self.market_data_url = f"wss://wss.staging.woox.io/ws/stream/{self.app_id}"
+            self.private_data_url = f"wss://wss.staging.woox.io/v2/ws/private/stream/{self.app_id}"
+            
         self.redis_host = redis_host
         self.redis_port = redis_port
         
@@ -36,6 +40,7 @@ class WooXStagingAPI:
         self.kline_handler = None
         self.symbol = None
         self.interval = None
+        self.simulator_mode = simulator_mode
     
     async def connect_to_redis(self):
         """Connect to Redis Server"""
@@ -197,7 +202,9 @@ class WooXStagingAPI:
             "orderbook": {"topic": f"{symbol}@orderbook", "type": "orderbook"},
             "bbo": {"topic": f"{symbol}@bbo", "type": "bbo"},
             "trade": {"topic": f"{symbol}@trade"},
-            "kline": {"topic": f"{symbol}@kline_{interval}" if config.get("kline") else None}
+            "trades": {"topic": f"{symbol}@trades"},
+            "kline": {"topic": f"{symbol}@kline_{interval}" if config.get("kline") else None},
+            "markprice": {"topic": f"{symbol}@markprice"},
         }
         
         for sub_type, params in subscription_types.items():
@@ -351,7 +358,8 @@ class WooXStagingAPI:
             await self.connect_to_redis()
             
             # Connect and authenticate private stream
-            await self.authenticate()
+            if not self.simulator_mode:
+                await self.authenticate()
             await self.subscribe_private(private_config)
             
             # Connect and subscribe market stream
@@ -408,7 +416,7 @@ async def main():
     api_secret = 'FWQGXZCW4P3V4D4EN4EIBL6KLTDA'
     
     # Initialize API
-    api = WooXStagingAPI(app_id=app_id, api_key=api_key, api_secret=api_secret, redis_host="localhost")
+    api = WooXStagingAPI(app_id=app_id, api_key=api_key, api_secret=api_secret, redis_host="localhost", simulator_mode=True)
     
     # Market data configuration
     symbol = "PERP_BTC_USDT"
@@ -434,10 +442,10 @@ async def main():
     except Exception as e:
         print(f"Program error: {str(e)}")
 
-# if __name__ == "__main__":
-#     try:
-#         asyncio.run(main())
-#     except KeyboardInterrupt:
-#         print("\nProgram terminated by user")
-#     except Exception as e:
-#         print(f"Program error: {str(e)}")
+if __name__ == "__main__":
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print("\nProgram terminated by user")
+    except Exception as e:
+        print(f"Program error: {str(e)}")

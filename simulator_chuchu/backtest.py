@@ -153,8 +153,8 @@ class PerformanceAnalyzer:
     def generate_display(self) -> Layout:
         layout = Layout()
         layout.split_column(
-            Layout(name="header"),
-            Layout(name="main"),
+            Layout(name="header", size = 3),
+            Layout(name="main", size = 8), 
             Layout(name="pnl")
         )
 
@@ -164,7 +164,7 @@ class PerformanceAnalyzer:
         header_table.add_column(f"Performance Monitor - Last Updated: {current_time}")
         layout["header"].update(header_table)
 
-        # Main metrics table
+        # Main metrics table  
         metrics_table = Table(box=box.SIMPLE)
         metrics_table.add_column("Metric")
         metrics_table.add_column("Value")
@@ -174,9 +174,8 @@ class PerformanceAnalyzer:
             metrics_table.add_row("Sharpe Ratio", f"{self.latest_metrics['Sharpe Ratio']:.2f}")
             metrics_table.add_row("Calmar Ratio", f"{self.latest_metrics['Calmar Ratio']:.2f}")
             metrics_table.add_row("Max Drawdown", f"{self.latest_metrics['Max Drawdown']:.2%}")
-            metrics_table.add_row("Max Drawdown Duration", 
+            metrics_table.add_row("Max Drawdown Duration",
                                 f"{self.latest_metrics['Max Drawdown Duration (Minute)']:.0f} min")
-
         layout["main"].update(metrics_table)
 
         # Latest PnL
@@ -188,15 +187,15 @@ class PerformanceAnalyzer:
         layout["pnl"].update(pnl_table)
 
         return layout
-
+    
     def save_pnl_history(self):
         """Save PnL time series and plot"""
         # Save PnL data
         os.makedirs('result', exist_ok=True)
-        current_date = datetime.now().strftime("%Y%m%d")
+        current_datetime = datetime.now().strftime("%Y%m%d_%H%M%S") 
         pnl_df = pd.DataFrame(self.pnl_time_series, columns=['timestamp', 'pnl'])
         pnl_df['timestamp'] = pd.to_datetime(pnl_df['timestamp'], unit='s')
-        pnl_df.to_csv(f'result/pnl_{current_date}.csv', index=False)
+        pnl_df.to_csv(f'result/pnl_{current_datetime}.csv', index=False)
         
         # Plot PnL
         plt.figure(figsize=(12, 6))
@@ -205,7 +204,7 @@ class PerformanceAnalyzer:
         plt.xlabel('Time')
         plt.ylabel('PnL')
         plt.grid(True)
-        plt.savefig(f'result/pnl_{current_date}.png')
+        plt.savefig(f'result/pnl_{current_datetime}.png')
         plt.close()
 
     async def run_monitor(self):
@@ -229,8 +228,8 @@ class PerformanceAnalyzer:
 
 async def main():
     analyzer = PerformanceAnalyzer(
-        'test_trade_data.csv',
-        'test_position_data.csv',
+        'trade_data.csv',
+        'position_data.csv',
         100000,
         pnl_interval_minutes=1,
         metrics_interval_minutes=1
