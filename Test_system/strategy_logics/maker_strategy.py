@@ -42,8 +42,8 @@ class MakerStrategy(Strategy):
         self.grid_depth = trading_params.get('grid_depth', 1)
         self.spread_percentage = trading_params.get('spread_percentage', 0.1)
         self.capital = self.init_capital
-        self.cash = self.capital
-        self.position_size = 2.8418
+        self.cash = 0
+        self.position_size = -3.0735
         self.net_position_value = 0.0
         self.position_ratio = 0.0
         print(f"position size: {self.single_position_size}")
@@ -90,14 +90,17 @@ class MakerStrategy(Strategy):
             print(f"best ask: {self.best_ask}, best bid: {self.best_bid}")
             self.adjust_tick_size()
             self.net_position_value = self.position_size * self.mid_price
-            self.capital = abs(self.net_position_value) + self.cash
+            self.cash = self.capital - abs(self.net_position_value)
             print(f"mid price: {self.mid_price}, ts: {self.time}")
             print(f"spread: {self.order_book.get('asks')[0][0] - self.order_book.get('bids')[0][0]}")
             
             
             for i in range(self.grid_depth):
-                self.ask_price = self.mid_price + (i+1) * self.tick_size 
-                self.bid_price = self.mid_price - (i+1) * self.tick_size 
+                self.ask_price = self.mid_price + (self.grid_depth - i+1) * self.tick_size 
+                self.bid_price = self.mid_price - (self.grid_depth - i+1) * self.tick_size 
+                if i == 0:
+                    self.closest_ask = self.ask_price
+                    self.closest_bid = self.bid_price
                 self.adjust_prices()
                 if self.ask_price > self.mid_price:
                     print("position size: ", self.single_position_size)
@@ -110,7 +113,7 @@ class MakerStrategy(Strategy):
                         position_side=PositionSide.SHORT,
                         order_type=OrderType.POST_ONLY,
                         symbol=self.trading_symbol,
-                        price=round(self.ask_price, 4),
+                        price=round(self.ask_price, 1),
                         quantity=quantity,
                         order_number=self.order_number,
                         reduce_only=False,
@@ -129,7 +132,7 @@ class MakerStrategy(Strategy):
                         position_side=PositionSide.LONG,
                         order_type=OrderType.POST_ONLY,
                         symbol=self.trading_symbol,
-                        price=round(self.bid_price, 4),
+                        price=round(self.bid_price, 1),
                         quantity=quantity,
                         order_number=self.order_number,
                         reduce_only=False,
@@ -137,7 +140,36 @@ class MakerStrategy(Strategy):
                     self.order_number += 1
                     await self.publish_signal(open_long_signal)
                 # sleep 0.1s to avoid sending too many orders
-                # await asyncio.sleep(1)
+                await asyncio.sleep(1.5)
+
+            open_short_signal = SignalData(
+                timestamp=int(time.time() * 1000),
+                target='send_order',
+                action=OrderAction.OPEN,
+                position_side=PositionSide.SHORT,
+                order_type=OrderType.POST_ONLY,
+                symbol=self.trading_symbol,
+                price=round(self.mid_price + 0.3, 1),
+                quantity=0.01,
+                order_number=self.order_number,
+                reduce_only=False,
+            )
+            self.order_number += 1
+            await self.publish_signal(open_short_signal)
+            open_long_signal = SignalData(
+                timestamp=int(time.time() * 1000),
+                target="send_order",
+                action=OrderAction.OPEN,
+                position_side=PositionSide.LONG,
+                order_type=OrderType.POST_ONLY,
+                symbol=self.trading_symbol,
+                price=round(self.mid_price - 0.3, 1),
+                quantity=0.01,
+                order_number=self.order_number,
+                reduce_only=False,
+            )
+            self.order_number += 1
+            await self.publish_signal(open_long_signal)
             
             # self.logger.info(f"Processing orderbook data: {self}")
     def delist_self_orders(self, order_type: str = "ask") -> None:
@@ -158,9 +190,9 @@ class MakerStrategy(Strategy):
 
         # Select top entries based on the order type
         top_entries = (
-            self.order_book["asks"][:self.grid_depth]
+            self.order_book["asks"][:3]
             if order_type == "ask"
-            else self.order_book["bids"][:self.grid_depth]
+            else self.order_book["bids"][:3]
         )
 
         # Process top entries in place
@@ -169,10 +201,12 @@ class MakerStrategy(Strategy):
             if price in delist_requests:
                 # Adjust the quantity or mark for removal
                 quantity -= delist_requests[price]
-                if quantity > 0:
+                if quantity > 0.15:
                     top_entries[i][1] = quantity  # Update in place
                 else:
                     top_entries[i] = None  # Mark for removal
+            elif quantity < 0.13:
+                top_entries[i] = None
 
         # Remove marked entries and update the order book
         top_entries = [entry for entry in top_entries if entry is not None]
@@ -209,17 +243,21 @@ class MakerStrategy(Strategy):
             return None, None
 
         # Adjustment factor for position ratio
-        ask_spread = self.best_ask - self.ask_price
-        bid_spread = self.bid_price - self.best_bid
+        ask_spread = abs(self.best_ask - self.ask_price)
+        bid_spread = abs(self.bid_price - self.best_bid)
+        self.position_ratio = self.net_position_value / self.capital
         # Adjust prices
         if self.position_ratio < 0:
             # Adjust ask price
-            self.ask_price = self.ask_price + ask_spread * self.position_ratio
-            self.bid_price = self.bid_price + self.tick_size * self.position_ratio
+            self.ask_price = self.ask_price + ask_spread * abs(self.position_ratio)
+            self.bid_price = self.bid_price + self.tick_size * abs(self.position_ratio)
+            print(f"Adjusted Ask Price: {self.ask_price}, len: {self.ask_price - self.mid_price}")
+            print(f"mid price: {self.mid_price}")
+            print(f"Adjusted Bid Price: {self.bid_price}, len: {self.bid_price - self.mid_price}")
         elif self.position_ratio > 0:
             # Adjust bid price
-            self.bid_price = self.bid_price - bid_spread * self.position_ratio
-            self.ask_price = self.ask_price - self.tick_size * self.position_ratio
+            self.bid_price = self.bid_price - bid_spread * abs(self.position_ratio)
+            self.ask_price = self.ask_price - self.tick_size * abs(self.position_ratio)
 
         # Ensure bid is below mid_price and ask is above mid_price
         self.bid_price = round(self.bid_price, 1)
