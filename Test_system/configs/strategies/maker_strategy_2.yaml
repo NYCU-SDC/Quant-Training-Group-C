@@ -4,9 +4,9 @@ trading_params:
   tick_size: 0.1
   limit_quantity_decimals: 4
   single_position_size: 500
-  init_capital: 24500
-  grid_depth: 1
-  spread_percentage: 0.1
+  init_capital: 25000
+  grid_depth: 3
+  spread_percentage: 0.2
 
 subscription_params:
   symbol: "PERP_ETH_USDT"
