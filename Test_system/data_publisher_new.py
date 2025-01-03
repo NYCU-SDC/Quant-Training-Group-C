@@ -442,10 +442,10 @@ async def main():
     except Exception as e:
         print(f"Program error: {str(e)}")
 
-if __name__ == "__main__":
-    try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        print("\nProgram terminated by user")
-    except Exception as e:
-        print(f"Program error: {str(e)}")
+# if __name__ == "__main__":
+#     try:
+#         asyncio.run(main())
+#     except KeyboardInterrupt:
+#         print("\nProgram terminated by user")
+#     except Exception as e:
+#         print(f"Program error: {str(e)}")
