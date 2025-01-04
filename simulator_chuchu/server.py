@@ -334,7 +334,7 @@ class ExchangeSimulatorServer:
         while True:
             for client_id, topics in self.private_subscriptions.items():
                 if "executionreport" in topics:
-                    trade_reports = self.matching_engine.get_trade_reports()
+                    trade_reports = await self.matching_engine.get_trade_reports()
                     for trade_report in trade_reports:
                         data = {
                             "topic": "executionreport",
@@ -495,6 +495,8 @@ async def main():
     server = ExchangeSimulatorServer("localhost", 8765, app_id, api_key, api_secret, redis_host="localhost")
 
     try:
+        # 清除 trade data 跟 position
+        await server.matching_engine.clear_folders()
         # 啟動伺服器和其他任務
         await server.start()
     except KeyboardInterrupt:

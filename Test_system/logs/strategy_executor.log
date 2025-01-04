@@ -277,3 +277,120 @@
 2025-01-04 04:15:03,061 - StrategyExecutor - INFO - Market data processing cancelled
 2025-01-04 04:15:03,086 - StrategyExecutor - INFO - Strategy executor cleaned up
 2025-01-04 04:15:03,095 - StrategyExecutor - INFO - Strategy executor cleaned up
+2025-01-04 18:08:35,540 - StrategyExecutor - INFO - Added strategy: MakerStrategy
+2025-01-04 18:08:35,540 - StrategyExecutor - INFO - Added strategy: MakerStrategy
+2025-01-04 18:08:35,573 - StrategyExecutor - INFO - Connected to Redis at redis://localhost:6379
+2025-01-04 18:08:35,589 - StrategyExecutor - INFO - Subscribed to market channels: ['[MD]PERP_ETH_USDT-orderbook', '[MD]PERP_ETH_USDT-trades', '[MD]PERP_ETH_USDT-markprice']
+2025-01-04 18:08:35,591 - StrategyExecutor - INFO - Subscribed to private channels: ['[PD]executionreport']
+2025-01-04 18:09:37,002 - StrategyExecutor - INFO - Private data processing cancelled
+2025-01-04 18:09:37,020 - StrategyExecutor - INFO - Market data processing cancelled
+2025-01-04 18:09:37,028 - StrategyExecutor - INFO - Strategy executor cleaned up
+2025-01-04 18:09:37,033 - StrategyExecutor - INFO - Strategy executor cleaned up
+2025-01-04 18:12:46,400 - StrategyExecutor - INFO - Added strategy: MakerStrategy
+2025-01-04 18:12:46,400 - StrategyExecutor - INFO - Added strategy: MakerStrategy
+2025-01-04 18:12:46,441 - StrategyExecutor - INFO - Connected to Redis at redis://localhost:6379
+2025-01-04 18:12:46,451 - StrategyExecutor - INFO - Subscribed to market channels: ['[MD]PERP_ETH_USDT-orderbook', '[MD]PERP_ETH_USDT-trades', '[MD]PERP_ETH_USDT-markprice']
+2025-01-04 18:12:46,458 - StrategyExecutor - INFO - Subscribed to private channels: ['[PD]executionreport']
+2025-01-04 18:16:43,677 - StrategyExecutor - INFO - Private data processing cancelled
+2025-01-04 18:16:43,677 - StrategyExecutor - INFO - Market data processing cancelled
+2025-01-04 18:16:43,693 - StrategyExecutor - INFO - Strategy executor cleaned up
+2025-01-04 18:16:43,693 - StrategyExecutor - INFO - Strategy executor cleaned up
+2025-01-04 18:19:48,381 - StrategyExecutor - INFO - Added strategy: MakerStrategy
+2025-01-04 18:19:48,381 - StrategyExecutor - INFO - Added strategy: MakerStrategy
+2025-01-04 18:19:48,413 - StrategyExecutor - INFO - Connected to Redis at redis://localhost:6379
+2025-01-04 18:19:48,414 - StrategyExecutor - INFO - Subscribed to market channels: ['[MD]PERP_ETH_USDT-orderbook', '[MD]PERP_ETH_USDT-trades', '[MD]PERP_ETH_USDT-markprice']
+2025-01-04 18:19:48,414 - StrategyExecutor - INFO - Subscribed to private channels: ['[PD]executionreport']
+2025-01-04 18:45:25,812 - StrategyExecutor - INFO - Market data processing cancelled
+2025-01-04 18:45:25,812 - StrategyExecutor - INFO - Private data processing cancelled
+2025-01-04 18:45:25,829 - StrategyExecutor - INFO - Strategy executor cleaned up
+2025-01-04 18:45:25,834 - StrategyExecutor - INFO - Strategy executor cleaned up
+2025-01-04 19:09:28,527 - StrategyExecutor - INFO - Added strategy: MakerStrategy
+2025-01-04 19:09:28,528 - StrategyExecutor - INFO - Added strategy: MakerStrategy
+2025-01-04 19:09:28,550 - StrategyExecutor - INFO - Connected to Redis at redis://localhost:6379
+2025-01-04 19:09:28,561 - StrategyExecutor - INFO - Subscribed to market channels: ['[MD]PERP_ETH_USDT-orderbook', '[MD]PERP_ETH_USDT-trades', '[MD]PERP_ETH_USDT-markprice']
+2025-01-04 19:09:28,564 - StrategyExecutor - INFO - Subscribed to private channels: ['[PD]executionreport']
+2025-01-04 19:18:44,137 - StrategyExecutor - INFO - Private data processing cancelled
+2025-01-04 19:18:44,153 - StrategyExecutor - INFO - Market data processing cancelled
+2025-01-04 19:18:44,170 - StrategyExecutor - INFO - Strategy executor cleaned up
+2025-01-04 19:18:44,178 - StrategyExecutor - INFO - Strategy executor cleaned up
+2025-01-04 19:26:09,590 - StrategyExecutor - INFO - Added strategy: MakerStrategy
+2025-01-04 19:26:09,590 - StrategyExecutor - INFO - Added strategy: MakerStrategy
+2025-01-04 19:26:09,613 - StrategyExecutor - INFO - Connected to Redis at redis://localhost:6379
+2025-01-04 19:26:09,631 - StrategyExecutor - INFO - Subscribed to market channels: ['[MD]PERP_ETH_USDT-orderbook', '[MD]PERP_ETH_USDT-trades', '[MD]PERP_ETH_USDT-markprice']
+2025-01-04 19:26:09,634 - StrategyExecutor - INFO - Subscribed to private channels: ['[PD]executionreport']
+2025-01-04 19:56:35,456 - StrategyExecutor - INFO - Private data processing cancelled
+2025-01-04 19:56:35,456 - StrategyExecutor - INFO - Market data processing cancelled
+2025-01-04 19:56:35,470 - StrategyExecutor - INFO - Strategy executor cleaned up
+2025-01-04 19:56:35,481 - StrategyExecutor - INFO - Strategy executor cleaned up
+2025-01-04 22:06:26,636 - StrategyExecutor - INFO - Added strategy: MakerStrategy
+2025-01-04 22:06:26,636 - StrategyExecutor - INFO - Added strategy: MakerStrategy
+2025-01-04 22:06:26,682 - StrategyExecutor - INFO - Connected to Redis at redis://localhost:6379
+2025-01-04 22:06:26,699 - StrategyExecutor - INFO - Subscribed to market channels: ['[MD]PERP_ETH_USDT-orderbook', '[MD]PERP_ETH_USDT-trades', '[MD]PERP_ETH_USDT-markprice']
+2025-01-04 22:06:26,702 - StrategyExecutor - INFO - Subscribed to private channels: ['[PD]executionreport']
+2025-01-04 22:35:47,858 - StrategyExecutor - INFO - Private data processing cancelled
+2025-01-04 22:35:47,873 - StrategyExecutor - INFO - Market data processing cancelled
+2025-01-04 22:35:47,889 - StrategyExecutor - INFO - Strategy executor cleaned up
+2025-01-04 22:35:47,891 - StrategyExecutor - INFO - Strategy executor cleaned up
+2025-01-04 22:41:10,826 - StrategyExecutor - INFO - Added strategy: MakerStrategy
+2025-01-04 22:41:10,826 - StrategyExecutor - INFO - Added strategy: MakerStrategy
+2025-01-04 22:41:10,849 - StrategyExecutor - INFO - Connected to Redis at redis://localhost:6379
+2025-01-04 22:41:10,866 - StrategyExecutor - INFO - Subscribed to market channels: ['[MD]PERP_ETH_USDT-orderbook', '[MD]PERP_ETH_USDT-trades', '[MD]PERP_ETH_USDT-markprice']
+2025-01-04 22:41:10,868 - StrategyExecutor - INFO - Subscribed to private channels: ['[PD]executionreport']
+2025-01-04 23:05:09,281 - StrategyExecutor - INFO - Private data processing cancelled
+2025-01-04 23:05:09,284 - StrategyExecutor - INFO - Market data processing cancelled
+2025-01-04 23:05:09,348 - StrategyExecutor - INFO - Strategy executor cleaned up
+2025-01-04 23:05:09,360 - StrategyExecutor - INFO - Strategy executor cleaned up
+2025-01-04 23:06:22,764 - StrategyExecutor - INFO - Added strategy: MakerStrategy
+2025-01-04 23:06:22,774 - StrategyExecutor - INFO - Added strategy: MakerStrategy
+2025-01-04 23:06:22,809 - StrategyExecutor - INFO - Connected to Redis at redis://localhost:6379
+2025-01-04 23:06:22,825 - StrategyExecutor - INFO - Subscribed to market channels: ['[MD]PERP_ETH_USDT-orderbook', '[MD]PERP_ETH_USDT-trades', '[MD]PERP_ETH_USDT-markprice']
+2025-01-04 23:06:22,832 - StrategyExecutor - INFO - Subscribed to private channels: ['[PD]executionreport']
+2025-01-04 23:06:59,357 - StrategyExecutor - INFO - Market data processing cancelled
+2025-01-04 23:06:59,357 - StrategyExecutor - INFO - Private data processing cancelled
+2025-01-04 23:06:59,357 - StrategyExecutor - INFO - Strategy executor cleaned up
+2025-01-04 23:06:59,372 - StrategyExecutor - INFO - Strategy executor cleaned up
+2025-01-04 23:07:15,281 - StrategyExecutor - INFO - Added strategy: MakerStrategy
+2025-01-04 23:07:15,281 - StrategyExecutor - INFO - Added strategy: MakerStrategy
+2025-01-04 23:07:15,316 - StrategyExecutor - INFO - Connected to Redis at redis://localhost:6379
+2025-01-04 23:07:15,330 - StrategyExecutor - INFO - Subscribed to market channels: ['[MD]PERP_ETH_USDT-orderbook', '[MD]PERP_ETH_USDT-trades', '[MD]PERP_ETH_USDT-markprice']
+2025-01-04 23:07:15,335 - StrategyExecutor - INFO - Subscribed to private channels: ['[PD]executionreport']
+2025-01-04 23:20:54,997 - StrategyExecutor - INFO - Private data processing cancelled
+2025-01-04 23:20:54,997 - StrategyExecutor - INFO - Market data processing cancelled
+2025-01-04 23:20:55,014 - StrategyExecutor - INFO - Strategy executor cleaned up
+2025-01-04 23:20:55,018 - StrategyExecutor - INFO - Strategy executor cleaned up
+2025-01-04 23:50:00,734 - StrategyExecutor - INFO - Added strategy: MakerStrategy
+2025-01-04 23:50:00,734 - StrategyExecutor - INFO - Added strategy: MakerStrategy
+2025-01-04 23:50:00,768 - StrategyExecutor - INFO - Connected to Redis at redis://localhost:6379
+2025-01-04 23:50:00,780 - StrategyExecutor - INFO - Subscribed to market channels: ['[MD]PERP_ETH_USDT-orderbook', '[MD]PERP_ETH_USDT-trades', '[MD]PERP_ETH_USDT-markprice']
+2025-01-04 23:50:00,783 - StrategyExecutor - INFO - Subscribed to private channels: ['[PD]executionreport']
+2025-01-05 00:15:08,575 - StrategyExecutor - INFO - Market data processing cancelled
+2025-01-05 00:15:08,575 - StrategyExecutor - INFO - Private data processing cancelled
+2025-01-05 00:15:08,600 - StrategyExecutor - INFO - Strategy executor cleaned up
+2025-01-05 00:15:08,609 - StrategyExecutor - INFO - Strategy executor cleaned up
+2025-01-05 01:47:44,377 - StrategyExecutor - INFO - Added strategy: MakerStrategy
+2025-01-05 01:47:44,382 - StrategyExecutor - INFO - Added strategy: MakerStrategy
+2025-01-05 01:47:44,401 - StrategyExecutor - INFO - Connected to Redis at redis://localhost:6379
+2025-01-05 01:47:44,428 - StrategyExecutor - INFO - Subscribed to market channels: ['[MD]PERP_ETH_USDT-orderbook', '[MD]PERP_ETH_USDT-trades', '[MD]PERP_ETH_USDT-markprice']
+2025-01-05 01:47:44,432 - StrategyExecutor - INFO - Subscribed to private channels: ['[PD]executionreport']
+2025-01-05 01:48:09,863 - StrategyExecutor - INFO - Market data processing cancelled
+2025-01-05 01:48:09,863 - StrategyExecutor - INFO - Private data processing cancelled
+2025-01-05 01:48:09,863 - StrategyExecutor - INFO - Strategy executor cleaned up
+2025-01-05 01:48:09,876 - StrategyExecutor - INFO - Strategy executor cleaned up
+2025-01-05 01:50:55,192 - StrategyExecutor - INFO - Added strategy: MakerStrategy
+2025-01-05 01:50:55,192 - StrategyExecutor - INFO - Added strategy: MakerStrategy
+2025-01-05 01:50:55,224 - StrategyExecutor - INFO - Connected to Redis at redis://localhost:6379
+2025-01-05 01:50:55,235 - StrategyExecutor - INFO - Subscribed to market channels: ['[MD]PERP_ETH_USDT-orderbook', '[MD]PERP_ETH_USDT-trades', '[MD]PERP_ETH_USDT-markprice']
+2025-01-05 01:50:55,241 - StrategyExecutor - INFO - Subscribed to private channels: ['[PD]executionreport']
+2025-01-05 01:51:43,922 - StrategyExecutor - INFO - Private data processing cancelled
+2025-01-05 01:51:43,938 - StrategyExecutor - INFO - Market data processing cancelled
+2025-01-05 01:51:43,938 - StrategyExecutor - INFO - Strategy executor cleaned up
+2025-01-05 01:51:43,944 - StrategyExecutor - INFO - Strategy executor cleaned up
+2025-01-05 01:54:42,034 - StrategyExecutor - INFO - Added strategy: MakerStrategy
+2025-01-05 01:54:42,034 - StrategyExecutor - INFO - Added strategy: MakerStrategy
+2025-01-05 01:54:42,063 - StrategyExecutor - INFO - Connected to Redis at redis://localhost:6379
+2025-01-05 01:54:42,063 - StrategyExecutor - INFO - Subscribed to market channels: ['[MD]PERP_ETH_USDT-orderbook', '[MD]PERP_ETH_USDT-trades', '[MD]PERP_ETH_USDT-markprice']
+2025-01-05 01:54:42,075 - StrategyExecutor - INFO - Subscribed to private channels: ['[PD]executionreport']
+2025-01-05 01:55:31,982 - StrategyExecutor - INFO - Private data processing cancelled
+2025-01-05 01:55:31,982 - StrategyExecutor - INFO - Market data processing cancelled
+2025-01-05 01:55:31,982 - StrategyExecutor - INFO - Strategy executor cleaned up
+2025-01-05 01:55:31,982 - StrategyExecutor - INFO - Strategy executor cleaned up

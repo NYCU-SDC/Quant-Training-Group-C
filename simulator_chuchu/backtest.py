@@ -9,24 +9,56 @@ import numpy as np
 import time
 from datetime import datetime
 import os
+import glob
 import matplotlib.pyplot as plt
 
 class PerformanceAnalyzer:
-    def __init__(self, trade_file_path, position_file_path, init_cash_holding, 
+    def __init__(self, trade_data_folder, position_data_folder, init_cash_holding, 
                  pnl_interval_minutes=1, metrics_interval_minutes=5):
-        self.trade_file_path = trade_file_path
-        self.position_file_path = position_file_path
+        self.trade_data_folder = trade_data_folder
+        self.position_data_folder = position_data_folder
         self.init_cash_holding = init_cash_holding
         self.pnl_interval = pnl_interval_minutes
         self.metrics_interval = metrics_interval_minutes
         self.pnl_time_series = []
         self.latest_metrics = {}
         self.console = Console()
+
+    def load_trade_data(self):
+        try:
+            trade_csv_files = glob.glob(f"{self.trade_data_folder}/*.csv")
+            trade_data_list = []
+            for file_path in trade_csv_files:
+                trade_data = pd.read_csv(file_path)
+                trade_data_list.append(trade_data)
+            
+            trade_data = pd.concat(trade_data_list, ignore_index=True)
+            
+            return trade_data
         
+        except Exception as e:
+            print(f"Error loading trade data: {e}")
+            return None
+
+    def load_position_data(self):
+        try:
+            position_csv_files = glob.glob(f"{self.position_data_folder}/*.csv")
+            position_data_list = []
+            for file_path in position_csv_files:
+                position_data = pd.read_csv(file_path)
+                position_data_list.append(position_data)
+            
+            position_data = pd.concat(position_data_list, ignore_index=True)
+            
+            return position_data
+        
+        except Exception as e:
+            print(f"Error loading position data: {e}")
+            return None
 
     def calculate_metrics(self):
         pnl_df = pd.DataFrame(self.pnl_time_series, columns=['timestamp', 'pnl'])
-        pnl_df['timestamp'] = pd.to_datetime(pnl_df['timestamp'], unit='s')
+        pnl_df['timestamp'] = pd.to_datetime(pnl_df['timestamp'])
         pnl_df.set_index('timestamp', inplace=True)
 
         total_return = self.calculate_total_return(pnl_df['pnl'])
@@ -45,11 +77,11 @@ class PerformanceAnalyzer:
 
     def calculate_pnl(self):
 
-        trade_data = pd.read_csv(self.trade_file_path)
-        position_data = pd.read_csv(self.position_file_path)
+        trade_data = self.load_trade_data()
+        position_data = self.load_position_data()
 
-        trade_data['timestamp'] = pd.to_datetime(trade_data['timestamp'], unit='ms')
-        position_data['timestamp'] = pd.to_datetime(position_data['timestamp'], unit='ms')
+        trade_data['timestamp'] = pd.to_datetime(trade_data['timestamp'])
+        position_data['timestamp'] = pd.to_datetime(position_data['timestamp'])
 
         trade_data.set_index('timestamp', inplace=True)
         position_data.set_index('timestamp', inplace=True)
@@ -83,7 +115,7 @@ class PerformanceAnalyzer:
                 ) if not symbol_positions[symbol_positions['position_side'] == 'LONG'].empty else 0
 
                 unrealized_short_pnl = (
-                    (- symbol_positions[symbol_positions['position_side'] == 'SHORT'].iloc[-1]['mark_price']) *
+                    - (symbol_positions[symbol_positions['position_side'] == 'SHORT'].iloc[-1]['mark_price']) *
                     symbol_positions[symbol_positions['position_side'] == 'SHORT'].iloc[-1]['holding'] *
                     leverage
                 ) if not symbol_positions[symbol_positions['position_side'] == 'SHORT'].empty else 0
@@ -95,6 +127,7 @@ class PerformanceAnalyzer:
             pnl_data.append(pnl)
 
         total_pnl = sum(pnl_data)
+
         return total_pnl
 
     def calculate_total_return(self, pnl):
@@ -141,7 +174,7 @@ class PerformanceAnalyzer:
     async def calculate_pnl_loop(self):
         while True:
             current_pnl = self.calculate_pnl()  
-            current_timestamp = int(time.time())
+            current_timestamp = datetime.fromtimestamp(time.time()).strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
             self.pnl_time_series.append((current_timestamp, current_pnl))
             await asyncio.sleep(self.pnl_interval * 60)
 
@@ -194,7 +227,7 @@ class PerformanceAnalyzer:
         os.makedirs('result', exist_ok=True)
         current_datetime = datetime.now().strftime("%Y%m%d_%H%M%S") 
         pnl_df = pd.DataFrame(self.pnl_time_series, columns=['timestamp', 'pnl'])
-        pnl_df['timestamp'] = pd.to_datetime(pnl_df['timestamp'], unit='s')
+        pnl_df['timestamp'] = pd.to_datetime(pnl_df['timestamp'])
         pnl_df.to_csv(f'result/pnl_{current_datetime}.csv', index=False)
         
         # Plot PnL
@@ -228,8 +261,8 @@ class PerformanceAnalyzer:
 
 async def main():
     analyzer = PerformanceAnalyzer(
-        'trade_data.csv',
-        'position_data.csv',
+        'trade_data',
+        'position_data',
         100000,
         pnl_interval_minutes=1,
         metrics_interval_minutes=1

@@ -4,7 +4,9 @@ import logging
 import aiofiles
 from concurrent.futures import ThreadPoolExecutor
 from collections import deque
+from datetime import datetime
 import os
+import glob
 
 class MatchingEngine:
     def __init__(self, server):
@@ -29,11 +31,17 @@ class MatchingEngine:
         self.logger = logging.getLogger("MatchingEngine")
 
         # save file path
-        self.trade_data_file_path = "trade_data.csv"
-        self.position_data_file_path = "position_data.csv"
+        self.trade_data_folder = "trade_data"
+        self.position_data_folder = "position_data"
+        self.max_csv_rows = 1000000  
+        self.trade_csv_counter = 1
+        self.position_csv_counter = 1
         self.running = True
-        # initialuze trade_data.csv
-        self.save_trade_data_to_csv_initialization = False 
+
+        # lock
+        self.lock_client_orders = asyncio.Lock()
+        self.lock_trade_reports = asyncio.Lock()
+        self.lock_position_data = asyncio.Lock()
 
     def generate_order_id(self):
         self.order_id_counter += 1
@@ -41,104 +49,109 @@ class MatchingEngine:
 
     async def handle_order(self, order_data):
         try:
-            symbol = order_data.get("symbol")
-            client_order_id = order_data.get("client_order_id", 0)
-            margin_mode = order_data.get("margin_mode", "CROSS")
-            order_tag = order_data.get("order_tag", "default")
-            order_type = order_data.get("order_type")
-            price = order_data.get("order_price",0)
-            quantity = order_data.get("order_quantity")
-            amount = order_data.get("order_amount",0)
-            reduce_only = order_data.get("reduce_only", False)
-            visible_quantity = order_data.get("visible_quantity", quantity)
-            side = order_data.get("side")
-            position_side = order_data.get("position_side")
+            async with self.lock_client_orders:
+                symbol = order_data.get("symbol")
+                client_order_id = order_data.get("client_order_id", 0)
+                margin_mode = order_data.get("margin_mode", "CROSS")
+                order_tag = order_data.get("order_tag", "default")
+                order_type = order_data.get("order_type")
+                price = order_data.get("order_price",0)
+                quantity = order_data.get("order_quantity")
+                amount = order_data.get("order_amount",0)
+                reduce_only = order_data.get("reduce_only", False)
+                visible_quantity = order_data.get("visible_quantity", quantity)
+                side = order_data.get("side")
+                position_side = order_data.get("position_side")
 
-            if not all([symbol, side, order_type, quantity]):
-                raise ValueError("Missing required parameters.")
-            
-            if symbol and side and order_type:
-                order_id = self.generate_order_id()
-                order = {
-                    "order_id": order_id,
-                    "client_order_id": client_order_id,
-                    "symbol": symbol,
-                    "margin_mode": margin_mode,
-                    "order_tag": order_tag,
-                    "side": side,
-                    "position_side": position_side,
-                    "order_type": order_type,
-                    "price": price,
-                    "quantity": quantity,
-                    "visible_quantity": visible_quantity,
-                    "amount": amount,
-                    "filled_quantity": 0,
-                    "filled_amount": 0,
-                    "status": "open",
-                    "reduce_only": reduce_only
-                }
+                if not all([symbol, side, order_type, quantity]):
+                    raise ValueError("Missing required parameters.")
+                
+                if symbol and side and order_type:
+                    order_id = self.generate_order_id()
+                    order = {
+                        "order_id": order_id,
+                        "client_order_id": client_order_id,
+                        "symbol": symbol,
+                        "margin_mode": margin_mode,
+                        "order_tag": order_tag,
+                        "side": side,
+                        "position_side": position_side,
+                        "order_type": order_type,
+                        "price": price,
+                        "quantity": quantity,
+                        "visible_quantity": visible_quantity,
+                        "amount": amount,
+                        "filled_quantity": 0,
+                        "filled_amount": 0,
+                        "status": "open",
+                        "reduce_only": reduce_only
+                    }
 
-                if symbol not in self.order_book:
-                    self.order_book[symbol] = {"buy": [], "sell": []}
+                    if symbol not in self.order_book:
+                        self.order_book[symbol] = {"buy": [], "sell": []}
 
-                # order confirmation
-                confirmation = {
-                    "success": True,
-                    "order_id": order_id,
-                    "client_order_id": client_order_id,
-                    "symbol": symbol,
-                    "margin_mode": margin_mode,
-                    "order_tag": order_tag,
-                    "order_type": order_type,
-                    "order_price": price,
-                    "order_quantity": quantity,
-                    "order_amount": amount,
-                    "visible_quantity": visible_quantity,
-                    "reduce_only": reduce_only,
-                    "side": side,
-                    "position_side": position_side,
-                    "timestamp": str(time.time())
-                }
+                    # order confirmation
+                    confirmation = {
+                        "success": True,
+                        "order_id": order_id,
+                        "client_order_id": client_order_id,
+                        "symbol": symbol,
+                        "margin_mode": margin_mode,
+                        "order_tag": order_tag,
+                        "order_type": order_type,
+                        "order_price": price,
+                        "order_quantity": quantity,
+                        "order_amount": amount,
+                        "visible_quantity": visible_quantity,
+                        "reduce_only": reduce_only,
+                        "side": side,
+                        "position_side": position_side,
+                        "timestamp": str(time.time())
+                    }
 
-                self.client_orders[client_order_id] = order
-                asyncio.create_task(self.process_order(order))  
+                    self.client_orders[client_order_id] = order
+                    asyncio.create_task(self.process_order(order))  
 
-                # trade report
-                trade_report = {
-                    "msgType": 0,
-                    "symbol": symbol,
-                    "clientOrderId": client_order_id,
-                    "orderId": order_id,
-                    "type": order_type,
-                    "side": side,
-                    "position_side":position_side,
-                    "quantity": quantity,
-                    "price": price,
-                    "tradeId": order_id,  # assume tradeId  == orderId 
-                    "executedPrice": 0,
-                    "executedQuantity": 0,
-                    "fee": 0,
-                    "feeAsset": "",  # 假設沒有手續費資產
-                    "totalExecutedQuantity": 0,
-                    "avgPrice": 0,
-                    "status": "NEW",
-                    "reason": "",
-                    "orderTag": order_tag,
-                    "totalFee":0,  
-                    "feeCurrency": "",  # 假設沒有手續費幣種
-                    "totalRebate": 0,  # 假設沒有回扣
-                    "rebateCurrency": "",  # 假設沒有回扣幣種
-                    "visible": visible_quantity,
-                    "timestamp": int(time.time() * 1000),
-                    "reduceOnly": reduce_only,
-                    "maker": False,  
-                    "leverage": 1,  # 假設沒有槓桿
-                    "marginMode": margin_mode,
-                }
+                    # trade report
+                    trade_report = {
+                        "msgType": 0,
+                        "symbol": symbol,
+                        "clientOrderId": client_order_id,
+                        "orderId": order_id,
+                        "type": order_type,
+                        "side": side,
+                        "position_side":position_side,
+                        "quantity": quantity,
+                        "price": price,
+                        "tradeId": order_id,  # assume tradeId  == orderId 
+                        "executedPrice": 0,
+                        "executedQuantity": 0,
+                        "fee": 0,
+                        "feeAsset": "",  # 假設沒有手續費資產
+                        "totalExecutedQuantity": 0,
+                        "avgPrice": 0,
+                        "status": "NEW",
+                        "reason": "",
+                        "orderTag": order_tag,
+                        "totalFee":0,  
+                        "feeCurrency": "",  # 假設沒有手續費幣種
+                        "totalRebate": 0,  # 假設沒有回扣
+                        "rebateCurrency": "",  # 假設沒有回扣幣種
+                        "visible": visible_quantity,
+                        "timestamp": int(time.time() * 1000),
+                        "reduceOnly": reduce_only,
+                        "maker": False,  
+                        "leverage": 1,  # 假設沒有槓桿
+                        "marginMode": margin_mode,
+                    }
 
-                # update trade report
-                self.trade_reports.append(trade_report)
-                return confirmation
+                    # update trade report
+                    self.trade_reports.append(trade_report)
+                    # save data
+                    await self.save_trade_data_to_csv(trade_report)
+                    await self.save_position_and_markprice_to_csv()
+
+                    return confirmation
 
         except Exception as e:
             self.logger.exception(f"Error handling order: {e}")
@@ -156,6 +169,7 @@ class MatchingEngine:
                 await self.match_limit_order(order)   
             elif order_type in ["IOC", "FOK"]:
                 await self.match_ioc_fok_order(order) 
+
         except Exception as e:
             self.logger.exception(f"Error processing order: {e}")
 
@@ -248,8 +262,8 @@ class MatchingEngine:
                     total_fees += trading_fees
 
                     # update orders
-                    order = self.client_orders.get(client_order_id)
-                    if order is not None:
+                    prev_order = self.client_orders.get(client_order_id)
+                    if prev_order is not None:
                         self.client_orders[order["client_order_id"]] = order
 
                     # trade report
@@ -288,7 +302,8 @@ class MatchingEngine:
                     # update trade report
                     self.trade_reports.append(trade_report)
                     # save data
-                    await self.save_trade_data_to_csv(trade_report, self.trade_data_file_path)
+                    await self.save_trade_data_to_csv(trade_report)
+                    await self.save_position_and_markprice_to_csv()
 
                     filled_quantity = 0
                     filled_amount = 0
@@ -325,12 +340,13 @@ class MatchingEngine:
             is_maker = False
 
             while remaining_quantity > 0:
-                if order["client_order_id"] not in self.client_orders:
-                    self.logger.info(f"Order {client_order_id} canceled or edited, stopping match.")
-                    break
                 # Wait for the orderbook to be updated
                 while self.order_book[symbol].get("ts", 0) == last_orderbook_timestamp:
                     await asyncio.sleep(0.1)  # Adjust the sleep time as needed
+
+                if client_order_id not in self.client_orders:
+                    self.logger.info(f"Order {client_order_id} canceled or edited, stopping match.")
+                    break
 
                 # Get the updated order (if edited)
                 order = self.client_orders.get(client_order_id)
@@ -422,8 +438,8 @@ class MatchingEngine:
                     total_fees += trading_fees
 
                     # update orders
-                    order = self.client_orders.get(client_order_id)
-                    if order is not None:
+                    prev_order = self.client_orders.get(client_order_id)
+                    if prev_order is not None:
                         self.client_orders[order["client_order_id"]] = order
 
                     # trade report
@@ -462,7 +478,8 @@ class MatchingEngine:
                     # update trade report
                     self.trade_reports.append(trade_report)
                     # save data
-                    await self.save_trade_data_to_csv(trade_report, self.trade_data_file_path)
+                    await self.save_trade_data_to_csv(trade_report)
+                    await self.save_position_and_markprice_to_csv()
     
                     filled_quantity = 0
                     filled_amount = 0
@@ -600,7 +617,8 @@ class MatchingEngine:
                 # update trade report
                 self.trade_reports.append(trade_report)
                 # save data
-                await self.save_trade_data_to_csv(trade_report, self.trade_data_file_path)
+                await self.save_trade_data_to_csv(trade_report)
+                await self.save_position_and_markprice_to_csv()
 
             # remove orders
             order = self.client_orders.get(client_order_id)
@@ -611,11 +629,11 @@ class MatchingEngine:
         except Exception as e:
             self.logger.exception(f"Error matching IOC/FOK order: {e}")
 
-
-    def get_trade_reports(self):
-        trade_reports = list(self.trade_reports)
-        self.trade_reports.clear()
-        return trade_reports
+    async def get_trade_reports(self):
+        async with self.lock_trade_reports:  # 加鎖
+            trade_reports = list(self.trade_reports)
+            self.trade_reports.clear()
+            return trade_reports
 
     # update real time orderbook and trade data
     async def handle_market_data(self, data):    
@@ -645,100 +663,109 @@ class MatchingEngine:
 
     async def handle_cancel_order(self, params):
         try:
-            order_id = params.get('order_id')
-            symbol = params.get('symbol')
-            self.logger.info(f"Cancelling order with id: {order_id}, symbol: {symbol}")
-            for client_id, client_order in list(self.client_orders.items()):
-                if client_order["order_id"] == order_id and client_order["symbol"] == symbol:
-                    del self.client_orders[client_id]
-                    self.logger.info(f"Order cancelled: {order_id}")
-                    return {"success": True, "status": "CANCEL_SENT"}
+            async with self.lock_client_orders:
+                order_id = params.get('order_id')
+                symbol = params.get('symbol')
+                self.logger.info(f"Cancelling order with id: {order_id}, symbol: {symbol}")
+                for client_id, client_order in list(self.client_orders.items()):
+                    if client_order["order_id"] == order_id and client_order["symbol"] == symbol:
+                        del self.client_orders[client_id]
+                        self.logger.info(f"Order cancelled: {order_id}")
+                        return {"success": True, "status": "CANCEL_SENT"}
+                
+                self.logger.warning(f"Order not found: {order_id}")
+                return {"success": False, "error": "Order not found"}
             
-            self.logger.warning(f"Order not found: {order_id}")
-            return {"success": False, "error": "Order not found"}
         except Exception as e:
             self.logger.exception(f"Error cancelling order: {e}")
             return {"success": False, "error": str(e)}
 
     async def handle_cancel_order_by_client_order_id(self, params):
         try:
-            client_order_id = params.get('client_order_id')
-            symbol = params.get('symbol')
-            self.logger.info(f"Cancelling order with client order id: {client_order_id}, symbol: {symbol}")
-            if client_order_id in self.client_orders:
-                client_order = self.client_orders[client_order_id]
-                if client_order["symbol"] == symbol:
-                    del self.client_orders[client_order_id]
-                    self.logger.info(f"Order cancelled: {client_order_id}")
-                    return {"success": True, "status": "CANCEL_SENT"}
+            async with self.lock_client_orders:
+                client_order_id = params.get('client_order_id')
+                symbol = params.get('symbol')
+                self.logger.info(f"Cancelling order with client order id: {client_order_id}, symbol: {symbol}")
+                if client_order_id in self.client_orders:
+                    client_order = self.client_orders[client_order_id]
+                    if client_order["symbol"] == symbol:
+                        del self.client_orders[client_order_id]
+                        self.logger.info(f"Order cancelled: {client_order_id}")
+                        return {"success": True, "status": "CANCEL_SENT"}
+                
+                self.logger.warning(f"Order not found: {client_order_id}")
+                return {"success": False, "error": "Order not found"}
             
-            self.logger.warning(f"Order not found: {client_order_id}")
-            return {"success": False, "error": "Order not found"}
         except Exception as e:
             self.logger.exception(f"Error cancelling order by client order id: {e}")
             return {"success": False, "error": str(e)}
 
     async def handle_cancel_orders(self, params):
         try:
-            symbol = params.get("symbol")
-            self.logger.info(f"Cancelling all orders for symbol: {symbol}")
-            client_ids_to_remove = []
-            for client_id, client_order in list(self.client_orders.items()):
-                if client_order["symbol"] == symbol and client_order["status"] == "open":
-                    client_ids_to_remove.append(client_id)
+            async with self.lock_client_orders:
+                symbol = params.get("symbol")
+                self.logger.info(f"Cancelling all orders for symbol: {symbol}")
+                client_ids_to_remove = []
+                for client_id, client_order in list(self.client_orders.items()):
+                    if client_order["symbol"] == symbol and client_order["status"] == "open":
+                        client_ids_to_remove.append(client_id)
+                
+                for client_id in client_ids_to_remove:
+                    del self.client_orders[client_id]
+                
+                self.logger.info(f"All orders cancelled for symbol: {symbol}")
+                return {"success": True, "status": "CANCEL_ALL_SENT"}
             
-            for client_id in client_ids_to_remove:
-                del self.client_orders[client_id]
-            
-            self.logger.info(f"All orders cancelled for symbol: {symbol}")
-            return {"success": True, "status": "CANCEL_ALL_SENT"}
         except Exception as e:
             self.logger.exception(f"Error cancelling orders: {e}")
             return {"success": False, "error": str(e)}
 
     async def handle_cancel_all_pending_orders(self):
         try:
-            self.logger.info("Cancelling all pending orders")
-            self.client_orders.clear()  
-            self.logger.info("All pending orders cancelled")
-            return {"success": True, "status": "CANCEL_ALL_SENT"}
+            async with self.lock_client_orders:
+                self.logger.info("Cancelling all pending orders")
+                self.client_orders.clear()  
+                self.logger.info("All pending orders cancelled")
+                return {"success": True, "status": "CANCEL_ALL_SENT"}
+            
         except Exception as e:
             self.logger.exception(f"Error cancelling all orders: {e}")
             return {"success": False, "error": str(e)}
         
     async def handle_edit_order_by_client_order_id(self, params):
         try:
-            client_order_id = params.get('client_order_id')
-            new_price = params.get('price')
-            new_quantity = params.get('quantity')
-            self.logger.info(f"Editing order with client_order_id: {client_order_id}")
+            async with self.lock_client_orders:
+                client_order_id = params.get('client_order_id')
+                new_price = params.get('price')
+                new_quantity = params.get('quantity')
+                self.logger.info(f"Editing order with client_order_id: {client_order_id}")
 
-            if client_order_id not in self.client_orders:
-                self.logger.warning(f"Order not found: {client_order_id}")
-                return {"success": False, "error": "Order not found"}
+                if client_order_id not in self.client_orders:
+                    self.logger.warning(f"Order not found: {client_order_id}")
+                    return {"success": False, "error": "Order not found"}
 
-            order = self.client_orders[client_order_id]
+                order = self.client_orders[client_order_id]
 
-            # Update price if provided
-            if new_price is not None:
-                order["price"] = float(new_price)
-                self.logger.info(f"Updated price for client_order_id {client_order_id} to {new_price}")
+                # Update price if provided
+                if new_price is not None:
+                    order["price"] = float(new_price)
+                    self.logger.info(f"Updated price for client_order_id {client_order_id} to {new_price}")
 
-            # Update quantity if provided
-            if new_quantity is not None:
-                new_quantity = float(new_quantity)
-                if new_quantity < order["filled_quantity"]:
-                    self.logger.warning(f"New quantity less than filled quantity for client_order_id: {client_order_id}")
-                    return {"success": False, "error": "New quantity cannot be less than filled quantity"}
-                order["quantity"] = new_quantity
-                order["visible_quantity"] = new_quantity - order["filled_quantity"]
-                self.logger.info(f"Updated quantity for client_order_id {client_order_id} to {new_quantity}")
+                # Update quantity if provided
+                if new_quantity is not None:
+                    new_quantity = float(new_quantity)
+                    if new_quantity < order["filled_quantity"]:
+                        self.logger.warning(f"New quantity less than filled quantity for client_order_id: {client_order_id}")
+                        return {"success": False, "error": "New quantity cannot be less than filled quantity"}
+                    order["quantity"] = new_quantity
+                    order["visible_quantity"] = new_quantity - order["filled_quantity"]
+                    self.logger.info(f"Updated quantity for client_order_id {client_order_id} to {new_quantity}")
 
-            # Reflect the edited order back in the order book or client orders
-            self.client_orders[client_order_id] = order
+                # Reflect the edited order back in the order book or client orders
+                self.client_orders[client_order_id] = order
 
-            # Return success response
-            return {"success": True, "status": "EDIT_SENT"}
+                # Return success response
+                return {"success": True, "status": "EDIT_SENT"}
 
         except Exception as e:
             self.logger.exception(f"Error editing order by client order id: {e}")
@@ -749,44 +776,84 @@ class MatchingEngine:
         async with aiofiles.open(file_path, mode='w') as file:
             await file.write(','.join(header) + '\n')
 
-    async def save_trade_data_to_csv(self, trade_report, file_path):
+    async def save_trade_data_to_csv(self, trade_report):
         try:
-            header = ["symbol", "executedPrice", "executedQuantity", "fee", "side", "position_side", "timestamp", "leverage"]
-             
-            # 初始化文件
-            if not self.save_trade_data_to_csv_initialization:
-                await self.initialize_file(file_path, header)
-                self.save_trade_data_to_csv_initialization = True
-            
-            async with aiofiles.open(file_path, mode='a') as file:
-                row = f"{trade_report['symbol']},{trade_report['executedPrice']},{trade_report['executedQuantity']},{trade_report['fee']},{trade_report['side']},{trade_report['position_side']},{trade_report['timestamp']},{trade_report['leverage']}\n"
-                await file.write(row)
+            header = ["timestamp", "symbol", "executedPrice", "executedQuantity", "fee", "side", "position_side", "leverage"]
+
+            current_trade_csv = f"{self.trade_data_folder}/trade_data_{self.trade_csv_counter}.csv"
+            if not os.path.exists(current_trade_csv):
+                os.makedirs(self.trade_data_folder, exist_ok=True)
+                await self.initialize_file(current_trade_csv, header)
+            else:
+                async with aiofiles.open(current_trade_csv, mode='r') as file:
+                    rows = await file.readlines()
+                    if len(rows) >= self.max_csv_rows:
+                        self.trade_csv_counter += 1
+                        current_trade_csv = f"{self.trade_data_folder}/trade_data_{self.trade_csv_counter}.csv"
+                        await self.initialize_file(current_trade_csv, header)
+
+            async with self.lock_trade_reports:
+                async with aiofiles.open(current_trade_csv, mode='a') as file:
+                    row = f"{datetime.fromtimestamp(trade_report['timestamp']/1000).strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]},{trade_report['symbol']},{trade_report['executedPrice']},{trade_report['executedQuantity']},{trade_report['fee']},{trade_report['side']},{trade_report['position_side']},{trade_report['leverage']}\n"
+                    await file.write(row)
 
         except Exception as e:
-            print(f"Error saving trade data to CSV: {e}")
+            self.logger.exception(f"Error saving trade data to CSV: {e}")
 
-    async def continuously_save_position_and_markprice(self):
+    async def save_position_and_markprice_to_csv(self):
         try:
-            header = ["symbol", "holding", "position_side", "mark_price", "timestamp"]
-            
-            # 初始化文件
-            await self.initialize_file(self.position_data_file_path, header)
+            async with self.lock_position_data:
+                current_timestamp = datetime.fromtimestamp(time.time()).strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
 
-            while self.running:
-                async with aiofiles.open(self.position_data_file_path, mode='a') as file:
-                    current_timestamp = int(time.time() * 1000)
-                    
-                    # 遍歷 position 和 mark price 數據
+                # 檢查當前 CSV 文件的行數是否超過最大值
+                current_position_csv = f"{self.position_data_folder}/position_data_{self.position_csv_counter}.csv"
+                if not os.path.exists(current_position_csv):
+                    os.makedirs(self.position_data_folder, exist_ok=True)
+                    header = ["timestamp", "symbol", "holding", "position_side", "mark_price"]
+                    await self.initialize_file(current_position_csv, header)
+                else:
+                    async with aiofiles.open(current_position_csv, mode='r') as file:
+                        rows = await file.readlines()
+                        if len(rows) >= self.max_csv_rows:
+                            self.position_csv_counter += 1
+                            current_position_csv = f"{self.position_data_folder}/position_data_{self.position_csv_counter}.csv"
+                            header = ["timestamp", "symbol", "holding", "position_side", "mark_price"]
+                            await self.initialize_file(current_position_csv, header)
+
+                async with aiofiles.open(current_position_csv, mode='a') as file:
                     for position_side, positions in self.position.items():
                         for symbol, holding in positions.items():
                             mark_price = self.markprice.get(symbol, {}).get("price", None)
-                            row = f"{symbol},{holding},{position_side},{mark_price},{current_timestamp}\n"
+                            row = f"{current_timestamp},{symbol},{holding},{position_side},{mark_price}\n"
                             await file.write(row)
 
-                await asyncio.sleep(1)  
-
         except Exception as e:
-            print(f"Error continuously saving position and mark price to CSV: {e}")
+            self.logger.exception(f"Error saving position and mark price to CSV: {e}")
+
+    async def continuously_save_position_and_markprice(self):
+        while self.running:
+            await self.save_position_and_markprice_to_csv()
+            await asyncio.sleep(1)
 
     async def stop_continuous_saving(self):
         self.running = False
+
+    async def clear_folders(self):
+        try:
+            # 清空 trade_data 資料夾中的所有 CSV 文件
+            trade_csv_files = glob.glob(f"{self.trade_data_folder}/*.csv")
+            for file_path in trade_csv_files:
+                os.remove(file_path)
+            
+            # 清空 position_data 資料夾中的所有 CSV 文件
+            position_csv_files = glob.glob(f"{self.position_data_folder}/*.csv")
+            for file_path in position_csv_files:
+                os.remove(file_path)
+  
+            self.trade_csv_counter = 1
+            self.position_csv_counter = 1
+            
+            self.logger.info("CSV folders cleared successfully.")
+        
+        except Exception as e:
+            self.logger.exception(f"Error clearing CSV folders: {e}")
