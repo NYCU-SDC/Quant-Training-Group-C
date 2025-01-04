@@ -1,11 +1,11 @@
 trading_params:
   symbol: "PERP_ETH_USDT"
-  time_interval: 10000
+  time_interval: 20000
   tick_size: 0.1
   limit_quantity_decimals: 4
   single_position_size: 500
   init_capital: 25000
-  grid_depth: 3
+  grid_depth: 5
   spread_percentage: 0.2
 
 subscription_params:
