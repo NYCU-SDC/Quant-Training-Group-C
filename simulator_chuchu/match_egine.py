@@ -61,7 +61,7 @@ class MatchingEngine:
                 reduce_only = order_data.get("reduce_only", False)
                 visible_quantity = order_data.get("visible_quantity", quantity)
                 side = order_data.get("side")
-                position_side = order_data.get("position_side")
+                position_side = order_data.get("position_side","LONG")
 
                 if not all([symbol, side, order_type, quantity]):
                     raise ValueError("Missing required parameters.")
@@ -174,18 +174,21 @@ class MatchingEngine:
             self.logger.exception(f"Error processing order: {e}")
 
     async def match_market_order(self, order):
+        # NOTE : trade data keys interpretation
+        # message received : {'s': 'PERP_BTC_USDT', 'p': 101353, 'a': 0.183, 'b': 'SELL', 'c': 0}
+        # websocket document theoretical structure : {'symbol': 'PERP_BTC_USDT', 'price': 101353, 'size': 0.183, 'side': 'SELL', 'unknown': 0}
         try:
             client_order_id = order["client_order_id"]
             self.logger.info(f"Start matching market order: {client_order_id}")
             symbol = order["symbol"]
             side = order["side"]
             quantity = order["quantity"]
-            position_side = order["position_side"]
+            position_side = order.get("position_side","LONG")
             
             if side == "BUY":
-                trades = sorted(self.trade[symbol]["data"], key=lambda x: x["price"], reverse=True)
+                trades = sorted(self.trade[symbol]["data"], key=lambda x: x["p"], reverse=True)
             else:
-                trades = sorted(self.trade[symbol]["data"], key=lambda x: x["price"])
+                trades = sorted(self.trade[symbol]["data"], key=lambda x: x["p"])
             
             remaining_quantity = quantity
             filled_quantity = 0
@@ -199,22 +202,34 @@ class MatchingEngine:
                 while self.trade[symbol].get("ts", 0) == last_trade_timestamp:
                     await asyncio.sleep(0.1)  # Adjust the sleep time as needed
 
+                if client_order_id not in self.client_orders:
+                    self.logger.info(f"Order {client_order_id} canceled or edited, stopping match.")
+                    break
+
+                # Get the updated order (if edited)
+                order = self.client_orders.get(client_order_id)
+                if order is None:
+                    self.logger.warning(f"Order with client_order_id {client_order_id} not found.")
+                    break
+
+                remaining_quantity = order["quantity"] - order["filled_quantity"]
+
                 # Update the last_trade_timestamp
                 last_trade_timestamp = self.trade[symbol].get("ts", 0) 
 
                 for trade in trades:       
-                    if side == "BUY" and trade["side"] == "BUY":
-                        trade_price = trade["price"]
-                        trade_size = min(remaining_quantity, trade["size"])
+                    if side == "BUY" and trade["b"] == "BUY":
+                        trade_price = trade["p"]
+                        trade_size = min(remaining_quantity, trade["a"])
                         trade_amount = trade_price * trade_size
                         
                         filled_quantity += trade_size
                         filled_amount += trade_amount
                         remaining_quantity -= trade_size
                     
-                    elif side == "SELL" and trade["side"] == "SELL":
-                        trade_price = trade["price"]
-                        trade_size = min(remaining_quantity, trade["size"])
+                    elif side == "SELL" and trade["b"] == "SELL":
+                        trade_price = trade["p"]
+                        trade_size = min(remaining_quantity, trade["a"])
                         trade_amount = trade_price * trade_size
                         
                         filled_quantity += trade_size
@@ -316,7 +331,7 @@ class MatchingEngine:
             order = self.client_orders.get(client_order_id)
             if order is not None:
                 del self.client_orders[order["client_order_id"]]
-                self.logger.info(f"Finish matching limit order: {client_order_id}")
+                self.logger.info(f"Finish matching market order: {client_order_id}")
 
         except Exception as e:
             self.logger.exception(f"Error matching market order: {e}")
@@ -329,7 +344,7 @@ class MatchingEngine:
             side = order["side"]
             price = order["price"]
             quantity = order["quantity"]
-            position_side = order['position_side']
+            position_side = order.get("position_side","LONG")
 
             remaining_quantity = quantity
             filled_quantity = 0
@@ -503,7 +518,7 @@ class MatchingEngine:
             price = order["price"]
             quantity = order["quantity"]
             order_type = order["order_type"]
-            position_side = order["position_side"]
+            position_side = order.get("position_side","LONG")
 
             remaining_quantity = quantity
             filled_quantity = 0
@@ -649,10 +664,12 @@ class MatchingEngine:
                         sub_type = "orderbook"
                         # save raw data
                         self.order_book[symbol] = data
+
                     elif "trades" in topic:
                         sub_type = "trades"
                         # save raw data
                         self.trade[symbol] = data
+
                     elif "markprice" in topic:
                         sub_type = "markprice"
                         # save raw data

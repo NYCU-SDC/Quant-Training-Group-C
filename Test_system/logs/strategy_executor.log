@@ -399,3 +399,7 @@
 2025-01-05 02:01:10,056 - StrategyExecutor - INFO - Connected to Redis at redis://localhost:6379
 2025-01-05 02:01:10,065 - StrategyExecutor - INFO - Subscribed to market channels: ['[MD]PERP_ETH_USDT-orderbook', '[MD]PERP_ETH_USDT-trades', '[MD]PERP_ETH_USDT-markprice']
 2025-01-05 02:01:10,072 - StrategyExecutor - INFO - Subscribed to private channels: ['[PD]executionreport']
+2025-01-05 03:13:44,748 - StrategyExecutor - INFO - Private data processing cancelled
+2025-01-05 03:13:44,748 - StrategyExecutor - INFO - Market data processing cancelled
+2025-01-05 03:13:44,767 - StrategyExecutor - INFO - Strategy executor cleaned up
+2025-01-05 03:13:44,770 - StrategyExecutor - INFO - Strategy executor cleaned up

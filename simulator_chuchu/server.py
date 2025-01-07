@@ -36,6 +36,9 @@ class ExchangeSimulatorServer:
         self.private_connections = {}
         self.tasks = []
 
+        # relay market data running
+        self.relay_market_data_running = True
+
     async def market_connect(self):
         self.market_connection = await websockets.connect(self.market_data_url)
         self.logger.info(f"Connected to WooX market data at {self.market_data_url}")
@@ -72,30 +75,45 @@ class ExchangeSimulatorServer:
         self.logger.info(f"Exchange Simulator Server started on {self.host}:{self.port}")
 
         # 啟動其他協程
-        self.tasks.append(asyncio.create_task(self.matching_engine.continuously_save_position_and_markprice()))
-        self.tasks.append(asyncio.create_task(self.generate_private_data()))
-        self.tasks.append(asyncio.create_task(self.relay_market_data()))
+        self.tasks.append(asyncio.create_task(self.matching_engine.continuously_save_position_and_markprice(), name="continuously_save_position_and_markprice"))
+        self.tasks.append(asyncio.create_task(self.generate_private_data(), name="generate_private_data"))
+        self.tasks.append(asyncio.create_task(self.relay_market_data(), name="relay_market_data"))
 
         await server.wait_closed()
+
+    async def stop_tasks(self):
+        tasks = [t for t in asyncio.all_tasks() if t is not asyncio.current_task()]
+        for task in tasks:
+            task.cancel()
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        for task, result in zip(tasks, results):
+            if isinstance(result, asyncio.CancelledError):
+                self.logger.info(f"Task '{task.get_name()}' cancelled")
+            elif isinstance(result, Exception):
+                self.logger.error(f"Task '{task.get_name()}' failed with error: {result}")
+            else:
+                self.logger.info(f"Task '{task.get_name()}' completed successfully")
 
     async def stop(self):
         self.logger.info("Stopping Exchange Simulator Server...")
         # 停止 MatchingEngine 的持續保存
         await self.matching_engine.stop_continuous_saving()
+        self.relay_market_data_running = False
 
-        # 取消所有啟動的協程
-        for task in self.tasks:
-            task.cancel()
-            try:
-                await task
-            except asyncio.CancelledError:
-                pass
-        
         # 關閉所有 WebSocket 連接
         for connection in self.market_connections:
-            await connection.close()
+            try:
+                await connection.close()
+            except Exception as e:
+                self.logger.warning(f"Failed to close market WebSocket connection: {e}")
         for connection in self.private_connections.values():
-            await connection.close()
+            try:
+                await connection.close()
+            except Exception as e:
+                self.logger.warning(f"Failed to close private WebSocket connection: {e}")
+
+        # 停止所有任務
+        await self.stop_tasks()
 
         self.logger.info("Exchange Simulator Server stopped.")
 
@@ -382,7 +400,7 @@ class ExchangeSimulatorServer:
         max_retries = 5
         retry_count = 0
         
-        while True:
+        while self.relay_market_data_running:
             try:
                 if self.market_connection and not self.market_connection.closed:
                     await self.market_connection.close()
@@ -391,7 +409,7 @@ class ExchangeSimulatorServer:
                 self.logger.info("Connected to market data stream")
                 retry_count = 0
                 
-                while True:
+                while self.relay_market_data_running:
                     try:
                         # Add timeout to detect stale connections
                         message = await asyncio.wait_for(
@@ -466,7 +484,7 @@ class ExchangeSimulatorServer:
             except Exception as e:
                 self.logger.error(f"Connection error: {e}")
                 
-            await asyncio.sleep(min(retry_count * 2, 30))  # Exponential backoff
+        self.logger.info("Market data processing cancelled")
 
     async def process_and_publish(self, publish_time):
         while not self.message_cache.empty():
@@ -493,15 +511,30 @@ async def main():
     api_secret = 'FWQGXZCW4P3V4D4EN4EIBL6KLTDA'
 
     server = ExchangeSimulatorServer("localhost", 8765, app_id, api_key, api_secret, redis_host="localhost")
-
     try:
-        # 清除 trade data 跟 position
-        await server.matching_engine.clear_folders()
-        # 啟動伺服器和其他任務
+        await server.matching_engine.clear_folders()  # 清除 trade data 和 position
         await server.start()
-    except KeyboardInterrupt:
-        print("KeyboardInterrupt detected. Stopping server...")
+    except asyncio.CancelledError:
+        server.logger.info("Server tasks were cancelled.")
+    except Exception as e:
+        server.logger.error(f"An error occurred: {e}")
+    finally:
         await server.stop()
+        server.logger.info("Server shutdown complete.")
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    try:
+        loop.run_until_complete(main())
+    except KeyboardInterrupt:
+        print("KeyboardInterrupt detected. Exiting gracefully...")
+    finally:
+        tasks = [t for t in asyncio.all_tasks(loop) if not t.done()]
+        for task in tasks:
+            task.cancel()
+            try:
+                loop.run_until_complete(task)
+            except asyncio.CancelledError:
+                pass
+        loop.close()
