@@ -344,7 +344,7 @@ class WooXStagingAPI:
         except Exception as e:
             print(f"[Private Data Publisher] Error: {e}")
     
-    async def start(self, symbol: str, market_config: dict, private_config: dict, interval: str = '1m'):
+    async def start(self, symbol: str, market_config: dict, private_config: dict, interval: str='1m' ):
         """Start both market and private data streams with proper cleanup"""
         try:
             # Connect to Redis
@@ -411,7 +411,7 @@ async def main():
     api = WooXStagingAPI(app_id=app_id, api_key=api_key, api_secret=api_secret, redis_host="localhost")
     
     # Market data configuration
-    symbol = "PERP_BTC_USDT"
+    symbol = "PERP_ETH_USDT"
     interval = "1m"
     market_config = {
         "orderbook": False,

@@ -3,7 +3,7 @@ import logging
 import asyncio
 from typing import Dict, List, Optional
 from redis import asyncio as aioredis
-from strategy_logics.cta_strategy import ExampleStrategy
+from strategy_logics.cta_strategy import CTAStrategy
 from manager.config_manager import ConfigManager
 from manager.risk_manager import RiskManager
 
@@ -25,7 +25,8 @@ class StrategyExecutor:
         # 避免重複新增 handler
         if not self.logger.handlers:
             handler = logging.StreamHandler()
-            handler.setFormatter(...)
+            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            handler.setFormatter(formatter)
             self.logger.addHandler(handler)
         self.logger.setLevel(logging.INFO)
 
@@ -53,13 +54,16 @@ class StrategyExecutor:
             if strategy_name not in self.strategies:
                 strategy_config = config or self.config_manager.get_strategy_config(strategy_name)
                 
-                # 使用正確的參數創建策略實例
+                # 從 strategy_config 讀取 channels
+                channel_cfg = strategy_config.get('channels', {})
+                assigned_signal_channel = channel_cfg.get('signal_channel', 'trading_signals')
+
                 strategy_instance = strategy_class(
-                    signal_channel=self.config.get('signal_channel', 'trading_signals'),
+                    signal_channel=assigned_signal_channel,
                     config=strategy_config
                 )
                 self.strategies[strategy_name] = strategy_instance
-                self.logger.info(f"Added strategy: {strategy_name}")
+                self.logger.info(f"Added strategy: {strategy_name}, signal_channel={assigned_signal_channel}")
             else:
                 self.logger.warning(f"Strategy {strategy_name} already exists")
         except Exception as e:
@@ -211,11 +215,11 @@ async def main():
         
         executor = StrategyExecutor(redis_url=config['redis']['url'], config=config)
         
-        symbol = 'PERP_BTC_USDT'
+        symbol = 'PERP_ETH_USDT'
         
         # 添加策略實例
         await executor.add_strategy(
-            strategy_class=ExampleStrategy,
+            strategy_class=CTAStrategy,
             config={
                 'max_records': 500,
                 'trading_params': {
@@ -231,8 +235,8 @@ async def main():
         
         # 修改訂閱的頻道，使用完整的頻道名稱
         market_channels = [
-            f'{symbol}-kline_1m',
-            f'{symbol}-processed-kline_1m'  # 添加處理過的K線頻道
+            f'{symbol}-kline_5m',
+            f'{symbol}-processed-kline_5m'  # 添加處理過的K線頻道
         ]
         private_channels = ['executionreport', 'position']
         
