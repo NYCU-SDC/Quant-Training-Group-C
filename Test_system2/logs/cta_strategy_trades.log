@@ -168,3 +168,37 @@
 2025-01-07 19:30:00,115 - CTAStrategy - INFO - execute => channel=[MD]PERP_BTC_USDT-processed-kline_1m, new kline => generating signals
 2025-01-07 19:31:00,222 - CTAStrategy - INFO - execute => channel=[MD]PERP_BTC_USDT-processed-kline_1m, new kline => generating signals
 2025-01-07 20:21:28,272 - CTAStrategy - INFO - Strategy stopped: CTAStrategy
+2025-01-08 05:07:08,760 - CTAStrategy - INFO - CTA Strategy initialization start
+2025-01-08 05:07:09,583 - CTAStrategy - INFO - Warmup loaded 16 bars for PERP_BTC_USDT, df shape=(16, 10)
+2025-01-08 05:07:09,583 - CTAStrategy - INFO - CTA Strategy init done.
+2025-01-08 05:07:09,632 - CTAStrategy - INFO - Strategy started: CTAStrategy
+2025-01-08 05:08:01,122 - CTAStrategy - INFO - execute => channel=[MD]PERP_BTC_USDT-processed-kline_1m, new kline => generating signals
+2025-01-08 05:08:01,135 - CTAStrategy - INFO - [CTA] => old_pos=0 => up->down => OPEN SHORT
+2025-01-08 05:08:01,136 - CTAStrategy - INFO - [CTA] => Publish single-side OPEN SHORT => {'timestamp': 1736284081136, 'action': 'OPEN', 'side': 'SELL', 'order_type': 'MARKET', 'symbol': 'PERP_BTC_USDT', 'quantity': 0.001, 'client_order_id': 'OPEN_SHORT_1736284081136'}
+2025-01-08 05:08:01,142 - CTAStrategy - INFO - [CTA] => Called open_short => client_id=OPEN_SHORT_1736284081136
+2025-01-08 05:09:00,258 - CTAStrategy - INFO - execute => channel=[MD]PERP_BTC_USDT-processed-kline_1m, new kline => generating signals
+2025-01-08 05:10:00,164 - CTAStrategy - INFO - execute => channel=[MD]PERP_BTC_USDT-processed-kline_1m, new kline => generating signals
+2025-01-08 05:11:01,078 - CTAStrategy - INFO - execute => channel=[MD]PERP_BTC_USDT-processed-kline_1m, new kline => generating signals
+2025-01-08 05:11:01,090 - CTAStrategy - INFO - [CTA] => old_pos=-1 => direction down->up => FLIP to LONG
+2025-01-08 05:11:01,091 - CTAStrategy - INFO - [CTA] => Publish single-side CLOSE SHORT => {'timestamp': 1736284261091, 'action': 'CLOSE', 'side': 'BUY', 'order_type': 'MARKET', 'symbol': 'PERP_BTC_USDT', 'quantity': 0.001, 'reduce_only': True, 'client_order_id': 'CLOSE_SHORT_1736284261091'}, reason=Flip from SHORT to LONG
+2025-01-08 05:11:01,093 - CTAStrategy - INFO - [CTA] => Called close_position => SHORT, reason=Flip from SHORT to LONG, client_id=CLOSE_SHORT_1736284261091
+2025-01-08 05:11:01,094 - CTAStrategy - INFO - [CTA] => Publish single-side OPEN LONG => {'timestamp': 1736284261094, 'action': 'OPEN', 'side': 'BUY', 'order_type': 'MARKET', 'symbol': 'PERP_BTC_USDT', 'quantity': 0.001, 'client_order_id': 'OPEN_LONG_1736284261094'}
+2025-01-08 05:11:01,095 - CTAStrategy - INFO - [CTA] => Called open_long => client_id=OPEN_LONG_1736284261094
+2025-01-08 05:12:00,143 - CTAStrategy - INFO - execute => channel=[MD]PERP_BTC_USDT-processed-kline_1m, new kline => generating signals
+2025-01-08 05:13:00,246 - CTAStrategy - INFO - execute => channel=[MD]PERP_BTC_USDT-processed-kline_1m, new kline => generating signals
+2025-01-08 05:14:01,118 - CTAStrategy - INFO - execute => channel=[MD]PERP_BTC_USDT-processed-kline_1m, new kline => generating signals
+2025-01-08 05:15:01,012 - CTAStrategy - INFO - execute => channel=[MD]PERP_BTC_USDT-processed-kline_1m, new kline => generating signals
+2025-01-08 05:16:00,248 - CTAStrategy - INFO - execute => channel=[MD]PERP_BTC_USDT-processed-kline_1m, new kline => generating signals
+2025-01-08 05:17:00,269 - CTAStrategy - INFO - execute => channel=[MD]PERP_BTC_USDT-processed-kline_1m, new kline => generating signals
+2025-01-08 05:18:01,069 - CTAStrategy - INFO - execute => channel=[MD]PERP_BTC_USDT-processed-kline_1m, new kline => generating signals
+2025-01-08 05:19:00,252 - CTAStrategy - INFO - execute => channel=[MD]PERP_BTC_USDT-processed-kline_1m, new kline => generating signals
+2025-01-08 05:20:00,127 - CTAStrategy - INFO - execute => channel=[MD]PERP_BTC_USDT-processed-kline_1m, new kline => generating signals
+2025-01-08 05:21:00,275 - CTAStrategy - INFO - execute => channel=[MD]PERP_BTC_USDT-processed-kline_1m, new kline => generating signals
+2025-01-08 05:21:00,293 - CTAStrategy - INFO - [CTA] => old_pos=1 => direction up->down => FLIP to SHORT
+2025-01-08 05:21:00,295 - CTAStrategy - INFO - [CTA] => Publish single-side CLOSE LONG => {'timestamp': 1736284860294, 'action': 'CLOSE', 'side': 'SELL', 'order_type': 'MARKET', 'symbol': 'PERP_BTC_USDT', 'quantity': 0.001, 'reduce_only': True, 'client_order_id': 'CLOSE_LONG_1736284860294'}, reason=Flip from LONG to SHORT
+2025-01-08 05:21:00,300 - CTAStrategy - INFO - [CTA] => Called close_position => LONG, reason=Flip from LONG to SHORT, client_id=CLOSE_LONG_1736284860294
+2025-01-08 05:21:00,301 - CTAStrategy - INFO - [CTA] => Publish single-side OPEN SHORT => {'timestamp': 1736284860301, 'action': 'OPEN', 'side': 'SELL', 'order_type': 'MARKET', 'symbol': 'PERP_BTC_USDT', 'quantity': 0.001, 'client_order_id': 'OPEN_SHORT_1736284860301'}
+2025-01-08 05:21:00,303 - CTAStrategy - INFO - [CTA] => Called open_short => client_id=OPEN_SHORT_1736284860301
+2025-01-08 05:22:00,254 - CTAStrategy - INFO - execute => channel=[MD]PERP_BTC_USDT-processed-kline_1m, new kline => generating signals
+2025-01-08 05:23:01,073 - CTAStrategy - INFO - execute => channel=[MD]PERP_BTC_USDT-processed-kline_1m, new kline => generating signals
+2025-01-08 05:24:00,087 - CTAStrategy - INFO - Strategy stopped: CTAStrategy

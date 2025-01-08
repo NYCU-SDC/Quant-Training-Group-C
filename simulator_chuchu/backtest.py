@@ -23,6 +23,7 @@ class PerformanceAnalyzer:
         self.pnl_time_series = []
         self.latest_metrics = {}
         self.console = Console()
+        self.running = True
 
     def load_trade_data(self):
         try:
@@ -131,55 +132,179 @@ class PerformanceAnalyzer:
         return total_pnl
 
     def calculate_total_return(self, pnl):
-        total_holding_value = self.init_cash_holding
-        return pnl.iloc[-1] / total_holding_value if not pnl.empty else 0
+        """
+        total return
+        
+        parameters:
+        pnl: pandas.Series - pnl time series data(minute-interval)
+        
+        return:
+        float: total return
+        """
+        try:
+            if pnl.empty:
+                return 0.0
+                
+            total_value = pnl + self.init_cash_holding
+            total_return = (total_value.iloc[-1] / self.init_cash_holding) - 1
+            
+            if np.isinf(total_return) or np.isnan(total_return):
+                return 0.0
+                
+            return float(total_return)
+            
+        except Exception as e:
+            print(f"Calculation for total return error: {str(e)}")
+            return 0.0
 
-    def calculate_sharpe_ratio(self, pnl, risk_free_rate=0.02):
-        # Calculate returns based on the PnL series
-        total_value = pnl + self.init_cash_holding  
-        returns = total_value.pct_change().dropna()
+    def calculate_sharpe_ratio(self, pnl, risk_free_rate=0.02, trading_minutes_per_year=252*390):
+        """
+        sharpe ratio (annual)
         
-        # Calculate annualized return and volatility
-        annual_return = returns.mean() * (252 * (60 / self.pnl_interval) * 24)
-        annual_volatility = returns.std() * np.sqrt(252 * (60 / self.pnl_interval) * 24)
+        parameters:
+        pnl: pandas.Series - pnl time series data (minute-interval)
+        risk_free_rate: float - 年化無風險利率(預設0.02)
+        trading_minutes_per_year: int - 年交易分鐘數(預設252個交易日 * 390分鐘)
         
-        # Calculate Sharpe ratio
-        if annual_volatility > 0:
+        return::
+        float: annual sharpe ratio
+        """
+        try:
+            if pnl.empty or len(pnl) < 2:
+                return 0.0
+            
+            total_value = pnl + self.init_cash_holding
+             
+            returns = total_value.pct_change().dropna()
+            returns = returns[returns != np.inf]
+            returns = returns[returns != -np.inf]
+            
+            if len(returns) < 2:
+                return 0.0
+                
+            annualization_factor = trading_minutes_per_year / (self.pnl_interval)
+            annual_return = (1 + returns.mean()) ** annualization_factor - 1
+            annual_volatility = returns.std() * np.sqrt(annualization_factor)
+            
+            # 處理極小波動率的情況
+            if annual_volatility < 1e-10:  
+                return 0.0
+                
+            # 計算夏普比率
             sharpe_ratio = (annual_return - risk_free_rate) / annual_volatility
-        else:
-            sharpe_ratio = 0
+            sharpe_ratio = np.clip(sharpe_ratio, -100, 100)  # 限制極端值
+            
+            return float(sharpe_ratio)
+            
+        except Exception as e:
+            print(f"Calculation for sharpe ratio error: {str(e)}")
+            return 0.0
+       
+    def calculate_calmar_ratio(self, pnl, trading_minutes_per_year=252*390):
+        """
+        Calmar Ratio
         
-        return sharpe_ratio
+        parameters:
+        pnl: pandas.Series - pnl time series data (minute-interval)
+        trading_minutes_per_year: int - 年交易分鐘數(預設252個交易日 * 390分鐘)
+        
+        return:
+        float: Calmar Ratio
+        """
+        try:
+            if pnl.empty or len(pnl) < 2:
+                return 0.0
 
-    def calculate_calmar_ratio(self, pnl):
-        total_value = pnl + self.init_cash_holding 
-        returns = total_value.pct_change().dropna()
-        annual_return = returns.mean() * (252 * (60 / self.pnl_interval) * 24)
-        max_drawdown = self.calculate_drawdown(pnl)[0]
-        calmar_ratio = annual_return / abs(max_drawdown) if max_drawdown < 0 else 0
-        return calmar_ratio
-
+            total_value = pnl + self.init_cash_holding
+            
+            returns = total_value.pct_change().dropna()
+            returns = returns[returns != np.inf]
+            returns = returns[returns != -np.inf]
+            
+            if len(returns) < 2:
+                return 0.0
+                
+            annualization_factor = trading_minutes_per_year / self.pnl_interval
+            annual_return = (1 + returns.mean()) ** annualization_factor - 1
+            max_drawdown = self.calculate_drawdown(pnl)[0]
+            
+            if abs(max_drawdown) < 1e-10:  # 處理極小回撤情況
+                return 0.0
+                
+            # 計算 calmar ratio
+            calmar_ratio = annual_return / abs(max_drawdown)
+            calmar_ratio = np.clip(calmar_ratio, -100, 100) # 限制極端值
+            
+            return float(calmar_ratio)
+            
+        except Exception as e:
+            print(f"Calculation for calmar ratio error: {str(e)}")
+            return 0.0
+        
     def calculate_drawdown(self, pnl):
-        total_value = pnl + self.init_cash_holding  
-        cumulative_returns = total_value / total_value.iloc[0]  
-        peak = cumulative_returns.expanding(min_periods=1).max()  
-        drawdown = (cumulative_returns / peak) - 1  
-        max_drawdown = drawdown.min()  
+        """
+        max drawdown and max duration
+        
+        parameter:
+        pnl: pandas.Series - pnl time series data(minute-interval)
+        
+        return:
+        tuple: (max drawdown percevtage, max drawdown duration(minute))
+        """
+        try:
+            if pnl.empty:
+                return 0.0, 0.0
+                
+            total_value = pnl + self.init_cash_holding
+            values = total_value.values
+            initial_value = values[0]
+            
+            cumulative_returns = values / initial_value
+            peak = np.maximum.accumulate(cumulative_returns)
+            
+            # 計算回撤
+            drawdown = cumulative_returns / peak - 1
+            max_drawdown = np.min(drawdown)
+            
+            # 計算回撤期
+            drawdown_start = np.zeros_like(drawdown, dtype=bool)
+            drawdown_start[1:] = drawdown[1:] < drawdown[:-1]
+            drawdown_start[0] = drawdown[0] < 0
+            
+            drawdown_end = np.zeros_like(drawdown, dtype=bool)
+            drawdown_end[:-1] = drawdown[:-1] < drawdown[1:]
+            drawdown_end[-1] = drawdown[-1] < 0
 
-        recovery_points = drawdown[drawdown == 0].index.to_series().diff()  
-        max_duration_minutes = recovery_points.max().total_seconds() / 60 if not recovery_points.empty else 0
-
-        return max_drawdown, max_duration_minutes
-
+            if np.any(drawdown_start) and np.any(drawdown_end):
+                start_dates = pnl.index[drawdown_start]
+                end_dates = pnl.index[drawdown_end]
+                
+                durations = []
+                for start in start_dates:
+                    possible_ends = end_dates[end_dates > start]
+                    if len(possible_ends) > 0:
+                        duration = (possible_ends[0] - start).total_seconds() / 60
+                        durations.append(duration)
+                
+                max_duration_minutes = max(durations) if durations else 0
+            else:
+                max_duration_minutes = 0
+                
+            return max_drawdown, max_duration_minutes
+        
+        except Exception as e:
+            print(f"Calculation for max dradown and max drawdown duration error: {str(e)}")
+            return 0.0, 0.0
+        
     async def calculate_pnl_loop(self):
-        while True:
+        while self.running:
             current_pnl = self.calculate_pnl()  
             current_timestamp = datetime.fromtimestamp(time.time()).strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
             self.pnl_time_series.append((current_timestamp, current_pnl))
             await asyncio.sleep(self.pnl_interval * 60)
 
     async def calculate_metrics_loop(self):
-        while True:
+        while self.running:
             self.latest_metrics = self.calculate_metrics()  
             await asyncio.sleep(self.metrics_interval * 60)
 
@@ -246,31 +371,47 @@ class PerformanceAnalyzer:
             metrics_task = asyncio.create_task(self.calculate_metrics_loop())
 
             with Live(self.generate_display(), refresh_per_second=1) as live:
-                while True:
+                while self.running:
                     live.update(self.generate_display())
                     await asyncio.sleep(1)
-            
+        
         except asyncio.CancelledError:
             print("Monitor stopped.")
 
         finally:
-            pnl_task.cancel()
-            metrics_task.cancel()
-            await asyncio.gather(pnl_task, metrics_task, return_exceptions=True)
-            self.save_pnl_history()  # Save and plot before exit
+            await self.stop()
+
+    async def stop(self):
+        self.running = False
+        # Filter active, non-completed tasks
+        tasks = [t for t in asyncio.all_tasks() if not t.done() and t is not asyncio.current_task()]
+        for task in tasks:
+            task.cancel()
+            try:
+                await task  # Wait for task cancellation to complete
+            except asyncio.CancelledError:
+                pass
+        # Optionally save data or cleanup
+        self.save_pnl_history()
 
 async def main():
     analyzer = PerformanceAnalyzer(
         'trade_data',
         'position_data',
-        100000,
+        10000,
         pnl_interval_minutes=1,
         metrics_interval_minutes=1
     )
+
     try:
         await analyzer.run_monitor()
+
     except KeyboardInterrupt:
         print("Stopping monitor...")
+        await analyzer.stop()
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print("KeyboardInterrupt detected. Exiting gracefully...")
