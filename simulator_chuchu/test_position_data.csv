@@ -1,3 +1,3 @@
-symbol,holding,position_side,mark_price,timestamp
-PERP_BTC_USDT,0.1,LONG,50500,1.67253E+12
-PERP_ETH_USDT,1,SHORT,2995,1.67253E+12
+version https://git-lfs.github.com/spec/v1
+oid sha256:04c31b040dabb8eee6b62d4b7d1fda107676ecb9c4c601d68d1abaf67350efd7
+size 130
