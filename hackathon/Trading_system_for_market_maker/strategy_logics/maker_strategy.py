@@ -1,5 +1,6 @@
 import json
 import asyncio
+from asyncio import Lock
 import pandas as pd
 import numpy as np
 from collections import deque
@@ -43,9 +44,10 @@ class MakerStrategy(Strategy):
         self.spread_percentage = trading_params.get('spread_percentage', 0.1)
         self.capital = self.init_capital
         self.cash = 0
-        self.position_size = -0.4345
+        self.position_size = -1.0863
         self.net_position_value = 0.0
         self.position_ratio = 0.0
+        self.lock = Lock()
         print(f"position size: {self.single_position_size}")
 
         # 其他初始化
@@ -272,105 +274,159 @@ class MakerStrategy(Strategy):
         self.delist_self_orders('ask')
         self.delist_self_orders('bid')
     
-    def update_filled_order_report(self, client_order_id: int, execution_report: dict, partial: bool = False) -> None:
-        """
-        Updates the filled order report JSON file with position, net position, PnL, and NAV.
+    async def update_filled_order_report(self, client_order_id: int, execution_report: dict, partial: bool = False) -> None:
+        async with self.lock:
+            """
+            Updates the filled order report JSON file with position, net position, PnL, and NAV.
 
-        Args:
-            client_order_id: ID of the filled order.
-            execution_report: Execution report dictionary.
-            partial: Flag indicating if this is a partial fill (default is False).
-        """
-        timestamp = datetime.now().isoformat()
+            Args:
+                client_order_id: ID of the filled order.
+                execution_report: Execution report dictionary.
+                partial: Flag indicating if this is a partial fill (default is False).
+            """
+            timestamp=int(time.time() * 1000)
+            side = execution_report.get("side")
+            executed_price = float(execution_report.get("price", 0))
+            executed_quantity = float(execution_report.get("executedQuantity", 0))
+            fill_cost = executed_price * executed_quantity
+
+            # Update position and cash
+            if side == "BUY":
+                if executed_quantity > 0.01:
+                    price = round(executed_price + self.tick_size, 1)
+                    quantity = round((self.single_position_size / price), self.limit_quantity_demical)
+                    open_short_signal = SignalData(
+                        timestamp=int(time.time() * 1000),
+                        target='send_order',
+                        action=OrderAction.OPEN,
+                        position_side=PositionSide.SHORT,
+                        order_type=OrderType.POST_ONLY,
+                        symbol=self.trading_symbol,
+                        price=price,
+                        quantity=quantity,
+                        order_number=self.order_number,
+                        reduce_only=False,
+                    )
+                    self.order_number += 1
+                    await self.publish_signal(open_short_signal)
+                self.position_size += executed_quantity
+            elif side == "SELL":
+                if executed_quantity > 0.01:
+                    price = round(executed_price - self.tick_size, 1)
+                    quantity = round((self.single_position_size / price), self.limit_quantity_demical)
+                    open_long_signal = SignalData(
+                        timestamp=int(time.time() * 1000),
+                        target="send_order",
+                        action=OrderAction.OPEN,
+                        position_side=PositionSide.LONG,
+                        order_type=OrderType.POST_ONLY,
+                        symbol=self.trading_symbol,
+                        price=price,
+                        quantity=quantity,
+                        order_number=self.order_number,
+                        reduce_only=False,
+                    )
+                    self.order_number += 1
+                    await self.publish_signal(open_long_signal)
+                self.position_size -= executed_quantity
+
+            # Calculate net position value and NAV
+            self.net_position_value = abs(self.position_size) * executed_price
+
+            # Calculate realized PnL for this fill
+            realized_pnl = 0
+            if side == "SELL":
+                realized_pnl = executed_quantity * (executed_price - (self.entry_price or executed_price))
+            elif side == "BUY":
+                self.entry_price = (
+                    (self.entry_price * (self.position_size - executed_quantity) + fill_cost) / self.position_size
+                    if self.position_size > 0
+                    else executed_price
+                )
+
+            pnl = self.capital - self.init_capital  # Total PnL is NAV - initial capital
+
+            # Prepare data to save
+            report_data = {
+                "timestamp": timestamp,
+                "position_size": self.position_size,
+                "net_position_value": self.net_position_value,
+                "realized_pnl": realized_pnl,
+                "total_pnl": pnl,
+                "strategy_nav": self.capital,
+                "partial_fill": partial
+            }
+
+            # Ensure the 'configs/' directory exists
+            config_dir = "configs"
+            if not os.path.exists(config_dir):
+                os.makedirs(config_dir)
+
+            # Write to the JSON file in the 'configs/' folder
+            json_file = os.path.join(config_dir, "filled_order_report.json")
+            try:
+                if os.path.exists(json_file):
+                    with open(json_file, "r") as f:
+                        existing_data = json.load(f)
+                else:
+                    existing_data = []
+
+                existing_data.append(report_data)
+
+                with open(json_file, "w") as f:
+                    json.dump(existing_data, f, indent=4)
+                self.logger.info(f"[{self.strategy_name}] Updated filled order report in configs: {report_data}")
+            except Exception as e:
+                self.logger.exception(f"[{self.strategy_name}] Error writing filled order report in configs: {e}")
+
+    async def handle_order_status_update(self, client_order_id: int, execution_report: dict) -> None:
+        """Update order status based on execution report."""
+        status = execution_report.get("status")
         side = execution_report.get("side")
-        executed_price = float(execution_report.get("price", 0))
-        executed_quantity = float(execution_report.get("executedQuantity", 0))
-        fill_cost = executed_price * executed_quantity
-
-        # Update position and cash
-        if side == "BUY":
-            if executed_quantity > 0.01:
-                open_short_signal = SignalData(
-                    timestamp=int(time.time() * 1000),
-                    target='send_order',
-                    action=OrderAction.OPEN,
-                    position_side=PositionSide.SHORT,
-                    order_type=OrderType.POST_ONLY,
-                    symbol=self.trading_symbol,
-                    price=round(executed_price + self.tick_size, 1),
-                    quantity=0.01,
-                    order_number=self.order_number,
-                    reduce_only=False,
-                )
-                self.order_number += 1
-                self.publish_signal(open_short_signal)
-            self.position_size += executed_quantity
-        elif side == "SELL":
-            if executed_quantity > 0.01:
-                open_long_signal = SignalData(
-                    timestamp=int(time.time() * 1000),
-                    target="send_order",
-                    action=OrderAction.OPEN,
-                    position_side=PositionSide.LONG,
-                    order_type=OrderType.POST_ONLY,
-                    symbol=self.trading_symbol,
-                    price=round(executed_price - self.tick_size, 1),
-                    quantity=0.01,
-                    order_number=self.order_number,
-                    reduce_only=False,
-                )
-                self.order_number += 1
-                self.publish_signal(open_long_signal)
-            self.position_size -= executed_quantity
-
-        # Calculate net position value and NAV
-        self.net_position_value = abs(self.position_size) * executed_price
-
-        # Calculate realized PnL for this fill
-        realized_pnl = 0
-        if side == "SELL":
-            realized_pnl = executed_quantity * (executed_price - (self.entry_price or executed_price))
-        elif side == "BUY":
-            self.entry_price = (
-                (self.entry_price * (self.position_size - executed_quantity) + fill_cost) / self.position_size
-                if self.position_size > 0
-                else executed_price
-            )
-
-        pnl = self.capital - self.init_capital  # Total PnL is NAV - initial capital
-
-        # Prepare data to save
-        report_data = {
-            "timestamp": timestamp,
-            "position_size": self.position_size,
-            "net_position_value": self.net_position_value,
-            "realized_pnl": realized_pnl,
-            "total_pnl": pnl,
-            "strategy_nav": self.capital,
-            "partial_fill": partial
-        }
-
-        # Ensure the 'configs/' directory exists
-        config_dir = "configs"
-        if not os.path.exists(config_dir):
-            os.makedirs(config_dir)
-
-        # Write to the JSON file in the 'configs/' folder
-        json_file = os.path.join(config_dir, "filled_order_report.json")
-        try:
-            if os.path.exists(json_file):
-                with open(json_file, "r") as f:
-                    existing_data = json.load(f)
-            else:
-                existing_data = []
-
-            existing_data.append(report_data)
-
-            with open(json_file, "w") as f:
-                json.dump(existing_data, f, indent=4)
-            self.logger.info(f"[{self.strategy_name}] Updated filled order report in configs: {report_data}")
-        except Exception as e:
-            self.logger.exception(f"[{self.strategy_name}] Error writing filled order report in configs: {e}")
+        quantity = execution_report.get("executedQuantity", 0)
+        price = execution_report.get("price", 0)
+        print(f"hadle_order_status_update: {execution_report}")
+        if status == "FILLED":
+            order_book = self.ask_limit_order if side == "SELL" else self.bid_limit_order
+            if client_order_id in order_book:
+                # self.logger.info(f"[{self.strategy_name}] Filled order: {execution_report}")
+                # Update the order book
+                order_book[client_order_id]["quantity"] -= quantity
+                if order_book[client_order_id]["quantity"] <= 0:
+                    del order_book[client_order_id]
+                    self.order_id.remove(client_order_id)
+                    self.logger.info(f"[{self.strategy_name}] Order {client_order_id} fully filled and removed.")
+                # Update position and PnL
+                await self.update_filled_order_report(client_order_id, execution_report)
+        elif status == "NEW":
+            new_order = {"price": price, "quantity": execution_report["quantity"], "status": "PENDING"}
+            if side == "BUY":
+                self.bid_limit_order[client_order_id] = new_order
+            elif side == "SELL":
+                self.ask_limit_order[client_order_id] = new_order
+            self.logger.info(f"[{self.strategy_name}] Added new order: {new_order}")
+        elif status == "PARTIAL_FILLED":
+            order_book = self.ask_limit_order if side == "SELL" else self.bid_limit_order
+            if client_order_id in order_book:
+                # self.logger.info(f"[{self.strategy_name}] Partially filled order: {execution_report}")
+                # Update the order book
+                order_book[client_order_id]["quantity"] -= quantity
+                if order_book[client_order_id]["quantity"] <= 0:
+                    del order_book[client_order_id]
+                    self.logger.info(f"[{self.strategy_name}] Order {client_order_id} partially filled {quantity} remain {order_book[client_order_id][quantity]}.")
+                # Update position, PnL, and NAV
+                await self.update_filled_order_report(client_order_id, execution_report, partial=True)
+        elif status == "CANCELLED":
+            order_book = self.ask_limit_order if side == "SELL" else self.bid_limit_order
+            if client_order_id in order_book:
+                del order_book[client_order_id]
+                self.logger.info(f"[{self.strategy_name}] Order {client_order_id} cancelled and removed.")
+        print(f"ask_limit_order: {self.ask_limit_order}")
+        print(f"bid_limit_order: {self.bid_limit_order}")
+        print(f"position_size: {self.position_size}")
+        print(f"position_value: {self.net_position_value}")
+        print(f"cash: {self.cash}")
+        print(f"capital: {self.capital}")
 
     async def execute(self, channel: str, data: dict, redis_client: aioredis.Redis) -> None:
         self.redis_client = redis_client
@@ -381,4 +437,6 @@ class MakerStrategy(Strategy):
             await self.process_private_data(channel, data, redis_client)
         else:
             self.logger.warning(f"[{self.strategy_name}] Unknown channel: {channel}")
+            
+
             
